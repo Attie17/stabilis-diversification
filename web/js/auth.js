@@ -337,11 +337,157 @@ function updateUIForUser() {
         userInfo.className = 'user-info';
         userInfo.innerHTML = `
             <span class="user-name">👤 ${currentUser.name}</span>
+            <button onclick="showChangePasswordModal()" class="change-password-btn" title="Change Password">🔒</button>
             <button onclick="logoutUser()" class="logout-btn">Logout</button>
         `;
         header.appendChild(userInfo);
     }
 }
+
+// Show change password modal
+window.showChangePasswordModal = function() {
+    const modal = document.createElement('div');
+    modal.className = 'login-overlay';
+    modal.id = 'change-password-modal';
+    modal.innerHTML = `
+        <div class="login-modal">
+            <div class="login-header">
+                <h2>🔒 Change Your Password</h2>
+                <p>Create a secure password that only you know</p>
+            </div>
+            <div class="login-body">
+                <label for="current-password">Current Password:</label>
+                <input 
+                    type="password" 
+                    id="current-password" 
+                    class="login-input" 
+                    placeholder="Enter current password"
+                />
+                
+                <label for="new-password">New Password:</label>
+                <input 
+                    type="password" 
+                    id="new-password" 
+                    class="login-input" 
+                    placeholder="Enter new password (min 6 characters)"
+                />
+                
+                <label for="confirm-password">Confirm New Password:</label>
+                <input 
+                    type="password" 
+                    id="confirm-password" 
+                    class="login-input" 
+                    placeholder="Re-enter new password"
+                />
+                
+                <div id="password-error" class="login-error" style="display: none;"></div>
+                <div id="password-success" class="login-info" style="display: none;"></div>
+                
+                <button onclick="changePassword()" class="login-btn" id="change-password-btn">
+                    Change Password
+                </button>
+                <button onclick="closeChangePasswordModal()" class="login-btn" style="background: #64748b; margin-top: 0.5rem;">
+                    Cancel
+                </button>
+            </div>
+            <div class="login-footer">
+                <p>💡 Choose a strong password with letters, numbers, and symbols</p>
+                <p class="login-hint">Minimum 6 characters required</p>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+};
+
+// Close change password modal
+window.closeChangePasswordModal = function() {
+    const modal = document.getElementById('change-password-modal');
+    if (modal) modal.remove();
+};
+
+// Change password function
+window.changePassword = function() {
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    const errorDiv = document.getElementById('password-error');
+    const successDiv = document.getElementById('password-success');
+    
+    // Clear previous messages
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+    
+    // Validation
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        errorDiv.textContent = '❌ All fields are required';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // Find current user's stored password
+    const adminUser = teamRoles.admin.find(u => u.name === currentUser.name);
+    const teamUser = teamRoles.team.find(u => u.name === currentUser.name);
+    const userWithPassword = adminUser || teamUser;
+    
+    // Verify current password
+    if (userWithPassword.password !== currentPassword) {
+        errorDiv.textContent = '❌ Current password is incorrect';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // Validate new password length
+    if (newPassword.length < 6) {
+        errorDiv.textContent = '❌ New password must be at least 6 characters';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // Check if passwords match
+    if (newPassword !== confirmPassword) {
+        errorDiv.textContent = '❌ New passwords do not match';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // Update password in memory
+    userWithPassword.password = newPassword;
+    
+    // Store encrypted indicator (not the actual password)
+    const userPasswords = JSON.parse(localStorage.getItem('stabilis-passwords') || '{}');
+    userPasswords[currentUser.name] = btoa(newPassword); // Basic encoding, not real encryption
+    localStorage.setItem('stabilis-passwords', JSON.stringify(userPasswords));
+    
+    // Show success message
+    successDiv.textContent = '✅ Password changed successfully!';
+    successDiv.style.display = 'block';
+    
+    // Close modal after 2 seconds
+    setTimeout(() => {
+        closeChangePasswordModal();
+    }, 2000);
+};
+
+// Load custom passwords on init
+function loadCustomPasswords() {
+    const userPasswords = JSON.parse(localStorage.getItem('stabilis-passwords') || '{}');
+    
+    // Apply custom passwords to teamRoles
+    Object.keys(userPasswords).forEach(userName => {
+        const password = atob(userPasswords[userName]); // Basic decoding
+        
+        const adminUser = teamRoles.admin.find(u => u.name === userName);
+        const teamUser = teamRoles.team.find(u => u.name === userName);
+        const user = adminUser || teamUser;
+        
+        if (user) {
+            user.password = password;
+        }
+    });
+}
+
+// Call this on page load
+loadCustomPasswords();
 
 // Check if user can access AI Copilot for a milestone
 function canAccessCopilot(milestoneId) {

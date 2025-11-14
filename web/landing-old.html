@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Stabilis - Project Hub</title>
+    <link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+    <div class="landing-container">
+        <!-- Hero Section -->
+        <header class="hero">
+            <div class="hero-content">
+                <div class="logo">STABILIS</div>
+                <h1 class="hero-title">What We Build,<br>We Build Together</h1>
+                <p class="hero-subtitle">Making Change Happen — One Milestone at a Time</p>
+                <div class="user-info" id="user-info" style="display: none; margin-top: 1rem;">
+                    <span id="username-display" style="color: white; font-weight: 600;"></span>
+                    <button onclick="logoutUser()" class="logout-btn" style="margin-left: 1rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); color: white; border: 1px solid white; border-radius: 0.5rem; cursor: pointer;">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Project Cards -->
+        <main class="projects-section">
+            <div class="project-cards">
+                <!-- Turnaround Project (Priority 1) -->
+                <div class="project-card priority-high">
+                    <div class="card-header">
+                        <div class="priority-badge critical">PRIORITY 1</div>
+                        <div class="status-indicator urgent">⚠️</div>
+                    </div>
+                    <h2 class="card-title">Financial Health<br>& Turnaround</h2>
+                    <p class="card-description">
+                        Crisis response and operational stabilization. Stop cash bleed, fix compliance, protect reserves.
+                    </p>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <span class="stat-label">Duration</span>
+                            <span class="stat-value">180 Days</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Start Date</span>
+                            <span class="stat-value">Immediate</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Phases</span>
+                            <span class="stat-value">3 Critical</span>
+                        </div>
+                    </div>
+                    <div class="card-highlights">
+                        <div class="highlight urgent">
+                            <span class="highlight-icon">🚨</span>
+                            <span>VAT compliance overdue</span>
+                        </div>
+                        <div class="highlight urgent">
+                            <span class="highlight-icon">💰</span>
+                            <span>R1.9m operating deficit</span>
+                        </div>
+                        <div class="highlight warning">
+                            <span class="highlight-icon">📉</span>
+                            <span>Reserve draw-down active</span>
+                        </div>
+                    </div>
+                    <a href="turnaround.html" class="card-button primary">
+                        <span>Start Turnaround</span>
+                        <span class="arrow">→</span>
+                    </a>
+                </div>
+
+                <!-- Diversification Project (Priority 2) -->
+                <div class="project-card priority-medium">
+                    <div class="card-header">
+                        <div class="priority-badge growth">PRIORITY 2</div>
+                        <div class="status-indicator planned">📅</div>
+                    </div>
+                    <h2 class="card-title">Service<br>Diversification</h2>
+                    <p class="card-description">
+                        Strategic growth initiative. New service lines: adolescent care, group therapy, psychiatric services.
+                    </p>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <span class="stat-label">Duration</span>
+                            <span class="stat-value">16.5 Months</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Start Date</span>
+                            <span class="stat-value">17 Nov 2025</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Phases</span>
+                            <span class="stat-value">5 Sequential</span>
+                        </div>
+                    </div>
+                    <div class="card-highlights">
+                        <div class="highlight success">
+                            <span class="highlight-icon">💰</span>
+                            <span>R6.2m revenue target</span>
+                        </div>
+                        <div class="highlight info">
+                            <span class="highlight-icon">🎯</span>
+                            <span>29 milestones planned</span>
+                        </div>
+                        <div class="highlight info">
+                            <span class="highlight-icon">👥</span>
+                            <span>8 team roles engaged</span>
+                        </div>
+                    </div>
+                    <a href="index.html" class="card-button secondary">
+                        <span>View Diversification</span>
+                        <span class="arrow">→</span>
+                    </a>
+                </div>
+
+                <!-- Wellness Centre Project (Priority 3) -->
+                <div class="project-card priority-low">
+                    <div class="card-header">
+                        <div class="priority-badge wellness">PRIORITY 3</div>
+                        <div class="status-indicator launch">🚀</div>
+                    </div>
+                    <h2 class="card-title">Stabilis<br>Wellness Centre</h2>
+                    <p class="card-description">
+                        Multi-phase launch: adult/youth OP, behavioural addiction tracks, therapy, corporate packages, digital products, regional partnerships.
+                    </p>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <span class="stat-label">Duration</span>
+                            <span class="stat-value">19 Months</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Start Date</span>
+                            <span class="stat-value">Nov 2025</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Phases</span>
+                            <span class="stat-value">4 Sequential</span>
+                        </div>
+                    </div>
+                    <div class="card-highlights">
+                        <div class="highlight success">
+                            <span class="highlight-icon">💰</span>
+                            <span>R250k/month revenue target</span>
+                        </div>
+                        <div class="highlight info">
+                            <span class="highlight-icon">🎯</span>
+                            <span>29 milestones across 4 phases</span>
+                        </div>
+                        <div class="highlight info">
+                            <span class="highlight-icon">🧠</span>
+                            <span>5 behavioural addiction tracks</span>
+                        </div>
+                    </div>
+                    <a href="wellness.html" class="card-button wellness">
+                        <span>View Wellness Centre</span>
+                        <span class="arrow">→</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Dependency Notice -->
+            <div class="dependency-notice">
+                <div class="notice-icon">💡</div>
+                <div class="notice-content">
+                    <h3>Strategic Triangle</h3>
+                    <p>
+                        <strong>Turnaround</strong> fixes the holes → <strong>Diversification</strong> upgrades the engine → <strong>Wellness Centre</strong> builds the highway for long-term growth.<br><br>
+                        The Turnaround Project must stabilize operations before Diversification and Wellness can scale safely. This creates the foundation for sustainable expansion across all three initiatives.
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Quick Stats Overview -->
+        <section class="overview-section">
+            <h2 class="section-title">Combined Initiative Overview</h2>
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <div class="overview-icon">⏱️</div>
+                    <div class="overview-label">Total Timeline</div>
+                    <div class="overview-value">25+ Months</div>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-icon">🎯</div>
+                    <div class="overview-label">Total Milestones</div>
+                    <div class="overview-value">76</div>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-icon">💰</div>
+                    <div class="overview-label">Revenue Impact</div>
+                    <div class="overview-value">R10m+</div>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-icon">👥</div>
+                    <div class="overview-label">Active Projects</div>
+                    <div class="overview-value">3 Strategic</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <p>&copy; 2025 Stabilis Treatment Centre. All rights reserved.</p>
+            <p class="footer-tagline">Excellence in Care. Excellence in Operations.</p>
+        </footer>
+    </div>
+    
+    <script src="js/auth.js"></script>
+    <script>
+        // Initialize auth on landing page
+        document.addEventListener('DOMContentLoaded', () => {
+            initAuth();
+        });
+    </script>
+</body>
+</html>
