@@ -121,6 +121,7 @@ function initAuth() {
     if (savedUser) {
         currentUser = JSON.parse(savedUser);
         updateUIForUser();
+        initInactivityTracking(); // Start tracking inactivity
     } else {
         showLoginScreen();
     }
@@ -223,6 +224,9 @@ window.loginUser = function() {
             // Remove login screen
             document.querySelector('.login-overlay').remove();
             
+            // Start inactivity tracking
+            initInactivityTracking();
+            
             // Redirect to landing page
             if (!window.location.pathname.includes('landing.html') && window.location.pathname !== '/') {
                 window.location.href = '/';
@@ -245,14 +249,60 @@ window.loginUser = function() {
     }
 };
 
+// Inactivity timeout configuration
+let inactivityTimer = null;
+const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
+
 // Logout user
-window.logoutUser = function() {
-    if (confirm('Are you sure you want to log out?')) {
+window.logoutUser = function(autoLogout = false) {
+    const message = autoLogout 
+        ? 'Your session has expired due to inactivity. Please sign in again.'
+        : 'Are you sure you want to log out?';
+    
+    if (autoLogout || confirm(message)) {
         currentUser = null;
         localStorage.removeItem('stabilis-user');
-        location.reload();
+        
+        // Clear inactivity timer
+        if (inactivityTimer) {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = null;
+        }
+        
+        // Always redirect to landing page (root)
+        if (autoLogout) {
+            alert(message);
+        }
+        window.location.href = '/';
     }
 };
+
+// Reset inactivity timer
+function resetInactivityTimer() {
+    // Clear existing timer
+    if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+    }
+    
+    // Set new timer for 15 minutes
+    inactivityTimer = setTimeout(() => {
+        logoutUser(true); // Auto-logout
+    }, INACTIVITY_TIMEOUT);
+}
+
+// Track user activity
+function initInactivityTracking() {
+    // Events that indicate user activity
+    const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    // Reset timer on any activity
+    activityEvents.forEach(event => {
+        document.addEventListener(event, resetInactivityTimer, true);
+    });
+    
+    // Start initial timer
+    resetInactivityTimer();
+}
 
 // Update UI based on logged-in user
 function updateUIForUser() {
