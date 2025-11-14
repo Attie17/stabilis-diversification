@@ -1676,16 +1676,17 @@ body {
 
 .login-body label {
     display: block;
-    color: var(--text-primary);
+    color: #ffffff;
     font-weight: 500;
     margin-bottom: 0.75rem;
+    font-size: 0.95rem;
 }
 
 .login-select {
     width: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
     padding: 0.875rem;
     border-radius: 8px;
     font-size: 1rem;
@@ -1701,9 +1702,48 @@ body {
 }
 
 .login-select option {
-    background: #1e293b;
-    color: var(--text-primary);
+    background: #0f172a;
+    color: #ffffff;
     padding: 0.5rem;
+}
+
+.login-select optgroup {
+    background: #1e293b;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.login-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    padding: 0.875rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+}
+
+.login-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.login-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(103, 58, 183, 0.2);
+}
+
+.login-error {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid #ef4444;
+    color: #fca5a5;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
 }
 
 .login-btn {
@@ -1738,6 +1778,13 @@ body {
 .login-footer p {
     color: var(--text-secondary);
     font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.login-hint {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    font-style: italic;
 }
 
 /* User Info Display */

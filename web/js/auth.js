@@ -4,18 +4,18 @@
 const teamRoles = {
     // Leadership with full access
     admin: [
-        { name: "Attie Nel", role: "CEO & Project Manager", access: "all" },
-        { name: "Natasha Jacobs", role: "Finance Manager", access: "all" },
-        { name: "Berno Paul", role: "Clinical Lead", access: "all" }
+        { name: "Attie Nel", role: "CEO & Project Manager", access: "all", password: "attie2025" },
+        { name: "Natasha Jacobs", role: "Finance Manager", access: "all", password: "natasha2025" },
+        { name: "Berno Paul", role: "Clinical Lead", access: "all", password: "berno2025" }
     ],
     
     // Team members with specific milestone access
     team: [
-        { name: "Lizette Botha", role: "Case Manager", milestones: [] },
-        { name: "Bertha Vorster", role: "Admin & Admissions Officer", milestones: [] },
-        { name: "Sne Khonyane", role: "Youth Clinical Lead & Wellness Coordinator", milestones: [] },
-        { name: "Ilse Booysen", role: "After Care Coordinator", milestones: [] },
-        { name: "Suzanne Gelderblom", role: "Senior Therapist & Wellness Champion", milestones: [] }
+        { name: "Lizette Botha", role: "Case Manager", milestones: [], password: "lizette2025" },
+        { name: "Bertha Vorster", role: "Admin & Admissions Officer", milestones: [], password: "bertha2025" },
+        { name: "Sne Khonyane", role: "Youth Clinical Lead & Wellness Coordinator", milestones: [], password: "sne2025" },
+        { name: "Ilse Booysen", role: "After Care Coordinator", milestones: [], password: "ilse2025" },
+        { name: "Suzanne Gelderblom", role: "Senior Therapist & Wellness Champion", milestones: [], password: "suzanne2025" }
     ]
 };
 
@@ -133,7 +133,7 @@ function showLoginScreen() {
             <div class="login-modal">
                 <div class="login-header">
                     <h2>🔐 Stabilis Project Access</h2>
-                    <p>Please identify yourself to continue</p>
+                    <p>Please sign in to continue</p>
                 </div>
                 <div class="login-body">
                     <label for="user-select">Select Your Name:</label>
@@ -150,12 +150,24 @@ function showLoginScreen() {
                             ).join('')}
                         </optgroup>
                     </select>
+                    
+                    <label for="user-password">Password:</label>
+                    <input 
+                        type="password" 
+                        id="user-password" 
+                        class="login-input" 
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                    />
+                    <div id="login-error" class="login-error" style="display: none;"></div>
+                    
                     <button onclick="loginUser()" class="login-btn" id="login-btn" disabled>
-                        Continue
+                        Sign In
                     </button>
                 </div>
                 <div class="login-footer">
-                    <p>⚠️ Select your name to access milestone information and AI Copilot features</p>
+                    <p>🔒 Secure access - Each user has a unique password</p>
+                    <p class="login-hint">Contact admin if you forgot your password</p>
                 </div>
             </div>
         </div>
@@ -163,35 +175,72 @@ function showLoginScreen() {
     
     document.body.insertAdjacentHTML('beforeend', loginHTML);
     
-    // Enable login button when selection is made
-    document.getElementById('user-select').addEventListener('change', (e) => {
-        document.getElementById('login-btn').disabled = !e.target.value;
+    const userSelect = document.getElementById('user-select');
+    const passwordInput = document.getElementById('user-password');
+    const loginBtn = document.getElementById('login-btn');
+    
+    // Enable login button when both fields are filled
+    function checkFormValidity() {
+        loginBtn.disabled = !userSelect.value || !passwordInput.value;
+    }
+    
+    userSelect.addEventListener('change', checkFormValidity);
+    passwordInput.addEventListener('input', checkFormValidity);
+    
+    // Allow Enter key to submit
+    passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !loginBtn.disabled) {
+            loginUser();
+        }
     });
 }
 
 // Login user
 window.loginUser = function() {
     const selectedName = document.getElementById('user-select').value;
-    if (!selectedName) return;
+    const enteredPassword = document.getElementById('user-password').value;
+    const errorDiv = document.getElementById('login-error');
+    
+    if (!selectedName || !enteredPassword) return;
     
     // Find user in team data
     const adminUser = teamRoles.admin.find(u => u.name === selectedName);
     const teamUser = teamRoles.team.find(u => u.name === selectedName);
     
-    currentUser = adminUser || teamUser;
-    if (currentUser) {
-        currentUser.name = selectedName;
-        localStorage.setItem('stabilis-user', JSON.stringify(currentUser));
-        
-        // Remove login screen
-        document.querySelector('.login-overlay').remove();
-        
-        // Redirect to landing page
-        if (!window.location.pathname.includes('landing.html') && window.location.pathname !== '/') {
-            window.location.href = '/';
+    const foundUser = adminUser || teamUser;
+    
+    if (foundUser) {
+        // Verify password
+        if (foundUser.password === enteredPassword) {
+            // Password correct
+            currentUser = { ...foundUser };
+            currentUser.name = selectedName;
+            // Don't store password in localStorage for security
+            const userToStore = { ...currentUser };
+            delete userToStore.password;
+            localStorage.setItem('stabilis-user', JSON.stringify(userToStore));
+            
+            // Remove login screen
+            document.querySelector('.login-overlay').remove();
+            
+            // Redirect to landing page
+            if (!window.location.pathname.includes('landing.html') && window.location.pathname !== '/') {
+                window.location.href = '/';
+            } else {
+                // Update UI if already on landing
+                updateUIForUser();
+            }
         } else {
-            // Update UI if already on landing
-            updateUIForUser();
+            // Password incorrect
+            errorDiv.textContent = '❌ Incorrect password. Please try again.';
+            errorDiv.style.display = 'block';
+            document.getElementById('user-password').value = '';
+            document.getElementById('user-password').focus();
+            
+            // Hide error after 3 seconds
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
         }
     }
 };
