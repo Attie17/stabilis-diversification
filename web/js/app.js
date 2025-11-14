@@ -925,6 +925,35 @@ function handleSidebarAction(action) {
                 <p><em>See Team tab for full contact directory</em></p>
             `);
             break;
+        
+        // Report navigation
+        case 'revenue-projection':
+            window.location.href = '/reports/revenue-projection.html';
+            break;
+        case 'cost-analysis':
+            window.location.href = '/reports/cost-analysis.html';
+            break;
+        case 'phase-progress':
+            window.location.href = '/reports/phase-progress.html';
+            break;
+        case 'risk-assessment':
+            window.location.href = '/reports/risk-assessment.html';
+            break;
+        case 'resource-utilization':
+            window.location.href = '/reports/resource-utilization.html';
+            break;
+        case 'kpi-dashboard-report':
+            window.location.href = '/reports/kpi-dashboard.html';
+            break;
+        case 'timeline-analysis':
+            window.location.href = '/reports/timeline-analysis.html';
+            break;
+        case 'budget-actual':
+            window.location.href = '/reports/budget-actual.html';
+            break;
+        case 'cashflow-projection':
+            window.location.href = '/reports/cashflow-projection.html';
+            break;
             
         default:
             showModal('Feature Coming Soon', `

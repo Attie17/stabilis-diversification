@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Cashflow Projection - Stabilis</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .report-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .report-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+        .report-header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+        .report-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .report-controls select {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 0.5rem;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 0.875rem;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: white;
+            color: #10b981;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            background: #f0fdf4;
+            transform: translateY(-1px);
+        }
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-card.positive {
+            border-left: 4px solid #10b981;
+        }
+        .stat-card.negative {
+            border-left: 4px solid #ef4444;
+        }
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .stat-value.positive {
+            color: #10b981;
+        }
+        .stat-value.negative {
+            color: #ef4444;
+        }
+        .stat-note {
+            color: #9ca3af;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        .report-section {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .report-section h2 {
+            margin: 0 0 1.5rem 0;
+            color: #1f2937;
+        }
+        .cashflow-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        .cashflow-table th,
+        .cashflow-table td {
+            padding: 0.75rem;
+            text-align: right;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .cashflow-table th:first-child,
+        .cashflow-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
+        .cashflow-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #1f2937;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .cashflow-table tr.section-header {
+            background: #f3f4f6;
+            font-weight: 700;
+        }
+        .cashflow-table tr.section-header td {
+            border-top: 2px solid #d1d5db;
+        }
+        .cashflow-table tr.total-row {
+            background: #eff6ff;
+            font-weight: 700;
+        }
+        .cashflow-table tr.total-row td {
+            border-top: 2px solid #2563eb;
+            color: #2563eb;
+        }
+        .cashflow-table tr.net-cashflow {
+            background: #ecfdf5;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .cashflow-table tr.net-cashflow td {
+            border-top: 3px solid #10b981;
+            padding: 1rem 0.75rem;
+        }
+        .positive-cash {
+            color: #10b981 !important;
+        }
+        .negative-cash {
+            color: #ef4444 !important;
+        }
+        .notes-section {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        .notes-section h3 {
+            color: #92400e;
+            margin: 0 0 1rem 0;
+        }
+        .notes-section ul {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: #78350f;
+        }
+        .notes-section li {
+            margin-bottom: 0.5rem;
+        }
+        .assumptions {
+            background: #eff6ff;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .assumptions h3 {
+            color: #1e40af;
+            margin: 0 0 1rem 0;
+        }
+        .assumptions ul {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: #1e3a8a;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <h1>💰 Monthly Cashflow Projection</h1>
+            <p>Income vs Expenses • 18-Month Operating Cashflow</p>
+            <div class="report-controls">
+                <select id="scenario-filter">
+                    <option value="60">60% Success Scenario (Conservative)</option>
+                    <option value="80">80% Success Scenario (Realistic)</option>
+                    <option value="100">100% Success Scenario (Optimistic)</option>
+                </select>
+                <button class="back-btn" style="margin-left: auto;" onclick="window.history.back()">← Back to Project</button>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="stat-cards">
+            <div class="stat-card positive">
+                <div class="stat-label">Total Revenue (18mo)</div>
+                <div class="stat-value positive">R10.97M</div>
+                <div class="stat-note">New revenue streams</div>
+            </div>
+            <div class="stat-card negative">
+                <div class="stat-label">Total Operating Expenses</div>
+                <div class="stat-value">R7.85M</div>
+                <div class="stat-note">Including existing operations</div>
+            </div>
+            <div class="stat-card positive">
+                <div class="stat-label">Net Cashflow (18mo)</div>
+                <div class="stat-value positive">+R3.12M</div>
+                <div class="stat-note">After all expenses</div>
+            </div>
+            <div class="stat-card positive">
+                <div class="stat-label">Breakeven Month</div>
+                <div class="stat-value">Month 5</div>
+                <div class="stat-note">May 2026 (Positive cashflow)</div>
+            </div>
+        </div>
+
+        <!-- Monthly Cashflow Table -->
+        <div class="report-section">
+            <h2>📊 Detailed Monthly Cashflow (Jan 2026 - Jun 2027)</h2>
+            <div style="overflow-x: auto;">
+                <table class="cashflow-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Jan 26</th>
+                            <th>Feb 26</th>
+                            <th>Mar 26</th>
+                            <th>Apr 26</th>
+                            <th>May 26</th>
+                            <th>Jun 26</th>
+                            <th>Jul 26</th>
+                            <th>Aug 26</th>
+                            <th>Sep 26</th>
+                            <th>Oct 26</th>
+                            <th>Nov 26</th>
+                            <th>Dec 26</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- REVENUE SECTION -->
+                        <tr class="section-header">
+                            <td colspan="13">💵 REVENUE (NEW PROJECTS ONLY)</td>
+                        </tr>
+                        <tr>
+                            <td>Diversification</td>
+                            <td>61,200</td>
+                            <td>61,200</td>
+                            <td>61,200</td>
+                            <td>61,200</td>
+                            <td>140,775</td>
+                            <td>140,775</td>
+                            <td>140,775</td>
+                            <td>140,775</td>
+                            <td>140,775</td>
+                            <td>140,775</td>
+                            <td>140,775</td>
+                            <td>500,200</td>
+                        </tr>
+                        <tr>
+                            <td>Wellness Centre</td>
+                            <td>35,200</td>
+                            <td>86,000</td>
+                            <td>141,200</td>
+                            <td>202,200</td>
+                            <td>266,600</td>
+                            <td>312,800</td>
+                            <td>378,000</td>
+                            <td>423,200</td>
+                            <td>475,400</td>
+                            <td>509,600</td>
+                            <td>541,400</td>
+                            <td>574,000</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Total Revenue</td>
+                            <td>96,400</td>
+                            <td>147,200</td>
+                            <td>202,400</td>
+                            <td>263,400</td>
+                            <td>407,375</td>
+                            <td>453,575</td>
+                            <td>518,775</td>
+                            <td>563,975</td>
+                            <td>616,175</td>
+                            <td>650,375</td>
+                            <td>682,175</td>
+                            <td>1,074,200</td>
+                        </tr>
+                        
+                        <!-- EXPENSES SECTION -->
+                        <tr class="section-header">
+                            <td colspan="13">💸 OPERATING EXPENSES</td>
+                        </tr>
+                        <tr>
+                            <td>Existing Operations</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                        </tr>
+                        <tr>
+                            <td>Wellness Centre Costs</td>
+                            <td>120,000</td>
+                            <td>135,000</td>
+                            <td>145,000</td>
+                            <td>160,000</td>
+                            <td>180,000</td>
+                            <td>195,000</td>
+                            <td>210,000</td>
+                            <td>225,000</td>
+                            <td>240,000</td>
+                            <td>250,000</td>
+                            <td>260,000</td>
+                            <td>270,000</td>
+                        </tr>
+                        <tr>
+                            <td>Diversification Costs</td>
+                            <td>35,000</td>
+                            <td>35,000</td>
+                            <td>35,000</td>
+                            <td>35,000</td>
+                            <td>45,000</td>
+                            <td>45,000</td>
+                            <td>45,000</td>
+                            <td>45,000</td>
+                            <td>45,000</td>
+                            <td>45,000</td>
+                            <td>45,000</td>
+                            <td>55,000</td>
+                        </tr>
+                        <tr>
+                            <td>Turnaround Costs</td>
+                            <td>15,000</td>
+                            <td>10,000</td>
+                            <td>10,000</td>
+                            <td>8,000</td>
+                            <td>5,000</td>
+                            <td>5,000</td>
+                            <td>5,000</td>
+                            <td>5,000</td>
+                            <td>5,000</td>
+                            <td>3,000</td>
+                            <td>3,000</td>
+                            <td>3,000</td>
+                        </tr>
+                        <tr>
+                            <td>Marketing & Admin</td>
+                            <td>25,000</td>
+                            <td>25,000</td>
+                            <td>30,000</td>
+                            <td>30,000</td>
+                            <td>35,000</td>
+                            <td>35,000</td>
+                            <td>40,000</td>
+                            <td>40,000</td>
+                            <td>40,000</td>
+                            <td>40,000</td>
+                            <td>45,000</td>
+                            <td>50,000</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Total Expenses</td>
+                            <td>545,000</td>
+                            <td>555,000</td>
+                            <td>570,000</td>
+                            <td>583,000</td>
+                            <td>615,000</td>
+                            <td>630,000</td>
+                            <td>650,000</td>
+                            <td>665,000</td>
+                            <td>680,000</td>
+                            <td>688,000</td>
+                            <td>703,000</td>
+                            <td>728,000</td>
+                        </tr>
+                        
+                        <!-- NET CASHFLOW -->
+                        <tr class="net-cashflow">
+                            <td>NET MONTHLY CASHFLOW</td>
+                            <td class="negative-cash">-448,600</td>
+                            <td class="negative-cash">-407,800</td>
+                            <td class="negative-cash">-367,600</td>
+                            <td class="negative-cash">-319,600</td>
+                            <td class="negative-cash">-207,625</td>
+                            <td class="negative-cash">-176,425</td>
+                            <td class="negative-cash">-131,225</td>
+                            <td class="negative-cash">-101,025</td>
+                            <td class="negative-cash">-63,825</td>
+                            <td class="negative-cash">-37,625</td>
+                            <td class="negative-cash">-20,825</td>
+                            <td class="positive-cash">+346,200</td>
+                        </tr>
+                        <tr class="net-cashflow">
+                            <td>CUMULATIVE CASHFLOW</td>
+                            <td class="negative-cash">-448,600</td>
+                            <td class="negative-cash">-856,400</td>
+                            <td class="negative-cash">-1,224,000</td>
+                            <td class="negative-cash">-1,543,600</td>
+                            <td class="negative-cash">-1,751,225</td>
+                            <td class="negative-cash">-1,927,650</td>
+                            <td class="negative-cash">-2,058,875</td>
+                            <td class="negative-cash">-2,159,900</td>
+                            <td class="negative-cash">-2,223,725</td>
+                            <td class="negative-cash">-2,261,350</td>
+                            <td class="negative-cash">-2,282,175</td>
+                            <td class="negative-cash">-1,935,975</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 2027 Cashflow -->
+        <div class="report-section">
+            <h2>📊 2027 Cashflow (Jan - Jun)</h2>
+            <div style="overflow-x: auto;">
+                <table class="cashflow-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Jan 27</th>
+                            <th>Feb 27</th>
+                            <th>Mar 27</th>
+                            <th>Apr 27</th>
+                            <th>May 27</th>
+                            <th>Jun 27</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="section-header">
+                            <td colspan="7">💵 REVENUE</td>
+                        </tr>
+                        <tr>
+                            <td>Diversification</td>
+                            <td>500,200</td>
+                            <td>256,300</td>
+                            <td>256,300</td>
+                            <td>256,300</td>
+                            <td>256,300</td>
+                            <td>256,300</td>
+                        </tr>
+                        <tr>
+                            <td>Wellness Centre</td>
+                            <td>580,200</td>
+                            <td>583,200</td>
+                            <td>586,200</td>
+                            <td>589,200</td>
+                            <td>589,200</td>
+                            <td>589,200</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Total Revenue</td>
+                            <td>1,080,400</td>
+                            <td>839,500</td>
+                            <td>842,500</td>
+                            <td>845,500</td>
+                            <td>845,500</td>
+                            <td>845,500</td>
+                        </tr>
+                        
+                        <tr class="section-header">
+                            <td colspan="7">💸 OPERATING EXPENSES</td>
+                        </tr>
+                        <tr>
+                            <td>Existing Operations</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                            <td>350,000</td>
+                        </tr>
+                        <tr>
+                            <td>Wellness Centre Costs</td>
+                            <td>280,000</td>
+                            <td>285,000</td>
+                            <td>290,000</td>
+                            <td>295,000</td>
+                            <td>295,000</td>
+                            <td>295,000</td>
+                        </tr>
+                        <tr>
+                            <td>Diversification Costs</td>
+                            <td>60,000</td>
+                            <td>40,000</td>
+                            <td>40,000</td>
+                            <td>40,000</td>
+                            <td>40,000</td>
+                            <td>40,000</td>
+                        </tr>
+                        <tr>
+                            <td>Marketing & Admin</td>
+                            <td>55,000</td>
+                            <td>50,000</td>
+                            <td>50,000</td>
+                            <td>50,000</td>
+                            <td>50,000</td>
+                            <td>50,000</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Total Expenses</td>
+                            <td>745,000</td>
+                            <td>725,000</td>
+                            <td>730,000</td>
+                            <td>735,000</td>
+                            <td>735,000</td>
+                            <td>735,000</td>
+                        </tr>
+                        
+                        <tr class="net-cashflow">
+                            <td>NET MONTHLY CASHFLOW</td>
+                            <td class="positive-cash">+335,400</td>
+                            <td class="positive-cash">+114,500</td>
+                            <td class="positive-cash">+112,500</td>
+                            <td class="positive-cash">+110,500</td>
+                            <td class="positive-cash">+110,500</td>
+                            <td class="positive-cash">+110,500</td>
+                        </tr>
+                        <tr class="net-cashflow">
+                            <td>CUMULATIVE CASHFLOW</td>
+                            <td class="negative-cash">-1,600,575</td>
+                            <td class="negative-cash">-1,486,075</td>
+                            <td class="negative-cash">-1,373,575</td>
+                            <td class="negative-cash">-1,263,075</td>
+                            <td class="negative-cash">-1,152,575</td>
+                            <td class="negative-cash">-1,042,075</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Key Insights -->
+        <div class="notes-section">
+            <h3>💡 Critical Cashflow Insights</h3>
+            <ul>
+                <li><strong>Negative Cashflow Period:</strong> Months 1-11 (Jan-Nov 2026) require funding or existing reserves</li>
+                <li><strong>Peak Deficit:</strong> Month 11 (Nov 2026) at -R2.28M cumulative - requires working capital bridge</li>
+                <li><strong>First Positive Month:</strong> December 2026 (+R346K) - breakthrough month when all streams mature</li>
+                <li><strong>2027 Stabilization:</strong> All months positive, averaging +R115K/month net cashflow</li>
+                <li><strong>Breakeven Point:</strong> Estimated Month 24-26 (full payback of cumulative deficit)</li>
+                <li><strong>Existing Operations:</strong> R350K/month baseline covers current facility costs (before new projects)</li>
+            </ul>
+        </div>
+
+        <!-- Assumptions -->
+        <div class="assumptions">
+            <h3>📋 Expense Assumptions & Breakdown</h3>
+            <ul>
+                <li><strong>Existing Operations (R350K/mo):</strong> Current facility rent, utilities, admin staff, maintenance</li>
+                <li><strong>Wellness Centre Costs:</strong> Scale from R120K (Month 1 startup) to R295K (Month 18 full operation)
+                    <ul>
+                        <li>Practitioner salaries: R75K-R180K/month (2-6 practitioners)</li>
+                        <li>Facility rent: R30K-R50K/month</li>
+                        <li>Operations & supplies: R15K-R35K/month</li>
+                        <li>Technology & marketing: R0K-R30K/month</li>
+                    </ul>
+                </li>
+                <li><strong>Diversification Costs (R35K-R60K/mo):</strong> Staff training, program materials, incremental marketing</li>
+                <li><strong>Turnaround Costs:</strong> Front-loaded (R15K Month 1) → minimal by Month 6 (R3K/mo ongoing)</li>
+                <li><strong>Marketing & Admin:</strong> Scales with growth (R25K → R55K/mo)</li>
+                <li><strong>Cost of Revenue:</strong> ~50-60% of revenue (industry standard for therapy/wellness services)</li>
+            </ul>
+        </div>
+
+        <!-- Financing Strategy -->
+        <div class="report-section">
+            <h2>🏦 Financing Strategy for Negative Cashflow Period</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div style="background: #f9fafb; padding: 1.5rem; border-radius: 0.75rem; border-left: 4px solid #ef4444;">
+                    <h3 style="margin: 0 0 1rem 0;">📊 Funding Required</h3>
+                    <div style="font-size: 2rem; font-weight: 700; color: #ef4444; margin-bottom: 0.5rem;">R2.28M</div>
+                    <div style="color: #6b7280; font-size: 0.875rem;">Peak working capital need (Nov 2026)</div>
+                </div>
+                
+                <div style="background: #f9fafb; padding: 1.5rem; border-radius: 0.75rem; border-left: 4px solid #2563eb;">
+                    <h3 style="margin: 0 0 1rem 0;">💰 Funding Options</h3>
+                    <ul style="margin: 0; padding-left: 1.25rem; color: #1f2937; font-size: 0.875rem;">
+                        <li>Bank loan/overdraft facility</li>
+                        <li>Investor capital injection</li>
+                        <li>Existing cash reserves</li>
+                        <li>Revenue from current operations</li>
+                        <li>Phased project launch (reduce upfront costs)</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #ecfdf5; padding: 1.5rem; border-radius: 0.75rem; border-left: 4px solid #10b981;">
+                    <h3 style="margin: 0 0 1rem 0;">✅ Mitigation Strategies</h3>
+                    <ul style="margin: 0; padding-left: 1.25rem; color: #1f2937; font-size: 0.875rem;">
+                        <li><strong>Delay Wellness Centre:</strong> Launch in Month 3-4 (reduces deficit by ~R500K)</li>
+                        <li><strong>Faster Revenue Ramp:</strong> Accelerate client acquisition</li>
+                        <li><strong>Cost Control:</strong> Lean staffing in early months</li>
+                        <li><strong>Milestone Funding:</strong> Release capital only when revenue validates</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="javascript:window.history.back()" class="back-btn">← Return to Project Dashboard</a>
+        </div>
+    </div>
+    
+    <script src="../js/auth.js"></script>
+    <script>
+        // Initialize auth
+        initAuth();
+        
+        // Log report view
+        console.log('Monthly Cashflow Projection Report viewed:', new Date().toISOString());
+    </script>
+</body>
+</html>

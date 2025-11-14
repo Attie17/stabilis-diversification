@@ -46,6 +46,21 @@ function renderCopilotButtons() {
     });
 }
 
+// Event Handlers will be defined later - see bindEvents() function below
+
+function switchView(viewName) {
+    currentView = viewName;
+    
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    
+    const viewElement = document.getElementById(`${viewName}-view`);
+    const tabElement = document.querySelector(`[data-view="${viewName}"]`);
+    
+    if (viewElement) viewElement.classList.add('active');
+    if (tabElement) tabElement.classList.add('active');
+}
+
 // Initialize
 function init() {
     // Initialize authentication first
@@ -327,6 +342,16 @@ function loadSavedState() {
 
 // Sidebar Events
 function bindEvents() {
+    // Navigation tabs
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            const view = e.target.getAttribute('data-view');
+            if (view) {
+                switchView(view);
+            }
+        });
+    });
+    
     const menuBtn = document.getElementById('menu-btn');
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -457,6 +482,36 @@ function handleSidebarAction(action) {
                 location.reload();
             }
             break;
+        
+        // Report navigation
+        case 'revenue-projection':
+            window.location.href = '/reports/revenue-projection.html';
+            break;
+        case 'cost-analysis':
+            window.location.href = '/reports/cost-analysis.html';
+            break;
+        case 'phase-progress':
+            window.location.href = '/reports/phase-progress.html';
+            break;
+        case 'risk-assessment':
+            window.location.href = '/reports/risk-assessment.html';
+            break;
+        case 'resource-utilization':
+            window.location.href = '/reports/resource-utilization.html';
+            break;
+        case 'kpi-dashboard-report':
+            window.location.href = '/reports/kpi-dashboard.html';
+            break;
+        case 'timeline-analysis':
+            window.location.href = '/reports/timeline-analysis.html';
+            break;
+        case 'budget-actual':
+            window.location.href = '/reports/budget-actual.html';
+            break;
+        case 'cashflow-projection':
+            window.location.href = '/reports/cashflow-projection.html';
+            break;
+            
         default:
             alert(`⏳ ${action}\n\nThis feature is under development and will be available in a future update.`);
     }
