@@ -705,6 +705,59 @@ const wellnessProject = {
         }
     ],
 
+    risks: [
+        {
+            id: 'WR-001',
+            title: 'Practitioner Recruitment Challenges',
+            description: 'Difficulty recruiting qualified therapists and counselors in competitive market',
+            severity: 'high',
+            impact: 'High',
+            likelihood: 'Medium',
+            owner: 'Suzanne Gelderblom',
+            status: 'active'
+        },
+        {
+            id: 'WR-002',
+            title: 'Medical Aid Registration Delays',
+            description: 'Delays in HPCSA and medical aid registration could impact revenue timeline',
+            severity: 'medium',
+            impact: 'Medium',
+            likelihood: 'Medium',
+            owner: 'Natasha Jacobs',
+            status: 'active'
+        },
+        {
+            id: 'WR-003',
+            title: 'Market Awareness',
+            description: 'Low awareness of behavioural addiction services in target market',
+            severity: 'medium',
+            impact: 'High',
+            likelihood: 'Medium',
+            owner: 'Sne Khonyane',
+            status: 'active'
+        },
+        {
+            id: 'WR-004',
+            title: 'Facility Readiness',
+            description: 'Delays in facility setup, equipment procurement, or compliance approvals',
+            severity: 'high',
+            impact: 'Very High',
+            likelihood: 'Low',
+            owner: 'Suzanne Gelderblom',
+            status: 'active'
+        },
+        {
+            id: 'WR-005',
+            title: 'School Partnership Delays',
+            description: 'Slower than expected uptake of school/corporate partnerships',
+            severity: 'low',
+            impact: 'Medium',
+            likelihood: 'Low',
+            owner: 'Sne Khonyane',
+            status: 'active'
+        }
+    ],
+
     team: [
         {
             role: "Wellness Champion (Senior Therapist)",

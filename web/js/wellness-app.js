@@ -59,6 +59,10 @@ function switchView(viewName) {
     
     if (viewElement) viewElement.classList.add('active');
     if (tabElement) tabElement.classList.add('active');
+    
+    // Load view-specific content
+    if (viewName === 'risks') renderRisks();
+    if (viewName === 'team') renderTeam();
 }
 
 // Initialize
@@ -66,9 +70,73 @@ function init() {
     // Initialize authentication first
     initAuth();
     
+    updateDashboardStats();
     renderPhases();
     renderCopilotButtons();
     bindEvents();
+}
+
+// Update dashboard stats
+function updateDashboardStats() {
+    const { total, complete } = getMilestoneStatus();
+    const progress = total > 0 ? Math.round((complete / total) * 100) : 0;
+    
+    const progressEl = document.getElementById('progress-percent');
+    const milestonesEl = document.getElementById('milestones-done');
+    const riskCountEl = document.getElementById('risk-count');
+    
+    if (progressEl) progressEl.textContent = `${progress}%`;
+    if (milestonesEl) milestonesEl.textContent = `${complete}/${total}`;
+    if (riskCountEl) riskCountEl.textContent = wellnessProject.risks ? wellnessProject.risks.length : '0';
+}
+
+// Render risks view
+function renderRisks() {
+    const container = document.getElementById('risks-container');
+    if (!container) return;
+    
+    const risks = wellnessProject.risks || [];
+    
+    if (risks.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No risks identified yet.</p>';
+        return;
+    }
+    
+    container.innerHTML = risks.map(risk => `
+        <div class="risk-card ${risk.severity}">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                <h3 style="margin: 0; font-size: 1rem;">${risk.title}</h3>
+                <span class="risk-badge ${risk.severity}">${risk.severity.toUpperCase()}</span>
+            </div>
+            <p style="color: #6b7280; font-size: 0.875rem; margin: 0.5rem 0;">${risk.description}</p>
+            <div style="display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.875rem;">
+                <span><strong>Impact:</strong> ${risk.impact}</span>
+                <span><strong>Likelihood:</strong> ${risk.likelihood}</span>
+                <span><strong>Owner:</strong> ${risk.owner}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Render team view
+function renderTeam() {
+    const container = document.getElementById('team-container');
+    if (!container) return;
+    
+    const team = wellnessProject.team || [];
+    
+    if (team.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No team members defined yet.</p>';
+        return;
+    }
+    
+    container.innerHTML = team.map(member => `
+        <div class="team-card">
+            <h3 style="margin: 0 0 0.5rem; font-size: 1.125rem;">${member.name}</h3>
+            <p style="color: #3b82f6; font-weight: 600; margin: 0 0 0.75rem; font-size: 0.875rem;">${member.role}</p>
+            <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">${member.responsibilities}</p>
+        </div>
+    `).join('');
 }
 
 // Render Phases and Milestones
