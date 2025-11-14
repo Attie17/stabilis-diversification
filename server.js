@@ -22,11 +22,6 @@ app.get('/turnaround', (req, res) => {
     res.sendFile(path.join(__dirname, 'web', 'turnaround.html'));
 });
 
-// Handle all other routes - send landing page
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'web', 'landing.html'));
-});
-
 app.listen(PORT, () => {
     console.log(`
     ============================================================
