@@ -1,0 +1,34 @@
+# Node.js
+node_modules/
+npm-debug.log
+package-lock.json
+
+# VS Code
+.vscode/settings.json.bak
+*.code-workspace
+
+# Operating System
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+~*
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Don't ignore the main .vscode folder
+!.vscode/
+
+# Keep these project files
+!.vscode/settings.json
+!.vscode/*.code-snippets

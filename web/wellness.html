@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Wellness Centre - Stabilis</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h2>Help & Tools</h2>
+                <button class="sidebar-close" id="sidebar-close">&times;</button>
+            </div>
+            <div class="sidebar-content">
+                <!-- Navigation -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="navigation">
+                        <span>� Navigation</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="navigation">
+                        <button class="sidebar-item" data-action="home">← Back to Project Hub</button>
+                        <button class="sidebar-item" data-action="switch-diversification">View Diversification</button>
+                        <button class="sidebar-item" data-action="switch-turnaround">View Turnaround</button>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="quick-actions">
+                        <span>🎯 Quick Actions</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="quick-actions">
+                        <button class="sidebar-item" data-action="current-phase">Jump to Current Phase</button>
+                        <button class="sidebar-item" data-action="this-week">This Week's Milestones</button>
+                        <button class="sidebar-item" data-action="overdue">Show Overdue Items</button>
+                        <button class="sidebar-item" data-action="view-metrics">View Key Metrics</button>
+                    </div>
+                </div>
+
+                <!-- Wellness Tools -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="wellness-tools">
+                        <span>💚 Wellness Tools</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="wellness-tools">
+                        <button class="sidebar-item" data-action="practitioner-schedule">Practitioner Schedule</button>
+                        <button class="sidebar-item" data-action="referral-tracker">Referral Tracker</button>
+                        <button class="sidebar-item" data-action="session-capacity">Session Capacity View</button>
+                        <button class="sidebar-item" data-action="revenue-dashboard">Revenue Dashboard</button>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="settings">
+                        <span>⚙️ Settings</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="settings">
+                        <button class="sidebar-item" data-action="toggle-theme">
+                            <span>Dark/Light Mode</span>
+                            <span class="toggle-indicator" id="theme-indicator">☀️</span>
+                        </button>
+                        <button class="sidebar-item" data-action="clear-data">Clear Local Data</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sidebar Overlay -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <button class="menu-btn" id="menu-btn">☰</button>
+                <div>
+                    <h1>Stabilis Wellness Centre</h1>
+                    <p class="subtitle">Multi-Phase Strategic Launch (Nov 2025 – Jun 2027) • 19 Months • 29 Milestones</p>
+                </div>
+                <div class="user-info" id="user-info" style="display: none;">
+                    <span id="username-display"></span>
+                    <button class="logout-btn" onclick="logoutUser()">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Project Summary -->
+            <section class="project-summary">
+                <div class="summary-card">
+                    <h3>🎯 Strategic Vision</h3>
+                    <p><strong>Phase 1:</strong> Launch multidisciplinary wellness center with adult/youth OP, therapy, and corporate packages<br>
+                    <strong>Phase 1B:</strong> Integrate behavioural addiction tracks (gambling, porn, gaming, social media, vaping)<br>
+                    <strong>Phase 2:</strong> Scale to high-visibility service with consistent caseloads and partnerships<br>
+                    <strong>Phase 3:</strong> Become core revenue engine with regional influence and digital products</p>
+                </div>
+                <div class="summary-card">
+                    <h3>📊 Key Metrics</h3>
+                    <ul class="metrics-list">
+                        <li><strong>Timeline:</strong> 19 months (Nov 2025 – Jun 2027)</li>
+                        <li><strong>Budget:</strong> R2,800,000</li>
+                        <li><strong>Milestones:</strong> 29 across 4 phases</li>
+                        <li><strong>Target Revenue:</strong> R250,000/month</li>
+                        <li><strong>Sessions:</strong> 300+ per month</li>
+                        <li><strong>Contracts:</strong> 10+ school/corporate partnerships</li>
+                        <li><strong>Behavioural Addiction Tracks:</strong> 5 specialist programmes</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Phase Container -->
+            <div id="phases-container"></div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>&copy; 2025 Stabilis Wellness Centre. Built with care.</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/wellness-data.js"></script>
+    <script src="js/wellness-copilot.js"></script>
+    <script src="js/wellness-app.js"></script>
+</body>
+</html>

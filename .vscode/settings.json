@@ -1,0 +1,107 @@
+{
+  // === EDITOR APPEARANCE ===
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.fontSize": 14,
+  "editor.fontFamily": "Consolas, 'Courier New', monospace",
+  "editor.lineHeight": 22,
+  "editor.minimap.enabled": true,
+  "workbench.colorTheme": "Default Dark+",
+
+  // === AUTO-FORMATTING ===
+  // Automatically formats your code when you save - keeps everything neat
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.defaultFormatter": "vscode.json-language-features",
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+
+  // === AUTO-SAVE ===
+  // Saves your work automatically after you stop typing (500ms delay)
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 500,
+
+  // === BRACKET HELPERS ===
+  // Colors matching brackets so you can see code structure easily
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+
+  // === CODE SUGGESTIONS ===
+  // IntelliSense helps you type faster with smart suggestions
+  "editor.suggestSelection": "first",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+  "editor.acceptSuggestionOnEnter": "on",
+  "editor.tabCompletion": "on",
+
+  // === LIVE SERVER SETTINGS ===
+  // Opens browser preview on port 5500, auto-refreshes when you save files
+  "liveServer.settings.port": 5500,
+  "liveServer.settings.donotShowInfoMsg": true,
+  "liveServer.settings.donotVerifyTags": true,
+  "liveServer.settings.CustomBrowser": "chrome",
+
+  // === TODO TREE SETTINGS ===
+  // Highlights TODO/FIXME/NOTE comments across your project
+  "todo-tree.general.tags": [
+    "TODO",
+    "FIXME",
+    "NOTE",
+    "MILESTONE",
+    "REVIEW"
+  ],
+  "todo-tree.highlights.defaultHighlight": {
+    "icon": "check",
+    "type": "text",
+    "foreground": "#FFA500",
+    "opacity": 70
+  },
+
+  // === GIT SETTINGS ===
+  // Automatically stages and commits changes (you control when)
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+
+  // === FILE EXCLUSIONS ===
+  // Hides unnecessary files from sidebar (keeps it clean)
+  "files.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/.DS_Store": true
+  },
+
+  // === STABILIS PROJECT SPECIFIC ===
+  // Custom settings for your three-project structure
+  "files.associations": {
+    "*-data.js": "javascript",
+    "*-copilot.js": "javascript",
+    "*-app.js": "javascript"
+  },
+  
+  // Emmet for faster HTML typing
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+
+  // Indentation consistency
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
+
+  // Word wrap for markdown files (like your revenue projections)
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "other": false,
+      "comments": false,
+      "strings": false
+    }
+  }
+}

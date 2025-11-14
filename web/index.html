@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Stabilis Diversification</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h2>Help & Tools</h2>
+                <button class="sidebar-close" id="sidebar-close">&times;</button>
+            </div>
+            <div class="sidebar-content">
+                <!-- Navigation -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="navigation">
+                        <span>🏠 Navigation</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="navigation">
+                        <button class="sidebar-item" data-action="home">← Back to Project Hub</button>
+                        <button class="sidebar-item" data-action="switch-turnaround">View Turnaround</button>
+                        <button class="sidebar-item" data-action="switch-wellness">View Wellness Centre</button>
+                    </div>
+                </div>
+
+                <!-- Help & Guides -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="help-guides">
+                        <span>📚 Help & Guides</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="help-guides">
+                        <button class="sidebar-item" data-action="quick-start">Quick Start Tutorial</button>
+                        <button class="sidebar-item" data-action="mark-complete">How to Mark Milestones Complete</button>
+                        <button class="sidebar-item" data-action="progress-bars">Understanding Progress Bars</button>
+                        <button class="sidebar-item" data-action="risk-levels">Reading Risk Levels</button>
+                        <button class="sidebar-item" data-action="gestures">Mobile Gestures Guide</button>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="quick-actions">
+                        <span>🎯 Quick Actions</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="quick-actions">
+                        <button class="sidebar-item" data-action="current-phase">Jump to Current Phase</button>
+                        <button class="sidebar-item" data-action="filter-tasks">Show Only My Tasks</button>
+                        <button class="sidebar-item" data-action="this-week">View This Week's Milestones</button>
+                        <button class="sidebar-item" data-action="overdue">Show Overdue Items</button>
+                        <button class="sidebar-item" data-action="export-report">Export Weekly Report</button>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="settings">
+                        <span>⚙️ Settings</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="settings">
+                        <button class="sidebar-item" data-action="toggle-theme">
+                            <span>Dark/Light Mode</span>
+                            <span class="toggle-indicator" id="theme-indicator">☀️</span>
+                        </button>
+                        <button class="sidebar-item" data-action="notifications">Notification Preferences</button>
+                        <button class="sidebar-item" data-action="default-view">Default View Selection</button>
+                        <button class="sidebar-item" data-action="clear-data">Clear Local Data</button>
+                    </div>
+                </div>
+
+                <!-- Reports -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="reports">
+                        <span>📊 Reports & Analytics</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="reports">
+                        <button class="sidebar-item" data-action="financial">Financial Dashboard</button>
+                        <button class="sidebar-item" data-action="stats">Phase Completion Stats</button>
+                        <button class="sidebar-item" data-action="heatmap">Risk Heatmap</button>
+                        <button class="sidebar-item" data-action="workload">Team Workload View</button>
+                        <button class="sidebar-item" data-action="gantt">Timeline Gantt Chart</button>
+                    </div>
+                </div>
+
+                <!-- Team Directory -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="team">
+                        <span>👥 Team Directory</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="team">
+                        <button class="sidebar-item" data-action="contacts">Contact List</button>
+                        <button class="sidebar-item" data-action="roles">Role Descriptions</button>
+                        <button class="sidebar-item" data-action="escalation">Escalation Protocol</button>
+                        <button class="sidebar-item" data-action="meetings">Meeting Schedule</button>
+                    </div>
+                </div>
+
+                <!-- AI Copilot -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="ai-copilot">
+                        <span>🤖 AI Copilot</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="ai-copilot">
+                        <button class="sidebar-item" onclick="showGeneralHelp()">💬 Ask Me Anything</button>
+                        <button class="sidebar-item" onclick="showRevenueCalculatorModal()">💰 Revenue Calculator</button>
+                        <button class="sidebar-item" data-action="copilot-guide">📖 Copilot Guide</button>
+                    </div>
+                </div>
+
+                <!-- Tools -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="tools">
+                        <span>🔧 Tools & Utilities</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="tools">
+                        <button class="sidebar-item" data-action="add-note">Add Note to Milestone</button>
+                        <button class="sidebar-item" data-action="request-change">Request Date Change</button>
+                        <button class="sidebar-item" data-action="flag-issue">Flag Issue</button>
+                        <button class="sidebar-item" data-action="share">Share Progress</button>
+                        <button class="sidebar-item" data-action="offline-status">
+                            <span>Offline Mode Status</span>
+                            <span class="status-indicator online">●</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- About -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="about">
+                        <span>ℹ️ About & Info</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="about">
+                        <button class="sidebar-item" data-action="overview">Project Overview</button>
+                        <button class="sidebar-item" data-action="key-dates">Key Dates & Deadlines</button>
+                        <button class="sidebar-item" data-action="glossary">Glossary of Terms</button>
+                        <button class="sidebar-item" data-action="version">Version & Updates</button>
+                        <button class="sidebar-item" data-action="support">Contact Support</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sidebar Overlay -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <button class="menu-btn" id="menu-btn">☰</button>
+                <h1>Stabilis</h1>
+                <div class="countdown" id="countdown"></div>
+            </div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-view="dashboard">Dashboard</button>
+                <button class="nav-tab" data-view="phases">Phases</button>
+                <button class="nav-tab" data-view="risks">Risks</button>
+                <button class="nav-tab" data-view="team">Team</button>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view active">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-value" id="progress-percent">0%</div>
+                        <div class="stat-label">Complete</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value">R0</div>
+                        <div class="stat-label">Revenue (Target: R6.2m)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-value" id="milestones-done">0/29</div>
+                        <div class="stat-label">Milestones</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-value" id="active-risks">15</div>
+                        <div class="stat-label">Active Risks</div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="card">
+                    <h2>Project Timeline</h2>
+                    <div class="timeline-progress">
+                        <div class="timeline-bar">
+                            <div class="timeline-fill" id="timeline-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="timeline-info">
+                            <span id="timeline-start">17 Nov 2025</span>
+                            <span id="timeline-end">30 Mar 2027</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Phase -->
+                <div class="card">
+                    <h2>Current Phase</h2>
+                    <div id="current-phase">
+                        <div class="phase-badge">Phase 1</div>
+                        <h3>Mobilisation</h3>
+                        <p>17 Nov – 15 Dec 2025</p>
+                        <div class="phase-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span>0 of 6 milestones complete</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Milestones -->
+                <div class="card">
+                    <h2>Next Milestones</h2>
+                    <div class="milestone-list" id="next-milestones">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phases View -->
+            <div id="phases-view" class="view">
+                <div class="phases-container" id="phases-container">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Risks View -->
+            <div id="risks-view" class="view">
+                <div class="risk-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="high">🔴 High</button>
+                    <button class="filter-btn" data-filter="medium">🟡 Medium</button>
+                    <button class="filter-btn" data-filter="low">🟢 Low</button>
+                </div>
+                <div class="risk-list" id="risk-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Team View -->
+            <div id="team-view" class="view">
+                <div class="team-grid" id="team-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Actions -->
+        <div class="fab-container">
+            <button class="fab" id="add-update">
+                <span>+</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Title</h2>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/ai-copilot.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

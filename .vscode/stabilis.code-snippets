@@ -1,0 +1,117 @@
+{
+  // STABILIS PROJECT SNIPPETS
+  // Type the prefix and press Tab to insert the template
+  
+  "New Milestone": {
+    "prefix": "milestone",
+    "body": [
+      "{",
+      "    id: \"${1:W1-M1}\",",
+      "    name: \"${2:Milestone Name}\",",
+      "    owner: \"${3:Owner Name}\",",
+      "    dueDate: \"${4:2026-01-15}\",",
+      "    status: \"planned\",",
+      "    priority: \"${5|high,medium,critical|}\",",
+      "    description: \"${6:Description}\",",
+      "    checklist: [",
+      "        \"${7:First task}\",",
+      "        \"${8:Second task}\",",
+      "        \"${9:Third task}\"",
+      "    ],",
+      "    expectedOutcome: \"${10:Expected outcome}\",",
+      "    kpi: \"${11:Success metric}\"",
+      "},$0"
+    ],
+    "description": "Creates a new milestone structure for Stabilis projects"
+  },
+
+  "New Phase": {
+    "prefix": "phase",
+    "body": [
+      "{",
+      "    id: \"${1:W1}\",",
+      "    name: \"${2:Phase Name}\",",
+      "    description: \"${3:Phase description}\",",
+      "    startDate: \"${4:2026-01-01}\",",
+      "    endDate: \"${5:2026-03-31}\",",
+      "    targetImpact: \"${6:Target impact}\",",
+      "    milestones: [",
+      "        $0",
+      "    ]",
+      "}"
+    ],
+    "description": "Creates a new phase structure with milestones array"
+  },
+
+  "Checklist Item": {
+    "prefix": "check",
+    "body": [
+      "\"${1:Checklist item description}\",$0"
+    ],
+    "description": "Adds a checklist item"
+  },
+
+  "Team Member": {
+    "prefix": "team",
+    "body": [
+      "{",
+      "    role: \"${1:Role Title}\",",
+      "    name: \"${2:Person Name}\",",
+      "    responsibilities: \"${3:Key responsibilities}\"",
+      "},$0"
+    ],
+    "description": "Creates a team member object"
+  },
+
+  "AI Copilot Guidance": {
+    "prefix": "copilot",
+    "body": [
+      "\"${1:W1-M1}\": {",
+      "    simpleExplanation: \"${2:Simple explanation of what this milestone is about}\",",
+      "    whatYouNeed: [",
+      "        \"${3:First requirement}\",",
+      "        \"${4:Second requirement}\"",
+      "    ],",
+      "    tips: [",
+      "        \"${5:First tip}\",",
+      "        \"${6:Second tip}\"",
+      "    ],",
+      "    commonQuestions: {",
+      "        \"${7:Question 1}?\": \"${8:Answer 1}\",",
+      "        \"${9:Question 2}?\": \"${10:Answer 2}\"",
+      "    }",
+      "},$0"
+    ],
+    "description": "Creates AI Copilot guidance for a milestone"
+  },
+
+  "TODO Comment": {
+    "prefix": "todo",
+    "body": [
+      "// TODO: ${1:Description of what needs to be done}$0"
+    ],
+    "description": "Adds a TODO comment that Todo Tree will highlight"
+  },
+
+  "FIXME Comment": {
+    "prefix": "fix",
+    "body": [
+      "// FIXME: ${1:Description of what needs fixing}$0"
+    ],
+    "description": "Adds a FIXME comment for bugs or issues"
+  },
+
+  "Revenue Stream": {
+    "prefix": "revenue",
+    "body": [
+      "{",
+      "    stream: \"${1:Revenue Stream Name}\",",
+      "    monthlyTarget: ${2:50000},",
+      "    pricing: \"${3:R1200 per session}\",",
+      "    volume: \"${4:42 sessions/month}\",",
+      "    notes: \"${5:Additional notes}\"",
+      "},$0"
+    ],
+    "description": "Creates a revenue stream object for financial planning"
+  }
+}

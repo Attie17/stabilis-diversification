@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Turnaround - Stabilis</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar (reusing existing structure) -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h2>Help & Tools</h2>
+                <button class="sidebar-close" id="sidebar-close">&times;</button>
+            </div>
+            <div class="sidebar-content">
+                <!-- Navigation -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="navigation">
+                        <span>� Navigation</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="navigation">
+                        <button class="sidebar-item" data-action="home">← Back to Project Hub</button>
+                        <button class="sidebar-item" data-action="switch-diversification">View Diversification</button>
+                        <button class="sidebar-item" data-action="switch-wellness">View Wellness Centre</button>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="quick-actions">
+                        <span>🎯 Quick Actions</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="quick-actions">
+                        <button class="sidebar-item" data-action="current-phase">Jump to Current Phase</button>
+                        <button class="sidebar-item" data-action="this-week">This Week's Milestones</button>
+                        <button class="sidebar-item" data-action="overdue">Show Overdue Items</button>
+                        <button class="sidebar-item" data-action="kpi-dashboard">KPI Dashboard</button>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="settings">
+                        <span>⚙️ Settings</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="settings">
+                        <button class="sidebar-item" data-action="toggle-theme">
+                            <span>Dark/Light Mode</span>
+                            <span class="toggle-indicator" id="theme-indicator">☀️</span>
+                        </button>
+                        <button class="sidebar-item" data-action="clear-data">Clear Local Data</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sidebar Overlay -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <button class="menu-btn" id="menu-btn">☰</button>
+                <div>
+                    <h1>Turnaround</h1>
+                    <div class="project-badge urgent">PRIORITY 1</div>
+                </div>
+                <div class="countdown" id="countdown"></div>
+            </div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-view="dashboard">Dashboard</button>
+                <button class="nav-tab" data-view="phases">Phases</button>
+                <button class="nav-tab" data-view="kpis">KPIs</button>
+                <button class="nav-tab" data-view="risks">Risks</button>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view active">
+                <!-- Crisis Alert Banner -->
+                <div class="alert-banner critical">
+                    <div class="alert-icon">🚨</div>
+                    <div class="alert-content">
+                        <strong>Crisis Mode Active</strong>
+                        <p>VAT compliance overdue. R1.9m operating deficit. Immediate action required.</p>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card urgent">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-value" id="progress-percent">0%</div>
+                        <div class="stat-label">Turnaround Progress</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value">-15.5%</div>
+                        <div class="stat-label">Operating Margin (Target: +5%)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-value" id="milestones-done">0/18</div>
+                        <div class="stat-label">Milestones</div>
+                    </div>
+                    <div class="stat-card urgent">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-value" id="days-remaining">180</div>
+                        <div class="stat-label">Days Remaining</div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="card">
+                    <h2>180-Day Turnaround Timeline</h2>
+                    <div class="timeline-progress">
+                        <div class="timeline-bar">
+                            <div class="timeline-fill urgent" id="timeline-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="timeline-info">
+                            <span id="timeline-start">12 Nov 2025</span>
+                            <span id="timeline-end">11 May 2026</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Phase -->
+                <div class="card">
+                    <h2>Current Phase</h2>
+                    <div id="current-phase">
+                        <div class="phase-badge urgent">Phase 1</div>
+                        <h3>Crisis Response (0-30 Days)</h3>
+                        <p>Non-negotiable immediate actions</p>
+                        <div class="phase-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span>0 of 7 milestones complete</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Critical Actions -->
+                <div class="card">
+                    <h2>Critical Actions (Next 7 Days)</h2>
+                    <div class="milestone-list" id="critical-milestones">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phases View -->
+            <div id="phases-view" class="view">
+                <div class="phases-container" id="phases-container">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- KPIs View -->
+            <div id="kpis-view" class="view">
+                <div class="kpi-grid" id="kpi-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Risks View -->
+            <div id="risks-view" class="view">
+                <div class="risk-list" id="risk-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Actions -->
+        <div class="fab-container">
+            <button class="fab" id="add-update">
+                <span>+</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Title</h2>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/turnaround-data.js"></script>
+    <script src="js/turnaround-copilot.js"></script>
+    <script src="js/turnaround-app.js"></script>
+</body>
+</html>
