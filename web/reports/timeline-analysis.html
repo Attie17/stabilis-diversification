@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline Analysis Report - Stabilis</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .report-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .report-header {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+        .report-header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+        .report-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .report-controls select {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 0.5rem;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 0.875rem;
+        }
+        .under-development {
+            background: #fef3c7;
+            border: 2px dashed #f59e0b;
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .under-development h2 {
+            color: #92400e;
+            margin-bottom: 1rem;
+        }
+        .under-development p {
+            color: #78350f;
+            font-size: 1.125rem;
+        }
+        .placeholder-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .placeholder-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .placeholder-card h3 {
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        .placeholder-card p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            background: #1e40af;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <h1>📅 Timeline Analysis Report</h1>
+            <p>Project schedule analysis with Gantt charts and critical path tracking</p>
+            <div class="report-controls">
+                <select id="view-type">
+                    <option value="gantt">Gantt Chart View</option>
+                    <option value="calendar">Calendar View</option>
+                    <option value="critical-path">Critical Path</option>
+                </select>
+                <select id="zoom-level">
+                    <option value="days">Daily</option>
+                    <option value="weeks">Weekly</option>
+                    <option value="months">Monthly</option>
+                </select>
+                <button class="back-btn" style="margin-left: auto;" onclick="window.history.back()">← Back to Project</button>
+            </div>
+        </div>
+
+        <div class="under-development">
+            <h2>🚧 Under Development</h2>
+            <p>This report is currently being built and will be available soon.</p>
+            <p style="margin-top: 1rem; font-size: 0.875rem;">Expected features: Interactive Gantt charts, critical path analysis, dependency mapping, and timeline forecasting.</p>
+        </div>
+
+        <div class="placeholder-sections">
+            <div class="placeholder-card">
+                <h3>📊 Gantt Chart</h3>
+                <p>Visual timeline showing all phases, milestones, and their dependencies.</p>
+            </div>
+            <div class="placeholder-card">
+                <h3>🎯 Critical Path</h3>
+                <p>Identification of tasks that directly impact project completion date.</p>
+            </div>
+            <div class="placeholder-card">
+                <h3>🔗 Dependencies</h3>
+                <p>Mapping of milestone dependencies and sequential requirements.</p>
+            </div>
+            <div class="placeholder-card">
+                <h3>⏱️ Schedule Variance</h3>
+                <p>Analysis of planned vs actual timelines with variance explanations.</p>
+            </div>
+            <div class="placeholder-card">
+                <h3>📈 Forecast to Complete</h3>
+                <p>Projected completion dates based on current progress rates.</p>
+            </div>
+            <div class="placeholder-card">
+                <h3>🚦 Timeline Health</h3>
+                <p>Overall project schedule health with red/amber/green indicators.</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="javascript:window.history.back()" class="back-btn">← Return to Project Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

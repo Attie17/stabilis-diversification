@@ -21,13 +21,28 @@
                 <!-- Navigation -->
                 <div class="sidebar-section">
                     <button class="sidebar-section-title" data-toggle="navigation">
-                        <span>� Navigation</span>
+                        <span>🏠 Navigation</span>
                         <span class="section-arrow">▼</span>
                     </button>
                     <div class="sidebar-section-content" id="navigation">
                         <button class="sidebar-item" data-action="home">← Back to Project Hub</button>
                         <button class="sidebar-item" data-action="switch-diversification">View Diversification</button>
                         <button class="sidebar-item" data-action="switch-wellness">View Wellness Centre</button>
+                    </div>
+                </div>
+
+                <!-- Help & Guides -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="help-guides">
+                        <span>📚 Help & Guides</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="help-guides">
+                        <button class="sidebar-item" data-action="quick-start">Quick Start Tutorial</button>
+                        <button class="sidebar-item" data-action="mark-complete">How to Mark Milestones Complete</button>
+                        <button class="sidebar-item" data-action="crisis-mode">Understanding Crisis Mode</button>
+                        <button class="sidebar-item" data-action="risk-levels">Reading Risk Levels</button>
+                        <button class="sidebar-item" data-action="gestures">Mobile Gestures Guide</button>
                     </div>
                 </div>
 
@@ -39,9 +54,28 @@
                     </button>
                     <div class="sidebar-section-content" id="quick-actions">
                         <button class="sidebar-item" data-action="current-phase">Jump to Current Phase</button>
+                        <button class="sidebar-item" data-action="edit-milestone">✏️ Edit Milestone</button>
                         <button class="sidebar-item" data-action="this-week">This Week's Milestones</button>
                         <button class="sidebar-item" data-action="overdue">Show Overdue Items</button>
                         <button class="sidebar-item" data-action="kpi-dashboard">KPI Dashboard</button>
+                    </div>
+                </div>
+
+                <!-- Reports & Analytics -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="reports">
+                        <span>📊 Reports & Analytics</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="reports">
+                        <button class="sidebar-item" data-action="revenue-projection">Revenue Projection Report</button>
+                        <button class="sidebar-item" data-action="cost-analysis">Cost Analysis Report</button>
+                        <button class="sidebar-item" data-action="phase-progress">Phase Progress Report</button>
+                        <button class="sidebar-item" data-action="risk-assessment">Risk Assessment Report</button>
+                        <button class="sidebar-item" data-action="resource-utilization">Resource Utilization Report</button>
+                        <button class="sidebar-item" data-action="kpi-dashboard-report">KPI Dashboard Report</button>
+                        <button class="sidebar-item" data-action="timeline-analysis">Timeline Analysis Report</button>
+                        <button class="sidebar-item" data-action="budget-actual">Budget vs Actual Report</button>
                     </div>
                 </div>
 
@@ -66,21 +100,29 @@
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
         <!-- Header -->
-        <header class="app-header">
+        <header class="app-header turnaround-header">
             <div class="header-content">
                 <button class="menu-btn" id="menu-btn">☰</button>
-                <div>
-                    <h1>Turnaround</h1>
-                    <div class="project-badge urgent">PRIORITY 1</div>
+                <div class="header-title-section">
+                    <div class="title-with-badge">
+                        <h1>🔄 Turnaround Strategy</h1>
+                        <span class="project-badge urgent-pulse">🚨 PRIORITY 1</span>
+                    </div>
+                    <p class="header-subtitle">180-Day Crisis Response • 12 Nov 2025 – 11 May 2026</p>
+                    <div class="header-badges">
+                        <span class="info-badge critical">⚠️ R1.9m Deficit</span>
+                        <span class="info-badge warning">💰 Target: +5% Margin</span>
+                        <span class="info-badge">📅 <span id="countdown-inline">180 Days</span></span>
+                    </div>
                 </div>
-                <div class="countdown" id="countdown"></div>
+                <div class="countdown-large" id="countdown"></div>
                 <button onclick="logoutUser()" class="header-logout-btn" title="Logout">🚪 Logout</button>
             </div>
             <nav class="nav-tabs">
-                <button class="nav-tab active" data-view="dashboard">Dashboard</button>
-                <button class="nav-tab" data-view="phases">Phases</button>
-                <button class="nav-tab" data-view="kpis">KPIs</button>
-                <button class="nav-tab" data-view="risks">Risks</button>
+                <button class="nav-tab active" data-view="dashboard">📊 Dashboard</button>
+                <button class="nav-tab" data-view="phases">📋 Phases</button>
+                <button class="nav-tab" data-view="kpis">🎯 KPIs</button>
+                <button class="nav-tab" data-view="risks">⚠️ Risks</button>
             </nav>
         </header>
 
@@ -206,6 +248,7 @@
     <script src="js/auth.js"></script>
     <script src="js/turnaround-data.js"></script>
     <script src="js/turnaround-copilot.js"></script>
+    <script src="js/edit-milestone.js"></script>
     <script src="js/turnaround-app.js"></script>
 </body>
 </html>

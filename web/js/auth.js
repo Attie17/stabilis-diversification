@@ -6,6 +6,7 @@ const teamRoles = {
     admin: [
         { name: "Attie Nel", role: "CEO & Project Manager", access: "all", password: "attie2025" },
         { name: "Natasha Jacobs", role: "Finance Manager", access: "all", password: "natasha2025" },
+        { name: "Karin Weideman", role: "Operational Manager", access: "all", password: "karin2025" },
         { name: "Berno Paul", role: "Clinical Lead", access: "all", password: "berno2025" }
     ],
     

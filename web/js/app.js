@@ -796,6 +796,10 @@ function handleSidebarAction(action) {
             
             showModal('Overdue Items', `<h3>⚠️ Requires Attention</h3>${overdueContent}`);
             break;
+        
+        case 'edit-milestone':
+            showEditMilestoneModal();
+            break;
             
         case 'export-report':
             showModal('Export Weekly Report', `
@@ -950,6 +954,254 @@ window.applyRoleFilter = function() {
         });
     }, 300);
 };
+
+// Edit Milestone Functionality
+function showEditMilestoneModal() {
+    // Check if user has permission
+    if (!currentUser || !canEditMilestones()) {
+        showModal('Access Denied', `
+            <h3>⚠️ Permission Required</h3>
+            <p>Only the following users can edit milestones:</p>
+            <ul>
+                <li>Attie Nel (CEO/Project Manager)</li>
+                <li>Natasha Jacobs (Finance Manager/Admin)</li>
+                <li>Karin Weideman (Operational Manager)</li>
+            </ul>
+            <p>Please contact one of these administrators if you need to make changes.</p>
+        `);
+        return;
+    }
+    
+    // Get all milestones
+    let allMilestones = [];
+    projectData.phases.forEach(phase => {
+        phase.milestones.forEach(milestone => {
+            allMilestones.push({
+                ...milestone,
+                phaseId: phase.id,
+                phaseName: phase.name
+            });
+        });
+    });
+    
+    // Get all team members
+    const teamMembers = [];
+    if (typeof teamRoles !== 'undefined') {
+        teamRoles.admin.forEach(user => teamMembers.push(user.name));
+        teamRoles.team.forEach(user => teamMembers.push(user.name));
+    }
+    
+    showModal('✏️ Edit Milestone', `
+        <div class="edit-milestone-form">
+            <div class="form-group">
+                <label for="select-milestone">Select Milestone:</label>
+                <select id="select-milestone" class="form-control" onchange="loadMilestoneData()">
+                    <option value="">-- Choose a milestone --</option>
+                    ${allMilestones.map(m => `
+                        <option value="${m.id}" data-phase="${m.phaseId}">
+                            ${m.id} - ${m.title} (${m.phaseName})
+                        </option>
+                    `).join('')}
+                </select>
+            </div>
+            
+            <div id="edit-milestone-fields" style="display: none;">
+                <div class="form-group">
+                    <label for="edit-person">Person Responsible:</label>
+                    <select id="edit-person" class="form-control">
+                        <option value="">-- Select person --</option>
+                        ${teamMembers.map(name => `<option value="${name}">${name}</option>`).join('')}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-due-date">Due Date:</label>
+                    <input type="date" id="edit-due-date" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-status">Status:</label>
+                    <select id="edit-status" class="form-control">
+                        <option value="planned">Planned</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="complete">Complete</option>
+                        <option value="blocked">Blocked</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-priority">Priority:</label>
+                    <select id="edit-priority" class="form-control">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-notes">Notes:</label>
+                    <textarea id="edit-notes" class="form-control" rows="3" placeholder="Add any notes about this change..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button onclick="saveMilestoneChanges()" class="btn-primary">💾 Save Changes</button>
+                    <button onclick="closeModal()" class="btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+        
+        <style>
+            .edit-milestone-form .form-group {
+                margin-bottom: 1.25rem;
+            }
+            .edit-milestone-form label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+                color: var(--text-primary);
+            }
+            .edit-milestone-form .form-control {
+                width: 100%;
+                padding: 0.75rem;
+                border: 1px solid var(--border);
+                border-radius: 0.5rem;
+                font-size: 1rem;
+                background: var(--bg-primary);
+                color: var(--text-primary);
+            }
+            .edit-milestone-form .form-control:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            }
+            .form-actions {
+                display: flex;
+                gap: 1rem;
+                margin-top: 2rem;
+            }
+            .btn-primary, .btn-secondary {
+                flex: 1;
+                padding: 0.875rem;
+                border: none;
+                border-radius: 0.5rem;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .btn-primary {
+                background: var(--primary);
+                color: white;
+            }
+            .btn-primary:hover {
+                background: var(--primary-dark);
+                transform: translateY(-1px);
+            }
+            .btn-secondary {
+                background: var(--secondary);
+                color: white;
+            }
+            .btn-secondary:hover {
+                background: #475569;
+            }
+        </style>
+    `);
+}
+
+window.loadMilestoneData = function() {
+    const milestoneId = document.getElementById('select-milestone').value;
+    if (!milestoneId) {
+        document.getElementById('edit-milestone-fields').style.display = 'none';
+        return;
+    }
+    
+    // Find the milestone
+    let milestone = null;
+    projectData.phases.forEach(phase => {
+        const found = phase.milestones.find(m => m.id === milestoneId);
+        if (found) milestone = found;
+    });
+    
+    if (!milestone) return;
+    
+    // Show fields and populate with current data
+    document.getElementById('edit-milestone-fields').style.display = 'block';
+    document.getElementById('edit-person').value = milestone.owner || '';
+    document.getElementById('edit-due-date').value = milestone.due || milestone.dueDate || '';
+    document.getElementById('edit-status').value = milestone.status || 'planned';
+    document.getElementById('edit-priority').value = milestone.priority || 'medium';
+    document.getElementById('edit-notes').value = '';
+};
+
+window.saveMilestoneChanges = function() {
+    const milestoneId = document.getElementById('select-milestone').value;
+    if (!milestoneId) return;
+    
+    const newOwner = document.getElementById('edit-person').value;
+    const newDueDate = document.getElementById('edit-due-date').value;
+    const newStatus = document.getElementById('edit-status').value;
+    const newPriority = document.getElementById('edit-priority').value;
+    const notes = document.getElementById('edit-notes').value;
+    
+    // Find and update the milestone
+    let updated = false;
+    projectData.phases.forEach(phase => {
+        const milestone = phase.milestones.find(m => m.id === milestoneId);
+        if (milestone) {
+            if (newOwner) milestone.owner = newOwner;
+            if (newDueDate) {
+                milestone.due = newDueDate;
+                milestone.dueDate = newDueDate;
+            }
+            if (newStatus) milestone.status = newStatus;
+            if (newPriority) milestone.priority = newPriority;
+            
+            // Store change log
+            if (!milestone.changeLog) milestone.changeLog = [];
+            milestone.changeLog.push({
+                date: new Date().toISOString(),
+                user: currentUser ? currentUser.name : 'Unknown',
+                changes: {
+                    owner: newOwner,
+                    dueDate: newDueDate,
+                    status: newStatus,
+                    priority: newPriority
+                },
+                notes: notes
+            });
+            
+            updated = true;
+        }
+    });
+    
+    if (updated) {
+        // Save to localStorage
+        saveToLocalStorage();
+        
+        // Update UI
+        updateDashboard();
+        renderPhases();
+        
+        // Show success message
+        closeModal();
+        setTimeout(() => {
+            showModal('✅ Success', `
+                <h3>Milestone Updated</h3>
+                <p><strong>${milestoneId}</strong> has been successfully updated.</p>
+                <p>Changes have been saved and the dashboard has been refreshed.</p>
+            `);
+        }, 300);
+    }
+};
+
+function canEditMilestones() {
+    if (!currentUser) return false;
+    
+    // Check if user is in the admin list with edit permissions
+    const allowedUsers = ['Attie Nel', 'Natasha Jacobs', 'Karin Weideman'];
+    return allowedUsers.includes(currentUser.name);
+}
 
 // Load saved data and initialize
 loadFromLocalStorage();

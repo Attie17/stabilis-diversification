@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Assessment Report - Stabilis</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .report-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .report-header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+        .report-header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+        .report-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .report-controls select {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 0.5rem;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 0.875rem;
+        }
+        .under-development {
+            background: #fef3c7;
+            border: 2px dashed #f59e0b;
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .under-development h2 {
+            color: #92400e;
+            margin-bottom: 1rem;
+        }
+        .under-development p {
+            color: #78350f;
+            font-size: 1.125rem;
+        }
+        .placeholder-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .placeholder-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .placeholder-card h3 {
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        .placeholder-card p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            background: #1e40af;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <h1>⚠️ Risk Assessment Report</h1>
+            <p>Comprehensive risk analysis and mitigation planning</p>
+            <div class="report-controls">
+                <select id="risk-level">
+                    <option value="all">All Risk Levels</option>
+                    <option value="high">🔴 High Risk</option>
+                    <option value="medium">🟡 Medium Risk</option>
+                    <option value="low">🟢 Low Risk</option>
+                </select>
+                <select id="risk-status">
+                    <option value="all">All Statuses</option>
+                    <option value="open">Open</option>
+                    <option value="mitigating">Under Mitigation</option>
+                    <option value="resolved">Resolved</option>
+                </select>
+                <button class="back-btn" style="margin-left: auto;" onclick="window.history.back()">← Back to Project</button>
+            </div>
+        </div>
+
+        <div class="under-development">
+            <h2>🚧 Under Development</h2>
+            <p>This report is currently being built and will be available soon.</p>
+            <p style="margin-top: 1rem; font-size: 0.875rem;">Expected features: Risk heatmap, probability/impact matrix, mitigation strategies, and risk trend analysis.</p>
+        </div>
+
+        <div class="placeholder-sections">
+            <div class="placeholder-card">
+                <h3>🗺️ Risk Heatmap</h3>
+                <p>Visual representation of risks plotted by probability and impact.</p>
+            </div>
+            <div class="placeholder-card">
+                <h3>📊 Risk Distribution</h3>
+                <p>Breakdown of risks by category: financial, operational, compliance, strategic.</p>
+            </div>
+            <div class="placeholder-card">
+                <h3>🎯 Top Risks</h3>
+                <p>Prioritized list of highest-impact risks requiring immediate attention.</p>
+            </div>
+            <div class="placeholder-card">
+                <h3>🛡️ Mitigation Strategies</h3>
+                <p>Documented plans and actions to address and reduce identified risks.</p>
+            </div>
+            <div class="placeholder-card">
+                <h3>📈 Risk Trends</h3>
+                <p>Historical analysis showing how risk levels have changed over time.</p>
+            </div>
+            <div class="placeholder-card">
+                <h3>✅ Resolution Tracking</h3>
+                <p>Status of risk mitigation efforts and closed risks.</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="javascript:window.history.back()" class="back-btn">← Return to Project Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

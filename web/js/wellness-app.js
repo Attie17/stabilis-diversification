@@ -417,6 +417,9 @@ function handleSidebarAction(action) {
         case 'overdue':
             showOverdue();
             break;
+        case 'edit-milestone':
+            showEditMilestoneModal();
+            break;
         case 'view-metrics':
             alert('📊 Key Metrics Dashboard\n\n' +
                 '💰 Monthly Revenue Target: R250,000\n' +

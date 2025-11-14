@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Projection Report - Stabilis</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .report-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .report-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+        .report-header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+        .report-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .report-controls select, .report-controls input {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 0.5rem;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 0.875rem;
+        }
+        .under-development {
+            background: #fef3c7;
+            border: 2px dashed #f59e0b;
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .under-development h2 {
+            color: #92400e;
+            margin-bottom: 1rem;
+        }
+        .under-development p {
+            color: #78350f;
+            font-size: 1.125rem;
+        }
+        .placeholder-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .placeholder-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .placeholder-card h3 {
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        .placeholder-card p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            background: #1e40af;
+            transform: translateY(-1px);
+        }
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .stat-note {
+            color: #9ca3af;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        .report-section {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .report-section h2 {
+            margin: 0 0 1.5rem 0;
+            color: #1f2937;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            padding: 0.75rem;
+            text-align: right;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .data-table th:first-child, .data-table td:first-child {
+            text-align: left;
+        }
+        .data-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .data-table .total {
+            font-weight: 700;
+            color: #2563eb;
+        }
+        .data-table .highlight {
+            background: #eff6ff;
+        }
+        .data-table tfoot tr {
+            background: #f3f4f6;
+            font-weight: 700;
+        }
+        .project-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .project-card {
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+        }
+        .project-card h3 {
+            margin: 0 0 1rem 0;
+            color: #1f2937;
+        }
+        .project-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .project-stat:last-of-type {
+            border-bottom: none;
+        }
+        .project-note {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-style: italic;
+        }
+        .milestone-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .milestone-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            border-left: 4px solid #2563eb;
+        }
+        .milestone-item.highlight {
+            background: #eff6ff;
+            border-left-color: #10b981;
+        }
+        .milestone-month {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .milestone-revenue {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        .milestone-note {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        .roi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .roi-card {
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .roi-card.success {
+            background: #ecfdf5;
+            border: 2px solid #10b981;
+        }
+        .roi-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        .roi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .roi-card.success .roi-value {
+            color: #10b981;
+        }
+        .roi-breakdown {
+            margin-top: 0.75rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        .roi-note {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        .breakdown-btn {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .breakdown-btn:hover {
+            background: #1e40af;
+            transform: translateY(-1px);
+        }
+        .investment-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .investment-card {
+            background: #f9fafb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border-left: 4px solid #2563eb;
+        }
+        .investment-card.highlight {
+            background: #ecfdf5;
+            border-left-color: #10b981;
+        }
+        .investment-card h3 {
+            margin: 0 0 1rem 0;
+            color: #1f2937;
+            font-size: 1.25rem;
+        }
+        .investment-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 1rem;
+        }
+        .investment-card.highlight .investment-amount {
+            color: #10b981;
+        }
+        .investment-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .investment-items .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+        .item-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        .item-cost {
+            font-weight: 700;
+            color: #2563eb;
+        }
+        .investment-note {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+        }
+        .investment-summary {
+            background: #f9fafb;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            border: 2px solid #2563eb;
+        }
+        .investment-summary h3 {
+            margin: 0 0 1.5rem 0;
+            color: #1f2937;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .summary-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        .summary-item.success {
+            background: #ecfdf5;
+            border: 2px solid #10b981;
+        }
+        .summary-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .summary-item.success .summary-value {
+            color: #10b981;
+        }
+        .key-insights {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+        }
+        .key-insights h4 {
+            margin: 0 0 1rem 0;
+            color: #1f2937;
+        }
+        .key-insights ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .key-insights li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+            line-height: 1.6;
+        }
+        .key-insights li:last-child {
+            border-bottom: none;
+        }
+        .key-insights strong {
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <h1>📈 Revenue Projection Report</h1>
+            <p>Comprehensive revenue forecasting across all project phases</p>
+            <div class="report-controls">
+                <select id="project-filter">
+                    <option value="all">All Projects</option>
+                    <option value="diversification">Diversification</option>
+                    <option value="turnaround">Turnaround</option>
+                    <option value="wellness">Wellness Centre</option>
+                </select>
+                <input type="date" id="date-from" placeholder="From Date">
+                <input type="date" id="date-to" placeholder="To Date">
+                <button class="back-btn" style="margin-left: auto;" onclick="window.history.back()">← Back to Project</button>
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        <div class="stat-cards">
+            <div class="stat-card">
+                <div class="stat-label">18-Month Total Revenue</div>
+                <div class="stat-value">R10.97M</div>
+                <div class="stat-note">Jan 2026 - Jun 2027 (60% Success)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">2026 Average Monthly</div>
+                <div class="stat-value">R473K</div>
+                <div class="stat-note">Building to R845K sustained</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Peak Month</div>
+                <div class="stat-value">R1.08M</div>
+                <div class="stat-note">December 2026</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Payback Period</div>
+                <div class="stat-value">7 Months</div>
+                <div class="stat-note">R3.3M investment → R10.9M return</div>
+            </div>
+        </div>
+
+        <!-- Combined Revenue Chart -->
+        <div class="report-section">
+            <h2>📊 Combined Monthly Revenue Projection</h2>
+            <div class="chart-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Diversification</th>
+                            <th>Wellness Centre</th>
+                            <th>Combined Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Jan 2026</td><td>R61,200</td><td>R35,200</td><td class="total">R96,400</td></tr>
+                        <tr><td>Feb 2026</td><td>R61,200</td><td>R86,000</td><td class="total">R147,200</td></tr>
+                        <tr><td>Mar 2026</td><td>R61,200</td><td>R141,200</td><td class="total">R202,400</td></tr>
+                        <tr><td>Apr 2026</td><td>R61,200</td><td>R202,200</td><td class="total">R263,400</td></tr>
+                        <tr><td>May 2026</td><td>R140,775</td><td>R266,600</td><td class="total">R407,375</td></tr>
+                        <tr><td>Jun 2026</td><td>R140,775</td><td>R312,800</td><td class="total">R453,575</td></tr>
+                        <tr><td>Jul 2026</td><td>R140,775</td><td>R378,000</td><td class="total">R518,775</td></tr>
+                        <tr><td>Aug 2026</td><td>R140,775</td><td>R423,200</td><td class="total">R563,975</td></tr>
+                        <tr><td>Sep 2026</td><td>R140,775</td><td>R475,400</td><td class="total">R616,175</td></tr>
+                        <tr><td>Oct 2026</td><td>R140,775</td><td>R509,600</td><td class="total">R650,375</td></tr>
+                        <tr><td>Nov 2026</td><td>R140,775</td><td>R541,400</td><td class="total">R682,175</td></tr>
+                        <tr class="highlight"><td><strong>Dec 2026</strong></td><td><strong>R500,200</strong></td><td><strong>R574,000</strong></td><td class="total"><strong>R1,074,200</strong></td></tr>
+                        <tr><td>Jan 2027</td><td>R500,200</td><td>R580,200</td><td class="total">R1,080,400</td></tr>
+                        <tr><td>Feb 2027</td><td>R256,300</td><td>R583,200</td><td class="total">R839,500</td></tr>
+                        <tr><td>Mar 2027</td><td>R256,300</td><td>R586,200</td><td class="total">R842,500</td></tr>
+                        <tr><td>Apr 2027</td><td>R256,300</td><td>R589,200</td><td class="total">R845,500</td></tr>
+                        <tr><td>May 2027</td><td>R256,300</td><td>R589,200</td><td class="total">R845,500</td></tr>
+                        <tr><td>Jun 2027</td><td>R256,300</td><td>R589,200</td><td class="total">R845,500</td></tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="summary">
+                            <td><strong>18-Month Total</strong></td>
+                            <td><strong>R3,701,700</strong></td>
+                            <td><strong>R7,272,625</strong></td>
+                            <td class="total"><strong>R10,974,325</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Project Breakdown -->
+        <div class="report-section">
+            <h2>💼 Revenue by Project (60% Success Scenario)</h2>
+            <div class="project-breakdown">
+                <div class="project-card">
+                    <h3>🚨 Project 1: Turnaround</h3>
+                    <div class="project-stat">
+                        <span class="stat-label">Annual Cost Avoidance:</span>
+                        <span class="stat-value">R735,000</span>
+                    </div>
+                    <div class="project-stat">
+                        <span class="stat-label">Monthly Equivalent:</span>
+                        <span class="stat-value">R61,250</span>
+                    </div>
+                    <p class="project-note">Cost avoidance, not direct revenue. Improves net margin on existing operations.</p>
+                </div>
+
+                <div class="project-card">
+                    <h3>📈 Project 2: Diversification</h3>
+                    <div class="project-stat">
+                        <span class="stat-label">16-Month Total:</span>
+                        <span class="stat-value">R3,701,700</span>
+                    </div>
+                    <div class="project-stat">
+                        <span class="stat-label">Peak Monthly (Phase 4):</span>
+                        <span class="stat-value">R500,200</span>
+                    </div>
+                    <div class="project-stat">
+                        <span class="stat-label">Sustained Monthly:</span>
+                        <span class="stat-value">R256,300</span>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <h3>💚 Project 3: Wellness Centre</h3>
+                    <div class="project-stat">
+                        <span class="stat-label">18-Month Total:</span>
+                        <span class="stat-value">R7,272,625</span>
+                    </div>
+                    <div class="project-stat">
+                        <span class="stat-label">2026 Average Monthly:</span>
+                        <span class="stat-value">R328,800</span>
+                    </div>
+                    <div class="project-stat">
+                        <span class="stat-label">Sustained Monthly (2027):</span>
+                        <span class="stat-value">R589,200</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Milestones -->
+        <div class="report-section">
+            <h2>🎯 Revenue Milestones</h2>
+            <div class="milestone-timeline">
+                <div class="milestone-item">
+                    <div class="milestone-month">Month 1 (Jan 2026)</div>
+                    <div class="milestone-revenue">R96,400</div>
+                    <div class="milestone-note">Soft launch phase</div>
+                </div>
+                <div class="milestone-item">
+                    <div class="milestone-month">Month 5 (May 2026)</div>
+                    <div class="milestone-revenue">R407,375</div>
+                    <div class="milestone-note">Breaking R400K/month barrier</div>
+                </div>
+                <div class="milestone-item">
+                    <div class="milestone-month">Month 9 (Sep 2026)</div>
+                    <div class="milestone-revenue">R616,175</div>
+                    <div class="milestone-note">Breaking R600K/month barrier</div>
+                </div>
+                <div class="milestone-item highlight">
+                    <div class="milestone-month">Month 12 (Dec 2026)</div>
+                    <div class="milestone-revenue">R1,074,200</div>
+                    <div class="milestone-note">🎉 Peak month - all streams mature</div>
+                </div>
+                <div class="milestone-item">
+                    <div class="milestone-month">Jan-Jun 2027</div>
+                    <div class="milestone-revenue">R845,500</div>
+                    <div class="milestone-note">Sustained monthly average</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investment ROI -->
+        <div class="report-section">
+            <h2>💰 Investment & Return Analysis</h2>
+            <div class="roi-grid">
+                <div class="roi-card">
+                    <div class="roi-label">Total Investment</div>
+                    <div class="roi-value">R3.3M</div>
+                    <div class="roi-breakdown">
+                        <div>Turnaround: Minimal</div>
+                        <div>Diversification: R500K</div>
+                        <div>Wellness: R2.8M</div>
+                    </div>
+                </div>
+                <div class="roi-card">
+                    <div class="roi-label">12-Month Revenue (2026)</div>
+                    <div class="roi-value">R5.68M</div>
+                </div>
+                <div class="roi-card">
+                    <div class="roi-label">Payback Period</div>
+                    <div class="roi-value">~7 Months</div>
+                </div>
+                <div class="roi-card success">
+                    <div class="roi-label">18-Month ROI</div>
+                    <div class="roi-value">233%</div>
+                    <div class="roi-note">R7.67M net gain on R3.3M investment</div>
+                    <button class="breakdown-btn" onclick="showInvestmentBreakdown()">📋 Investment Breakdown</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investment Breakdown Section -->
+        <div class="report-section">
+            <h2>💵 Investment Breakdown & Allocation</h2>
+            <div class="investment-details">
+                <div class="investment-card">
+                    <h3>🚨 Project 1: Turnaround (Minimal Investment)</h3>
+                    <div class="investment-amount">~R100,000 - R200,000</div>
+                    <div class="investment-items">
+                        <div class="item">
+                            <span class="item-name">🔍 Financial Audit & Compliance</span>
+                            <span class="item-cost">R50,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">📊 Accounting System Upgrade</span>
+                            <span class="item-cost">R30,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">📚 Training (Cash Flow Management)</span>
+                            <span class="item-cost">R20,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">💼 Consultant Fees (Part-time CFO)</span>
+                            <span class="item-cost">R50,000</span>
+                        </div>
+                    </div>
+                    <p class="investment-note">⚡ <strong>Quick Win:</strong> Mostly cost restructuring - no major capital required. Focus on process optimization and compliance catch-up.</p>
+                </div>
+
+                <div class="investment-card">
+                    <h3>📈 Project 2: Diversification (~R500,000)</h3>
+                    <div class="investment-amount">R500,000</div>
+                    <div class="investment-items">
+                        <div class="item">
+                            <span class="item-name">👨‍⚕️ Staff Training & Certification</span>
+                            <span class="item-cost">R150,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">🛏️ Facility Upgrades (Adolescent Wing)</span>
+                            <span class="item-cost">R120,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">📱 Marketing & Brand Positioning</span>
+                            <span class="item-cost">R80,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">🖥️ Technology (EMR, CRM systems)</span>
+                            <span class="item-cost">R70,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">📋 Program Development Materials</span>
+                            <span class="item-cost">R50,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">🔬 Clinical Equipment & Supplies</span>
+                            <span class="item-cost">R30,000</span>
+                        </div>
+                    </div>
+                    <p class="investment-note">💡 <strong>Leverages existing:</strong> Uses current facility and staff as foundation. Investment focuses on upskilling and targeted enhancements.</p>
+                </div>
+
+                <div class="investment-card highlight">
+                    <h3>💚 Project 3: Wellness Centre (R2,800,000)</h3>
+                    <div class="investment-amount">R2,800,000</div>
+                    <div class="investment-items">
+                        <div class="item">
+                            <span class="item-name">🏢 Facility Lease & Renovations (12 months)</span>
+                            <span class="item-cost">R720,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">👥 Practitioner Salaries (6 staff × 6 months)</span>
+                            <span class="item-cost">R900,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">🛋️ Furniture, Equipment & Setup</span>
+                            <span class="item-cost">R400,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">💻 Technology (Booking, EMR, Website)</span>
+                            <span class="item-cost">R250,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">📢 Marketing & Launch Campaign</span>
+                            <span class="item-cost">R300,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">📜 Licenses, Insurance & Legal</span>
+                            <span class="item-cost">R100,000</span>
+                        </div>
+                        <div class="item">
+                            <span class="item-name">💼 Working Capital Reserve (3 months)</span>
+                            <span class="item-cost">R130,000</span>
+                        </div>
+                    </div>
+                    <p class="investment-note">🎯 <strong>New Revenue Stream:</strong> Largest investment but creates entirely new business line with R589K/month sustained revenue by 2027.</p>
+                </div>
+            </div>
+
+            <div class="investment-summary">
+                <h3>📊 Investment Summary & Rationale</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-label">Total Investment Required</div>
+                        <div class="summary-value">R3,300,000</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Revenue Generated (18 months)</div>
+                        <div class="summary-value">R10,974,325</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Net Gain</div>
+                        <div class="summary-value">R7,674,325</div>
+                    </div>
+                    <div class="summary-item success">
+                        <div class="summary-label">Return on Investment</div>
+                        <div class="summary-value">233%</div>
+                    </div>
+                </div>
+
+                <div class="key-insights">
+                    <h4>💡 Key Investment Insights:</h4>
+                    <ul>
+                        <li><strong>Phased Deployment:</strong> Investment staged over 6-12 months, not required upfront</li>
+                        <li><strong>Risk Mitigation:</strong> Turnaround (minimal cost) must succeed before committing to Wellness Centre</li>
+                        <li><strong>Revenue Validation:</strong> Diversification revenue (Month 5+) can fund Wellness Centre setup</li>
+                        <li><strong>Quick Payback:</strong> 7-month payback period means capital recovered by August 2026</li>
+                        <li><strong>Sustainable Model:</strong> By Month 12, generating R1M+/month to fund operations and growth</li>
+                        <li><strong>Asset Creation:</strong> Investment builds long-term business infrastructure, not just operational costs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="javascript:window.history.back()" class="back-btn">← Return to Project Dashboard</a>
+        </div>
+    </div>
+    
+    <script src="../js/auth.js"></script>
+    <script>
+        // Initialize auth
+        initAuth();
+        
+        // Set default dates
+        const today = new Date();
+        const fromDate = new Date(2026, 0, 1); // Jan 1, 2026
+        const toDate = new Date(2027, 5, 30); // Jun 30, 2027
+        
+        document.getElementById('date-from').value = fromDate.toISOString().split('T')[0];
+        document.getElementById('date-to').value = toDate.toISOString().split('T')[0];
+        
+        // Log report view
+        console.log('Revenue Projection Report viewed:', new Date().toISOString());
+        
+        // Scroll to investment breakdown
+        window.showInvestmentBreakdown = function() {
+            const breakdownSection = document.querySelector('.investment-details').parentElement;
+            breakdownSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            breakdownSection.style.animation = 'highlight 1s ease';
+        };
+    </script>
+</body>
+</html>

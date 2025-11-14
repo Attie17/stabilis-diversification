@@ -823,6 +823,36 @@ function handleSidebarAction(action) {
         case 'kpi-dashboard':
             switchView('kpis');
             break;
+        
+        case 'edit-milestone':
+            showEditMilestoneModal();
+            break;
+        
+        // Report navigation
+        case 'revenue-projection':
+            window.location.href = '/reports/revenue-projection.html';
+            break;
+        case 'cost-analysis':
+            window.location.href = '/reports/cost-analysis.html';
+            break;
+        case 'phase-progress':
+            window.location.href = '/reports/phase-progress.html';
+            break;
+        case 'risk-assessment':
+            window.location.href = '/reports/risk-assessment.html';
+            break;
+        case 'resource-utilization':
+            window.location.href = '/reports/resource-utilization.html';
+            break;
+        case 'kpi-dashboard-report':
+            window.location.href = '/reports/kpi-dashboard.html';
+            break;
+        case 'timeline-analysis':
+            window.location.href = '/reports/timeline-analysis.html';
+            break;
+        case 'budget-actual':
+            window.location.href = '/reports/budget-actual.html';
+            break;
             
         case 'toggle-theme':
             document.body.classList.toggle('dark-theme');
