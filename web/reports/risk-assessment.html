@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../css/style.css">
     <style>
         .report-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 2rem auto;
             padding: 2rem;
         }
@@ -20,77 +20,243 @@
         }
         .report-header h1 {
             margin: 0 0 0.5rem 0;
-            font-size: 2rem;
-        }
-        .report-controls {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        .report-controls select {
-            padding: 0.5rem 1rem;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 0.5rem;
-            background: rgba(255,255,255,0.15);
-            color: white;
-            font-size: 0.875rem;
-        }
-        .under-development {
-            background: #fef3c7;
-            border: 2px dashed #f59e0b;
-            border-radius: 1rem;
-            padding: 3rem;
-            text-align: center;
-            margin: 2rem 0;
-        }
-        .under-development h2 {
-            color: #92400e;
-            margin-bottom: 1rem;
-        }
-        .under-development p {
-            color: #78350f;
-            font-size: 1.125rem;
-        }
-        .placeholder-sections {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-        .placeholder-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .placeholder-card h3 {
-            color: #1f2937;
-            margin-bottom: 0.5rem;
-        }
-        .placeholder-card p {
-            color: #6b7280;
-            font-size: 0.875rem;
         }
         .back-btn {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
             padding: 0.75rem 1.5rem;
-            background: #2563eb;
-            color: white;
+            background: white;
+            color: #f59e0b;
             border: none;
             border-radius: 0.5rem;
-            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             transition: all 0.2s;
         }
         .back-btn:hover {
-            background: #1e40af;
-            transform: translateY(-1px);
+            background: #f3f4f6;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-card.high {
+            border-top: 4px solid #ef4444;
+        }
+        .stat-card.medium {
+            border-top: 4px solid #f59e0b;
+        }
+        .stat-card.low {
+            border-top: 4px solid #10b981;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        .stat-value.high {
+            color: #ef4444;
+        }
+        .stat-value.medium {
+            color: #f59e0b;
+        }
+        .stat-value.low {
+            color: #10b981;
+        }
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        .report-section {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .report-section h2 {
+            margin: 0 0 1.5rem 0;
+        }
+        .heatmap {
+            display: grid;
+            grid-template-columns: 80px repeat(5, 1fr);
+            grid-template-rows: repeat(6, 60px);
+            gap: 0.5rem;
+            margin: 2rem 0;
+        }
+        .heatmap-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+        .heatmap-cell {
+            background: #f3f4f6;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .heatmap-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .heatmap-cell.high {
+            background: #fecaca;
+            color: #991b1b;
+        }
+        .heatmap-cell.medium {
+            background: #fed7aa;
+            color: #92400e;
+        }
+        .heatmap-cell.low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .risk-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .risk-card {
+            background: #f9fafb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border-left: 4px solid #d1d5db;
+        }
+        .risk-card.high {
+            border-left-color: #ef4444;
+        }
+        .risk-card.medium {
+            border-left-color: #f59e0b;
+        }
+        .risk-card.low {
+            border-left-color: #10b981;
+        }
+        .risk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+        .risk-title {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 1.125rem;
+        }
+        .risk-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .risk-badge.high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .risk-badge.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .risk-badge.low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .risk-description {
+            color: #4b5563;
+            margin: 0.5rem 0 1rem 0;
+            line-height: 1.6;
+        }
+        .risk-meta {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .risk-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .mitigation-section {
+            background: #eff6ff;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .mitigation-section h4 {
+            margin: 0 0 0.5rem 0;
+            color: #1e40af;
+            font-size: 0.875rem;
+        }
+        .distribution-chart {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .dist-bar {
+            flex: 1;
+            background: #f3f4f6;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+        }
+        .dist-bar-fill {
+            height: 120px;
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            padding-bottom: 0.5rem;
+        }
+        .dist-bar.medium .dist-bar-fill {
+            background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+        }
+        .dist-bar.low .dist-bar-fill {
+            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+        }
+        .filter-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            border-color: #f59e0b;
+        }
+        .filter-btn.active {
+            background: #f59e0b;
+            color: white;
+            border-color: #f59e0b;
         }
     </style>
 </head>
@@ -98,60 +264,195 @@
     <div class="report-container">
         <div class="report-header">
             <h1>⚠️ Risk Assessment Report</h1>
-            <p>Comprehensive risk analysis and mitigation planning</p>
-            <div class="report-controls">
-                <select id="risk-level">
-                    <option value="all">All Risk Levels</option>
-                    <option value="high">🔴 High Risk</option>
-                    <option value="medium">🟡 Medium Risk</option>
-                    <option value="low">🟢 Low Risk</option>
-                </select>
-                <select id="risk-status">
-                    <option value="all">All Statuses</option>
-                    <option value="open">Open</option>
-                    <option value="mitigating">Under Mitigation</option>
-                    <option value="resolved">Resolved</option>
-                </select>
-                <button class="back-btn" style="margin-left: auto;" onclick="window.history.back()">← Back to Project</button>
+            <p>Comprehensive risk analysis and mitigation strategies</p>
+            <button class="back-btn" onclick="window.history.back()">← Back to Project</button>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="stats-grid">
+            <div class="stat-card high">
+                <div class="stat-label">High Risk</div>
+                <div class="stat-value high" id="high-count">0</div>
+            </div>
+            <div class="stat-card medium">
+                <div class="stat-label">Medium Risk</div>
+                <div class="stat-value medium" id="medium-count">0</div>
+            </div>
+            <div class="stat-card low">
+                <div class="stat-label">Low Risk</div>
+                <div class="stat-value low" id="low-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Risks</div>
+                <div class="stat-value" id="total-count">0</div>
             </div>
         </div>
 
-        <div class="under-development">
-            <h2>🚧 Under Development</h2>
-            <p>This report is currently being built and will be available soon.</p>
-            <p style="margin-top: 1rem; font-size: 0.875rem;">Expected features: Risk heatmap, probability/impact matrix, mitigation strategies, and risk trend analysis.</p>
+        <!-- Risk Heatmap -->
+        <div class="report-section">
+            <h2>🗺️ Risk Heatmap (Probability × Impact)</h2>
+            <div class="heatmap">
+                <div class="heatmap-label"></div>
+                <div class="heatmap-label">Very Low</div>
+                <div class="heatmap-label">Low</div>
+                <div class="heatmap-label">Medium</div>
+                <div class="heatmap-label">High</div>
+                <div class="heatmap-label">Very High</div>
+                
+                <div class="heatmap-label">Very High</div>
+                <div class="heatmap-cell medium" id="cell-1-5"></div>
+                <div class="heatmap-cell high" id="cell-2-5"></div>
+                <div class="heatmap-cell high" id="cell-3-5"></div>
+                <div class="heatmap-cell high" id="cell-4-5"></div>
+                <div class="heatmap-cell high" id="cell-5-5"></div>
+                
+                <div class="heatmap-label">High</div>
+                <div class="heatmap-cell low" id="cell-1-4"></div>
+                <div class="heatmap-cell medium" id="cell-2-4"></div>
+                <div class="heatmap-cell high" id="cell-3-4"></div>
+                <div class="heatmap-cell high" id="cell-4-4"></div>
+                <div class="heatmap-cell high" id="cell-5-4"></div>
+                
+                <div class="heatmap-label">Medium</div>
+                <div class="heatmap-cell low" id="cell-1-3"></div>
+                <div class="heatmap-cell medium" id="cell-2-3"></div>
+                <div class="heatmap-cell medium" id="cell-3-3"></div>
+                <div class="heatmap-cell high" id="cell-4-3"></div>
+                <div class="heatmap-cell high" id="cell-5-3"></div>
+                
+                <div class="heatmap-label">Low</div>
+                <div class="heatmap-cell low" id="cell-1-2"></div>
+                <div class="heatmap-cell low" id="cell-2-2"></div>
+                <div class="heatmap-cell medium" id="cell-3-2"></div>
+                <div class="heatmap-cell medium" id="cell-4-2"></div>
+                <div class="heatmap-cell high" id="cell-5-2"></div>
+                
+                <div class="heatmap-label">Very Low</div>
+                <div class="heatmap-cell low" id="cell-1-1"></div>
+                <div class="heatmap-cell low" id="cell-2-1"></div>
+                <div class="heatmap-cell low" id="cell-3-1"></div>
+                <div class="heatmap-cell medium" id="cell-4-1"></div>
+                <div class="heatmap-cell medium" id="cell-5-1"></div>
+            </div>
+            <p style="text-align: center; color: #6b7280; font-size: 0.875rem; margin-top: 1rem;">
+                <strong>Y-axis:</strong> Impact on Project Success | <strong>X-axis:</strong> Probability of Occurrence
+            </p>
         </div>
 
-        <div class="placeholder-sections">
-            <div class="placeholder-card">
-                <h3>🗺️ Risk Heatmap</h3>
-                <p>Visual representation of risks plotted by probability and impact.</p>
+        <!-- Risk List -->
+        <div class="report-section">
+            <h2>📋 Detailed Risk Register</h2>
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterRisks('all')">All Risks</button>
+                <button class="filter-btn" onclick="filterRisks('high')">🔴 High</button>
+                <button class="filter-btn" onclick="filterRisks('medium')">🟡 Medium</button>
+                <button class="filter-btn" onclick="filterRisks('low')">🟢 Low</button>
             </div>
-            <div class="placeholder-card">
-                <h3>📊 Risk Distribution</h3>
-                <p>Breakdown of risks by category: financial, operational, compliance, strategic.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>🎯 Top Risks</h3>
-                <p>Prioritized list of highest-impact risks requiring immediate attention.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>🛡️ Mitigation Strategies</h3>
-                <p>Documented plans and actions to address and reduce identified risks.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>📈 Risk Trends</h3>
-                <p>Historical analysis showing how risk levels have changed over time.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>✅ Resolution Tracking</h3>
-                <p>Status of risk mitigation efforts and closed risks.</p>
-            </div>
+            <div class="risk-list" id="risk-list"></div>
         </div>
 
         <div style="text-align: center; margin-top: 3rem;">
-            <a href="javascript:window.history.back()" class="back-btn">← Return to Project Dashboard</a>
+            <button class="back-btn" onclick="window.history.back()">← Return to Project Dashboard</button>
         </div>
     </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/data.js"></script>
+    <script>
+        initAuth();
+
+        // Mitigation strategies database
+        const mitigationStrategies = {
+            "R-001": "Implement monthly revenue tracking dashboard. Establish fallback revenue streams. Review pricing strategy quarterly.",
+            "R-002": "Hire additional staff or redistribute workload. Consider part-time contractors. Implement efficiency improvements.",
+            "R-003": "Improve billing accuracy. Follow up claims within 7 days. Maintain 3-month cash reserve. Build relationship with medical aids.",
+            "R-004": "Strengthen HR policies. Conduct regular team check-ins. Offer competitive retention packages.",
+            "R-005": "Implement robust compliance tracking system. Regular internal audits. External consultant reviews.",
+            "R-006": "Diversify funding sources. Maintain investor relationships. Explore alternative financing options.",
+            "R-007": "Develop strong parent engagement programs. Clear communication protocols. Build trust through transparency.",
+            "R-008": "Extensive pre-launch market research. Pilot programs before full rollout. Regular client feedback loops.",
+            "R-009": "Agile project management. Regular milestone reviews. Build buffer time into schedules.",
+            "R-010": "Regular performance metrics review. Early intervention protocols. Quality assurance processes."
+        };
+
+        // Calculate risk distribution
+        function calculateDistribution() {
+            const dist = { high: 0, medium: 0, low: 0 };
+            projectData.risks.forEach(risk => {
+                dist[risk.severity]++;
+            });
+            return dist;
+        }
+
+        // Render risk cards
+        function renderRisks(filter = 'all') {
+            const container = document.getElementById('risk-list');
+            const risks = filter === 'all' 
+                ? projectData.risks 
+                : projectData.risks.filter(r => r.severity === filter);
+
+            container.innerHTML = risks.map(risk => `
+                <div class="risk-card ${risk.severity}">
+                    <div class="risk-header">
+                        <div class="risk-title">${risk.id}: ${risk.title}</div>
+                        <span class="risk-badge ${risk.severity}">
+                            ${risk.severity === 'high' ? '🔴' : risk.severity === 'medium' ? '🟡' : '🟢'} 
+                            ${risk.severity.toUpperCase()}
+                        </span>
+                    </div>
+                    <p class="risk-description">${risk.description}</p>
+                    <div class="risk-meta">
+                        <span>👤 <strong>Owner:</strong> ${risk.owner}</span>
+                        <span>📊 <strong>Impact:</strong> ${risk.impact}</span>
+                        <span>🎲 <strong>Likelihood:</strong> ${risk.likelihood}</span>
+                    </div>
+                    <div class="mitigation-section">
+                        <h4>🛡️ Mitigation Strategy</h4>
+                        <p style="margin: 0; color: #1e40af; font-size: 0.875rem;">
+                            ${mitigationStrategies[risk.id] || "Mitigation plan under development"}
+                        </p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter risks
+        window.filterRisks = function(level) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            renderRisks(level);
+        };
+
+        // Map risks to heatmap
+        function populateHeatmap() {
+            const impactMap = { 'Very Low': 1, 'Low': 2, 'Medium': 3, 'High': 4, 'Very High': 5 };
+            const likelihoodMap = { 'Very Low': 1, 'Low': 2, 'Medium': 3, 'High': 4, 'Very High': 5 };
+
+            projectData.risks.forEach(risk => {
+                const impact = impactMap[risk.impact] || 3;
+                const likelihood = likelihoodMap[risk.likelihood] || 3;
+                const cellId = `cell-${likelihood}-${impact}`;
+                const cell = document.getElementById(cellId);
+                
+                if (cell) {
+                    const currentCount = parseInt(cell.textContent) || 0;
+                    cell.textContent = currentCount + 1;
+                    cell.title = `${currentCount + 1} risk(s) in this category`;
+                }
+            });
+        }
+
+        // Initialize
+        const dist = calculateDistribution();
+        document.getElementById('high-count').textContent = dist.high;
+        document.getElementById('medium-count').textContent = dist.medium;
+        document.getElementById('low-count').textContent = dist.low;
+        document.getElementById('total-count').textContent = projectData.risks.length;
+
+        renderRisks();
+        populateHeatmap();
+    </script>
 </body>
 </html>

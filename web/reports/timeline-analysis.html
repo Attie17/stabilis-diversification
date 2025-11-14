@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timeline Analysis Report - Stabilis</title>
+    <title>Timeline Analysis - Stabilis</title>
     <link rel="stylesheet" href="../css/style.css">
     <style>
         .report-container {
-            max-width: 1200px;
+            max-width: 1600px;
             margin: 2rem auto;
             padding: 2rem;
         }
@@ -18,138 +18,280 @@
             border-radius: 1rem;
             margin-bottom: 2rem;
         }
-        .report-header h1 {
-            margin: 0 0 0.5rem 0;
-            font-size: 2rem;
-        }
-        .report-controls {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        .report-controls select {
-            padding: 0.5rem 1rem;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 0.5rem;
-            background: rgba(255,255,255,0.15);
-            color: white;
-            font-size: 0.875rem;
-        }
-        .under-development {
-            background: #fef3c7;
-            border: 2px dashed #f59e0b;
-            border-radius: 1rem;
-            padding: 3rem;
-            text-align: center;
-            margin: 2rem 0;
-        }
-        .under-development h2 {
-            color: #92400e;
-            margin-bottom: 1rem;
-        }
-        .under-development p {
-            color: #78350f;
-            font-size: 1.125rem;
-        }
-        .placeholder-sections {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-        .placeholder-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .placeholder-card h3 {
-            color: #1f2937;
-            margin-bottom: 0.5rem;
-        }
-        .placeholder-card p {
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
         .back-btn {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
             padding: 0.75rem 1.5rem;
-            background: #2563eb;
-            color: white;
+            background: white;
+            color: #ec4899;
             border: none;
             border-radius: 0.5rem;
-            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.2s;
         }
-        .back-btn:hover {
-            background: #1e40af;
-            transform: translateY(-1px);
+        .gantt-container {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        .gantt-chart {
+            min-width: 1200px;
+        }
+        .gantt-header {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .gantt-row-label {
+            width: 250px;
+            font-weight: 600;
+            color: #1f2937;
+            padding: 0.75rem;
+        }
+        .gantt-timeline {
+            flex: 1;
+            display: flex;
+        }
+        .gantt-month {
+            flex: 1;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #6b7280;
+        }
+        .gantt-row {
+            display: flex;
+            border-bottom: 1px solid #f3f4f6;
+            min-height: 50px;
+            align-items: center;
+        }
+        .gantt-bars {
+            flex: 1;
+            display: flex;
+            position: relative;
+            height: 40px;
+        }
+        .gantt-bar {
+            position: absolute;
+            height: 30px;
+            background: linear-gradient(90deg, #ec4899 0%, #f472b6 100%);
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            padding: 0 0.75rem;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(236,72,153,0.2);
+        }
+        .gantt-bar.complete {
+            background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+            box-shadow: 0 2px 4px rgba(16,185,129,0.2);
+        }
+        .gantt-bar.active {
+            background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+            box-shadow: 0 2px 4px rgba(59,130,246,0.2);
+        }
+        .current-date-marker {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: #ef4444;
+            z-index: 10;
+        }
+        .current-date-label {
+            position: absolute;
+            top: -25px;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .legend {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .legend-color {
+            width: 30px;
+            height: 15px;
+            border-radius: 0.25rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
         }
     </style>
 </head>
 <body>
     <div class="report-container">
         <div class="report-header">
-            <h1>📅 Timeline Analysis Report</h1>
-            <p>Project schedule analysis with Gantt charts and critical path tracking</p>
-            <div class="report-controls">
-                <select id="view-type">
-                    <option value="gantt">Gantt Chart View</option>
-                    <option value="calendar">Calendar View</option>
-                    <option value="critical-path">Critical Path</option>
-                </select>
-                <select id="zoom-level">
-                    <option value="days">Daily</option>
-                    <option value="weeks">Weekly</option>
-                    <option value="months">Monthly</option>
-                </select>
-                <button class="back-btn" style="margin-left: auto;" onclick="window.history.back()">← Back to Project</button>
+            <h1>📅 Timeline Analysis & Gantt Chart</h1>
+            <p>Project schedule visualization with phase dependencies and critical path</p>
+            <button class="back-btn" onclick="window.history.back()">← Back to Project</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="total-days">0</div>
+                <div class="stat-label">Total Project Days</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="days-elapsed">0</div>
+                <div class="stat-label">Days Elapsed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="days-remaining">0</div>
+                <div class="stat-label">Days Remaining</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completion-date">TBD</div>
+                <div class="stat-label">Target Completion</div>
             </div>
         </div>
 
-        <div class="under-development">
-            <h2>🚧 Under Development</h2>
-            <p>This report is currently being built and will be available soon.</p>
-            <p style="margin-top: 1rem; font-size: 0.875rem;">Expected features: Interactive Gantt charts, critical path analysis, dependency mapping, and timeline forecasting.</p>
-        </div>
-
-        <div class="placeholder-sections">
-            <div class="placeholder-card">
-                <h3>📊 Gantt Chart</h3>
-                <p>Visual timeline showing all phases, milestones, and their dependencies.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>🎯 Critical Path</h3>
-                <p>Identification of tasks that directly impact project completion date.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>🔗 Dependencies</h3>
-                <p>Mapping of milestone dependencies and sequential requirements.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>⏱️ Schedule Variance</h3>
-                <p>Analysis of planned vs actual timelines with variance explanations.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>📈 Forecast to Complete</h3>
-                <p>Projected completion dates based on current progress rates.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>🚦 Timeline Health</h3>
-                <p>Overall project schedule health with red/amber/green indicators.</p>
+        <div class="gantt-container">
+            <h2 style="margin: 0 0 1.5rem 0;">📊 Project Gantt Chart</h2>
+            <div class="gantt-chart" id="gantt-chart"></div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(90deg, #10b981 0%, #34d399 100%);"></div>
+                    <span>Completed</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);"></div>
+                    <span>In Progress</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(90deg, #ec4899 0%, #f472b6 100%);"></div>
+                    <span>Planned</span>
+                </div>
+                <div class="legend-item">
+                    <div style="width: 2px; height: 20px; background: #ef4444;"></div>
+                    <span>Today</span>
+                </div>
             </div>
         </div>
 
         <div style="text-align: center; margin-top: 3rem;">
-            <a href="javascript:window.history.back()" class="back-btn">← Return to Project Dashboard</a>
+            <button class="back-btn" onclick="window.history.back()">← Return to Project Dashboard</button>
         </div>
     </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/data.js"></script>
+    <script>
+        initAuth();
+
+        const projectStart = new Date(projectData.startDate);
+        const projectEnd = new Date(projectData.endDate);
+        const today = new Date();
+
+        // Calculate project stats
+        const totalDays = Math.ceil((projectEnd - projectStart) / (1000 * 60 * 60 * 24));
+        const daysElapsed = Math.max(0, Math.ceil((today - projectStart) / (1000 * 60 * 60 * 24)));
+        const daysRemaining = Math.max(0, Math.ceil((projectEnd - today) / (1000 * 60 * 60 * 24)));
+
+        document.getElementById('total-days').textContent = totalDays;
+        document.getElementById('days-elapsed').textContent = daysElapsed;
+        document.getElementById('days-remaining').textContent = daysRemaining;
+        document.getElementById('completion-date').textContent = projectEnd.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
+
+        // Generate month headers
+        function generateMonthHeaders() {
+            const months = [];
+            let current = new Date(projectStart);
+            while (current <= projectEnd) {
+                months.push(new Date(current));
+                current.setMonth(current.getMonth() + 1);
+            }
+            return months;
+        }
+
+        // Render Gantt chart
+        function renderGantt() {
+            const container = document.getElementById('gantt-chart');
+            const months = generateMonthHeaders();
+            
+            // Header
+            let html = '<div class="gantt-header">';
+            html += '<div class="gantt-row-label">Phase / Milestone</div>';
+            html += '<div class="gantt-timeline">';
+            months.forEach(month => {
+                html += `<div class="gantt-month">${month.toLocaleDateString('en-ZA', { month: 'short', year: '2-digit' })}</div>`;
+            });
+            html += '</div></div>';
+
+            // Phases
+            projectData.phases.forEach(phase => {
+                const phaseStart = new Date(phase.startDate);
+                const phaseEnd = new Date(phase.endDate);
+                const startOffset = ((phaseStart - projectStart) / (projectEnd - projectStart)) * 100;
+                const width = ((phaseEnd - phaseStart) / (projectEnd - projectStart)) * 100;
+                
+                const isComplete = phase.milestones.every(m => m.status === 'complete');
+                const isActive = today >= phaseStart && today <= phaseEnd;
+                const statusClass = isComplete ? 'complete' : isActive ? 'active' : '';
+
+                html += '<div class="gantt-row">';
+                html += `<div class="gantt-row-label">${phase.name}</div>`;
+                html += '<div class="gantt-bars">';
+                html += `<div class="gantt-bar ${statusClass}" style="left: ${startOffset}%; width: ${width}%">
+                    ${phase.name.split('–')[0].trim()}
+                </div>`;
+                html += '</div></div>';
+            });
+
+            // Current date marker
+            if (today >= projectStart && today <= projectEnd) {
+                const todayOffset = ((today - projectStart) / (projectEnd - projectStart)) * 100;
+                const marker = `<div class="current-date-marker" style="left: ${todayOffset}%">
+                    <div class="current-date-label">Today</div>
+                </div>`;
+                html = html.replace('</div></div>', marker + '</div></div>');
+            }
+
+            container.innerHTML = html;
+        }
+
+        renderGantt();
+    </script>
 </body>
 </html>

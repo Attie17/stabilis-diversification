@@ -7,12 +7,12 @@
     <link rel="stylesheet" href="../css/style.css">
     <style>
         .report-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 2rem auto;
             padding: 2rem;
         }
         .report-header {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
             color: white;
             padding: 2rem;
             border-radius: 1rem;
@@ -20,138 +20,434 @@
         }
         .report-header h1 {
             margin: 0 0 0.5rem 0;
-            font-size: 2rem;
-        }
-        .report-controls {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        .report-controls select {
-            padding: 0.5rem 1rem;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 0.5rem;
-            background: rgba(255,255,255,0.15);
-            color: white;
-            font-size: 0.875rem;
-        }
-        .under-development {
-            background: #fef3c7;
-            border: 2px dashed #f59e0b;
-            border-radius: 1rem;
-            padding: 3rem;
-            text-align: center;
-            margin: 2rem 0;
-        }
-        .under-development h2 {
-            color: #92400e;
-            margin-bottom: 1rem;
-        }
-        .under-development p {
-            color: #78350f;
-            font-size: 1.125rem;
-        }
-        .placeholder-sections {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-        .placeholder-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .placeholder-card h3 {
-            color: #1f2937;
-            margin-bottom: 0.5rem;
-        }
-        .placeholder-card p {
-            color: #6b7280;
-            font-size: 0.875rem;
         }
         .back-btn {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
             padding: 0.75rem 1.5rem;
-            background: #2563eb;
-            color: white;
+            background: white;
+            color: #8b5cf6;
             border: none;
             border-radius: 0.5rem;
-            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             transition: all 0.2s;
         }
         .back-btn:hover {
-            background: #1e40af;
+            background: #f3f4f6;
             transform: translateY(-1px);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .stat-value.success {
+            color: #10b981;
+        }
+        .stat-value.warning {
+            color: #f59e0b;
+        }
+        .report-section {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .report-section h2 {
+            margin: 0 0 1.5rem 0;
+            color: #1f2937;
+        }
+        .phase-card {
+            background: #f9fafb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #8b5cf6;
+        }
+        .phase-card.complete {
+            border-left-color: #10b981;
+            background: #ecfdf5;
+        }
+        .phase-card.active {
+            border-left-color: #3b82f6;
+            background: #eff6ff;
+        }
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .phase-header h3 {
+            margin: 0;
+            color: #1f2937;
+        }
+        .phase-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .phase-status.complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .phase-status.active {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .phase-status.planned {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 1.5rem;
+            background: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .progress-fill.complete {
+            background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+        }
+        .milestone-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .milestone-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+        .milestone-item.complete {
+            background: #ecfdf5;
+            border-color: #10b981;
+        }
+        .milestone-checkbox {
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            border: 2px solid #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .milestone-item.complete .milestone-checkbox {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+        .milestone-title {
+            flex: 1;
+            font-weight: 500;
+            color: #1f2937;
+        }
+        .milestone-item.complete .milestone-title {
+            color: #059669;
+        }
+        .milestone-owner {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .milestone-due {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .timeline-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        .timeline-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .timeline-label {
+            width: 150px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1f2937;
+        }
+        .timeline-bar {
+            flex: 1;
+            height: 2rem;
+            background: #f3f4f6;
+            border-radius: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .timeline-segment {
+            position: absolute;
+            height: 100%;
+            background: #8b5cf6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .critical-items {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        .critical-items h3 {
+            margin: 0 0 1rem 0;
+            color: #92400e;
         }
     </style>
 </head>
 <body>
     <div class="report-container">
         <div class="report-header">
-            <h1>📋 Phase Progress Report</h1>
-            <p>Detailed progress tracking across all project phases and milestones</p>
-            <div class="report-controls">
-                <select id="project-filter">
-                    <option value="all">All Projects</option>
-                    <option value="diversification">Diversification</option>
-                    <option value="turnaround">Turnaround</option>
-                    <option value="wellness">Wellness Centre</option>
-                </select>
-                <select id="phase-filter">
-                    <option value="all">All Phases</option>
-                    <option value="current">Current Phase Only</option>
-                    <option value="completed">Completed Phases</option>
-                    <option value="upcoming">Upcoming Phases</option>
-                </select>
-                <button class="back-btn" style="margin-left: auto;" onclick="window.history.back()">← Back to Project</button>
+            <h1>📊 Phase Progress Report</h1>
+            <p>Comprehensive phase and milestone completion tracking</p>
+            <button class="back-btn" onclick="window.history.back()">← Back to Project</button>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Overall Progress</div>
+                <div class="stat-value success" id="overall-progress">0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Milestones Complete</div>
+                <div class="stat-value" id="milestones-complete">0/0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Current Phase</div>
+                <div class="stat-value" id="current-phase" style="font-size: 1.25rem;">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">On Schedule</div>
+                <div class="stat-value success" id="on-schedule">Yes</div>
             </div>
         </div>
 
-        <div class="under-development">
-            <h2>🚧 Under Development</h2>
-            <p>This report is currently being built and will be available soon.</p>
-            <p style="margin-top: 1rem; font-size: 0.875rem;">Expected features: Phase completion percentages, milestone tracking, timeline adherence, and bottleneck identification.</p>
+        <!-- Phase Details -->
+        <div class="report-section">
+            <h2>📋 Phase Breakdown</h2>
+            <div id="phase-details"></div>
         </div>
 
-        <div class="placeholder-sections">
-            <div class="placeholder-card">
-                <h3>📊 Phase Completion Status</h3>
-                <p>Overall completion percentage for each phase with milestone breakdown.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>🎯 Milestone Tracking</h3>
-                <p>Status of all milestones: completed, in progress, upcoming, and overdue.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>⏱️ Timeline Adherence</h3>
-                <p>Analysis of whether phases are on schedule, ahead, or behind planned timelines.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>🚧 Bottlenecks & Blockers</h3>
-                <p>Identification of issues causing delays or impeding progress.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>👥 Team Performance</h3>
-                <p>Milestone completion rates by team member and role.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>📈 Progress Trends</h3>
-                <p>Historical view of progress velocity and completion patterns.</p>
-            </div>
+        <!-- Timeline View -->
+        <div class="report-section">
+            <h2>📅 Project Timeline</h2>
+            <div class="timeline-chart" id="timeline-chart"></div>
+        </div>
+
+        <!-- Critical Items -->
+        <div class="critical-items">
+            <h3>⚠️ Items Requiring Attention</h3>
+            <div id="critical-items"></div>
         </div>
 
         <div style="text-align: center; margin-top: 3rem;">
-            <a href="javascript:window.history.back()" class="back-btn">← Return to Project Dashboard</a>
+            <button class="back-btn" onclick="window.history.back()">← Return to Project Dashboard</button>
         </div>
     </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/data.js"></script>
+    <script>
+        initAuth();
+
+        // Calculate overall progress
+        function calculateProgress() {
+            let totalMilestones = 0;
+            let completeMilestones = 0;
+
+            projectData.phases.forEach(phase => {
+                totalMilestones += phase.milestones.length;
+                completeMilestones += phase.milestones.filter(m => m.status === 'complete').length;
+            });
+
+            return {
+                total: totalMilestones,
+                complete: completeMilestones,
+                percentage: Math.round((completeMilestones / totalMilestones) * 100)
+            };
+        }
+
+        // Get current phase
+        function getCurrentPhase() {
+            const today = new Date();
+            return projectData.phases.find(phase => {
+                const start = new Date(phase.startDate);
+                const end = new Date(phase.endDate);
+                return today >= start && today <= end;
+            }) || projectData.phases[0];
+        }
+
+        // Render phase details
+        function renderPhases() {
+            const container = document.getElementById('phase-details');
+            const today = new Date();
+
+            projectData.phases.forEach(phase => {
+                const start = new Date(phase.startDate);
+                const end = new Date(phase.endDate);
+                const isActive = today >= start && today <= end;
+                const isComplete = phase.milestones.every(m => m.status === 'complete');
+                
+                const completeMilestones = phase.milestones.filter(m => m.status === 'complete').length;
+                const progress = Math.round((completeMilestones / phase.milestones.length) * 100);
+
+                const statusClass = isComplete ? 'complete' : isActive ? 'active' : 'planned';
+                const statusText = isComplete ? 'Complete' : isActive ? 'In Progress' : 'Planned';
+
+                container.innerHTML += `
+                    <div class="phase-card ${statusClass}">
+                        <div class="phase-header">
+                            <h3>${phase.name}</h3>
+                            <span class="phase-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <p style="color: #6b7280; margin: 0 0 1rem 0;">${phase.startDate} to ${phase.endDate}</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill ${isComplete ? 'complete' : ''}" style="width: ${progress}%">
+                                ${progress}%
+                            </div>
+                        </div>
+                        <div style="margin: 1rem 0 0.5rem 0; font-weight: 600; color: #4b5563;">
+                            Milestones (${completeMilestones}/${phase.milestones.length})
+                        </div>
+                        <div class="milestone-list">
+                            ${phase.milestones.map(m => `
+                                <div class="milestone-item ${m.status === 'complete' ? 'complete' : ''}">
+                                    <div class="milestone-checkbox">
+                                        ${m.status === 'complete' ? '✓' : ''}
+                                    </div>
+                                    <span class="milestone-title">${m.title}</span>
+                                    <span class="milestone-owner">${m.owner}</span>
+                                    <span class="milestone-due">${m.due}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Render timeline
+        function renderTimeline() {
+            const container = document.getElementById('timeline-chart');
+            const projectStart = new Date(projectData.startDate);
+            const projectEnd = new Date(projectData.endDate);
+            const totalDays = (projectEnd - projectStart) / (1000 * 60 * 60 * 24);
+
+            projectData.phases.forEach(phase => {
+                const start = new Date(phase.startDate);
+                const end = new Date(phase.endDate);
+                const daysFromStart = (start - projectStart) / (1000 * 60 * 60 * 24);
+                const duration = (end - start) / (1000 * 60 * 60 * 24);
+                
+                const leftPercent = (daysFromStart / totalDays) * 100;
+                const widthPercent = (duration / totalDays) * 100;
+
+                container.innerHTML += `
+                    <div class="timeline-row">
+                        <div class="timeline-label">${phase.name.split('–')[0].trim()}</div>
+                        <div class="timeline-bar">
+                            <div class="timeline-segment" style="left: ${leftPercent}%; width: ${widthPercent}%">
+                                ${phase.startDate.split('-')[1]}/${phase.startDate.split('-')[2]} - ${end.getMonth()+1}/${end.getDate()}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Find critical items
+        function renderCriticalItems() {
+            const container = document.getElementById('critical-items');
+            const today = new Date();
+            const criticalItems = [];
+
+            projectData.phases.forEach(phase => {
+                phase.milestones.forEach(milestone => {
+                    if (milestone.status !== 'complete') {
+                        const dueDate = new Date(milestone.due);
+                        const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysUntil < 7 && daysUntil >= 0) {
+                            criticalItems.push({...milestone, daysUntil, phase: phase.name});
+                        } else if (daysUntil < 0) {
+                            criticalItems.push({...milestone, daysUntil, phase: phase.name, overdue: true});
+                        }
+                    }
+                });
+            });
+
+            if (criticalItems.length === 0) {
+                container.innerHTML = '<p style="color: #059669; font-weight: 500;">✓ No critical items - all on track!</p>';
+            } else {
+                container.innerHTML = criticalItems.map(item => `
+                    <div style="padding: 0.75rem; background: white; border-radius: 0.5rem; margin-bottom: 0.5rem; border-left: 3px solid ${item.overdue ? '#ef4444' : '#f59e0b'};">
+                        <div style="font-weight: 600; color: ${item.overdue ? '#dc2626' : '#92400e'};">
+                            ${item.overdue ? '🔴 OVERDUE' : '⚠️ DUE SOON'}: ${item.title}
+                        </div>
+                        <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">
+                            ${item.phase} • Owner: ${item.owner} • Due: ${item.due} (${item.overdue ? Math.abs(item.daysUntil) + ' days overdue' : item.daysUntil + ' days remaining'})
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Initialize
+        const progress = calculateProgress();
+        const currentPhase = getCurrentPhase();
+
+        document.getElementById('overall-progress').textContent = progress.percentage + '%';
+        document.getElementById('milestones-complete').textContent = `${progress.complete}/${progress.total}`;
+        document.getElementById('current-phase').textContent = currentPhase.name.split('–')[0].trim();
+        
+        renderPhases();
+        renderTimeline();
+        renderCriticalItems();
+    </script>
 </body>
 </html>
