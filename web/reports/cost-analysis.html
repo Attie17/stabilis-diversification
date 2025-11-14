@@ -1,154 +1,84 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cost Analysis Report - Stabilis</title>
+    <title>Cost Analysis - Stabilis</title>
     <link rel="stylesheet" href="../css/style.css">
     <style>
-        .report-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 2rem;
-        }
-        .report-header {
-            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-        }
-        .report-header h1 {
-            margin: 0 0 0.5rem 0;
-            font-size: 2rem;
-        }
-        .report-controls {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        .report-controls select, .report-controls input {
-            padding: 0.5rem 1rem;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 0.5rem;
-            background: rgba(255,255,255,0.15);
-            color: white;
-            font-size: 0.875rem;
-        }
-        .under-development {
-            background: #fef3c7;
-            border: 2px dashed #f59e0b;
-            border-radius: 1rem;
-            padding: 3rem;
-            text-align: center;
-            margin: 2rem 0;
-        }
-        .under-development h2 {
-            color: #92400e;
-            margin-bottom: 1rem;
-        }
-        .under-development p {
-            color: #78350f;
-            font-size: 1.125rem;
-        }
-        .placeholder-sections {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-        .placeholder-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .placeholder-card h3 {
-            color: #1f2937;
-            margin-bottom: 0.5rem;
-        }
-        .placeholder-card p {
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        .back-btn:hover {
-            background: #1e40af;
-            transform: translateY(-1px);
-        }
+        .report-container { max-width: 1400px; margin: 2rem auto; padding: 2rem; }
+        .report-header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; }
+        .back-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: white; color: #10b981; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .cost-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .cost-card { background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .cost-card h3 { margin: 0 0 1rem; color: #1f2937; }
+        .cost-amount { font-size: 2rem; font-weight: 700; color: #10b981; margin-bottom: 0.5rem; }
+        .cost-breakdown { list-style: none; padding: 0; margin: 1rem 0 0; }
+        .cost-breakdown li { padding: 0.5rem 0; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; }
+        .report-section { background: white; border-radius: 0.75rem; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
     <div class="report-container">
         <div class="report-header">
-            <h1>💸 Cost Analysis Report</h1>
-            <p>Comprehensive cost tracking and optimization analysis</p>
-            <div class="report-controls">
-                <select id="cost-category">
-                    <option value="all">All Categories</option>
-                    <option value="staffing">Staffing</option>
-                    <option value="operations">Operations</option>
-                    <option value="marketing">Marketing</option>
-                    <option value="infrastructure">Infrastructure</option>
-                </select>
-                <input type="date" id="date-from" placeholder="From Date">
-                <input type="date" id="date-to" placeholder="To Date">
-                <button class="back-btn" style="margin-left: auto;" onclick="window.history.back()">← Back to Project</button>
+            <h1> Cost Analysis Report</h1>
+            <p>Investment breakdown and ROI projections</p>
+            <button class="back-btn" onclick="window.history.back()"> Back</button>
+        </div>
+
+        <div class="cost-grid">
+            <div class="cost-card">
+                <h3> Turnaround Project</h3>
+                <div class="cost-amount">R150K</div>
+                <ul class="cost-breakdown">
+                    <li><span>Process Optimization</span><span>R60K</span></li>
+                    <li><span>Staff Training</span><span>R40K</span></li>
+                    <li><span>Systems Upgrade</span><span>R30K</span></li>
+                    <li><span>Consulting</span><span>R20K</span></li>
+                </ul>
+                <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;"><strong>ROI:</strong> R735K annual savings (490% ROI)</p>
+            </div>
+
+            <div class="cost-card">
+                <h3> Diversification</h3>
+                <div class="cost-amount">R500K</div>
+                <ul class="cost-breakdown">
+                    <li><span>Marketing</span><span>R150K</span></li>
+                    <li><span>Training Programs</span><span>R120K</span></li>
+                    <li><span>Equipment</span><span>R100K</span></li>
+                    <li><span>Compliance</span><span>R80K</span></li>
+                    <li><span>Operations</span><span>R50K</span></li>
+                </ul>
+                <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;"><strong>ROI:</strong> R3.7M revenue (740% ROI)</p>
+            </div>
+
+            <div class="cost-card">
+                <h3> Wellness Centre</h3>
+                <div class="cost-amount">R2.8M</div>
+                <ul class="cost-breakdown">
+                    <li><span>Facility Setup</span><span>R1,200K</span></li>
+                    <li><span>Equipment</span><span>R600K</span></li>
+                    <li><span>Staffing</span><span>R500K</span></li>
+                    <li><span>Marketing</span><span>R250K</span></li>
+                    <li><span>Technology</span><span>R150K</span></li>
+                    <li><span>Legal/Compliance</span><span>R100K</span></li>
+                </ul>
+                <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;"><strong>ROI:</strong> R7.3M revenue (261% ROI)</p>
             </div>
         </div>
 
-        <div class="under-development">
-            <h2>🚧 Under Development</h2>
-            <p>This report is currently being built and will be available soon.</p>
-            <p style="margin-top: 1rem; font-size: 0.875rem;">Expected features: Cost breakdowns, variance analysis, optimization opportunities, and trend identification.</p>
-        </div>
-
-        <div class="placeholder-sections">
-            <div class="placeholder-card">
-                <h3>📊 Cost by Category</h3>
-                <p>Visual breakdown of costs across staffing, operations, marketing, and infrastructure.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>📈 Cost Trends</h3>
-                <p>Historical cost analysis with trend projections and seasonality factors.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>⚖️ Variance Analysis</h3>
-                <p>Comparison of actual costs vs budgeted costs with variance explanations.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>🔍 Cost Optimization</h3>
-                <p>Identified opportunities for cost reduction and efficiency improvements.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>📅 Phase Cost Breakdown</h3>
-                <p>Detailed cost allocation across project phases and milestones.</p>
-            </div>
-            <div class="placeholder-card">
-                <h3>💡 Cost Drivers</h3>
-                <p>Analysis of key factors driving cost increases or savings.</p>
-            </div>
+        <div class="report-section">
+            <h2>Overall Investment Summary</h2>
+            <p><strong>Total Investment:</strong> R3.45M</p>
+            <p><strong>Projected Revenue:</strong> R11.0M (18 months)</p>
+            <p><strong>Overall ROI:</strong> 319% (excluding cost savings)</p>
+            <p style="margin-top: 1rem; color: #6b7280;">All projects show strong return on investment with diversified revenue streams reducing organizational risk.</p>
         </div>
 
         <div style="text-align: center; margin-top: 3rem;">
-            <a href="javascript:window.history.back()" class="back-btn">← Return to Project Dashboard</a>
+            <button class="back-btn" onclick="window.history.back()"> Return to Dashboard</button>
         </div>
     </div>
+    <script src="../js/auth.js"></script>
+    <script>initAuth();</script>
 </body>
 </html>

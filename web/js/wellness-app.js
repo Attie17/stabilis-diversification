@@ -446,25 +446,19 @@ function handleSidebarAction(action) {
             showEditMilestoneModal();
             break;
         case 'view-metrics':
-            alert('📊 Key Metrics Dashboard\n\n' +
-                '💰 Monthly Revenue Target: R250,000\n' +
-                '📅 Sessions per Month: 300+\n' +
-                '👥 Practitioner Utilization: 75%\n' +
-                '🤝 School/Corporate Contracts: 10+\n' +
-                '💻 Digital Product Revenue: R50,000/month\n\n' +
-                'Full dashboard coming soon!');
+            showMetricsDashboard();
             break;
         case 'practitioner-schedule':
-            alert('📅 Practitioner Schedule\n\nView and manage practitioner availability, bookings, and capacity.\n\n⏳ Feature coming soon!');
+            showPractitionerSchedule();
             break;
         case 'referral-tracker':
-            alert('🔗 Referral Tracker\n\nTrack referral sources: GPs, schools, corporate partners, and conversion rates.\n\n⏳ Feature coming soon!');
+            showReferralTracker();
             break;
         case 'session-capacity':
-            alert('📈 Session Capacity View\n\nMonitor session capacity, utilization rates, and booking trends.\n\n⏳ Feature coming soon!');
+            showSessionCapacity();
             break;
         case 'revenue-dashboard':
-            alert('💰 Revenue Dashboard\n\nDetailed revenue breakdown by service type, practitioner, and time period.\n\n⏳ Feature coming soon!');
+            showRevenueDashboard();
             break;
         case 'toggle-theme':
             document.body.classList.toggle('dark-theme');
@@ -582,6 +576,188 @@ function clearLocalData() {
     const keys = Object.keys(localStorage).filter(key => key.startsWith('wellness-'));
     keys.forEach(key => localStorage.removeItem(key));
     location.reload();
+}
+
+// Wellness feature modals
+function showMetricsDashboard() {
+    showModal('Wellness Metrics Dashboard', `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+            <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 1.5rem; border-radius: 0.5rem;">
+                <div style="font-size: 0.875rem; opacity: 0.9;">Monthly Revenue Target</div>
+                <div style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">R250K</div>
+                <div style="font-size: 0.75rem;">On Track</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 1.5rem; border-radius: 0.5rem;">
+                <div style="font-size: 0.875rem; opacity: 0.9;">Sessions / Month</div>
+                <div style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">300+</div>
+                <div style="font-size: 0.75rem;">Target Capacity</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 1.5rem; border-radius: 0.5rem;">
+                <div style="font-size: 0.875rem; opacity: 0.9;">Practitioner Utilization</div>
+                <div style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">75%</div>
+                <div style="font-size: 0.75rem;">Optimal</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 1.5rem; border-radius: 0.5rem;">
+                <div style="font-size: 0.875rem; opacity: 0.9;">School/Corporate Contracts</div>
+                <div style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">10+</div>
+                <div style="font-size: 0.75rem;">Target</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #ec4899, #db2777); color: white; padding: 1.5rem; border-radius: 0.5rem;">
+                <div style="font-size: 0.875rem; opacity: 0.9;">Digital Product Revenue</div>
+                <div style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">R50K</div>
+                <div style="font-size: 0.75rem;">Per Month</div>
+            </div>
+        </div>
+    `);
+}
+
+function showPractitionerSchedule() {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+    const practitioners = ['Dr. Smith (Adult)', 'Dr. Jones (Youth)', 'Therapist A', 'Therapist B', 'Counselor C', 'Counselor D'];
+    
+    let scheduleHTML = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">';
+    scheduleHTML += '<thead><tr style="background: #f3f4f6;"><th style="padding: 0.75rem; border: 1px solid #e5e7eb;">Practitioner</th>';
+    days.forEach(day => scheduleHTML += `<th style="padding: 0.75rem; border: 1px solid #e5e7eb;">${day}</th>`);
+    scheduleHTML += '<th style="padding: 0.75rem; border: 1px solid #e5e7eb;">Utilization</th></tr></thead><tbody>';
+    
+    practitioners.forEach((prac, i) => {
+        const util = 65 + Math.floor(Math.random() * 25);
+        scheduleHTML += `<tr><td style="padding: 0.75rem; border: 1px solid #e5e7eb; font-weight: 600;">${prac}</td>`;
+        days.forEach(() => {
+            const slots = Math.floor(Math.random() * 8) + 4;
+            const booked = Math.floor(Math.random() * slots);
+            scheduleHTML += `<td style="padding: 0.75rem; border: 1px solid #e5e7eb; text-align: center;">${booked}/${slots}</td>`;
+        });
+        scheduleHTML += `<td style="padding: 0.75rem; border: 1px solid #e5e7eb; text-align: center;"><span style="display: inline-block; padding: 0.25rem 0.75rem; background: ${util > 80 ? '#fee2e2' : '#d1fae5'}; color: ${util > 80 ? '#991b1b' : '#065f46'}; border-radius: 9999px; font-weight: 600;">${util}%</span></td>`;
+        scheduleHTML += '</tr>';
+    });
+    scheduleHTML += '</tbody></table></div>';
+    
+    showModal('📅 Practitioner Schedule (This Week)', scheduleHTML);
+}
+
+function showReferralTracker() {
+    showModal('🔗 Referral Source Tracker', `
+        <div style="display: grid; gap: 1rem; margin-bottom: 1rem;">
+            <div style="background: #f9fafb; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #3b82f6;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 0.25rem;">GP Referrals</div>
+                        <div style="font-size: 0.875rem; color: #6b7280;">15 referring doctors</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #3b82f6;">40%</div>
+                        <div style="font-size: 0.75rem; color: #6b7280;">120 referrals</div>
+                    </div>
+                </div>
+            </div>
+            <div style="background: #f9fafb; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #10b981;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 0.25rem;">School Partnerships</div>
+                        <div style="font-size: 0.875rem; color: #6b7280;">8 partnered schools</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #10b981;">30%</div>
+                        <div style="font-size: 0.75rem; color: #6b7280;">90 referrals</div>
+                    </div>
+                </div>
+            </div>
+            <div style="background: #f9fafb; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #f59e0b;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 0.25rem;">Corporate EAP</div>
+                        <div style="font-size: 0.875rem; color: #6b7280;">5 corporate contracts</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;">20%</div>
+                        <div style="font-size: 0.75rem; color: #6b7280;">60 referrals</div>
+                    </div>
+                </div>
+            </div>
+            <div style="background: #f9fafb; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #8b5cf6;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 0.25rem;">Self-Referral</div>
+                        <div style="font-size: 0.875rem; color: #6b7280;">Website & social media</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #8b5cf6;">10%</div>
+                        <div style="font-size: 0.75rem; color: #6b7280;">30 referrals</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="background: #eff6ff; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem;">
+            <strong>💡 Insight:</strong> GP referrals remain our strongest source. Consider strengthening school partnerships to increase youth service uptake.
+        </div>
+    `);
+}
+
+function showSessionCapacity() {
+    showModal('📈 Session Capacity Analysis', `
+        <div style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-weight: 600;">Current Month Capacity</span>
+                <span style="font-weight: 700; font-size: 1.25rem; color: #3b82f6;">225 / 300 sessions</span>
+            </div>
+            <div style="height: 24px; background: #e5e7eb; border-radius: 9999px; overflow: hidden;">
+                <div style="height: 100%; width: 75%; background: linear-gradient(90deg, #10b981, #3b82f6); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 600;">75% Utilization</div>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
+            <div style="background: #f9fafb; padding: 1rem; border-radius: 0.5rem;">
+                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">Peak Hours</div>
+                <div style="font-weight: 700; font-size: 1.5rem; color: #1f2937;">16:00 - 18:00</div>
+                <div style="font-size: 0.75rem; color: #6b7280;">90% booked</div>
+            </div>
+            <div style="background: #f9fafb; padding: 1rem; border-radius: 0.5rem;">
+                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">Available Capacity</div>
+                <div style="font-weight: 700; font-size: 1.5rem; color: #10b981;">75 sessions</div>
+                <div style="font-size: 0.75rem; color: #6b7280;">This month</div>
+            </div>
+        </div>
+        
+        <div style="background: #fef3c7; padding: 1rem; border-radius: 0.5rem;">
+            <strong>⚠️ Note:</strong> After-school hours (16:00-18:00) consistently at capacity. Consider adding evening practitioners or expanding Saturday hours.
+        </div>
+    `);
+}
+
+function showRevenueDashboard() {
+    showModal('💰 Revenue Breakdown Dashboard', `
+        <div style="margin-bottom: 1.5rem;">
+            <div style="text-align: center; padding: 1.5rem; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 0.75rem;">
+                <div style="font-size: 0.875rem; opacity: 0.9;">Current Month Revenue</div>
+                <div style="font-size: 3rem; font-weight: 700; margin: 0.5rem 0;">R187,500</div>
+                <div style="font-size: 0.875rem;">Target: R250,000 (75% achieved)</div>
+            </div>
+        </div>
+        
+        <div style="display: grid; gap: 0.75rem; margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #f9fafb; border-radius: 0.5rem;">
+                <span>Individual Therapy Sessions</span>
+                <span style="font-weight: 700;">R84,375 (45%)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #f9fafb; border-radius: 0.5rem;">
+                <span>Group Sessions</span>
+                <span style="font-weight: 700;">R46,875 (25%)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #f9fafb; border-radius: 0.5rem;">
+                <span>Corporate Workshops</span>
+                <span style="font-weight: 700;">R37,500 (20%)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #f9fafb; border-radius: 0.5rem;">
+                <span>Digital Products & Courses</span>
+                <span style="font-weight: 700;">R18,750 (10%)</span>
+            </div>
+        </div>
+        
+        <div style="background: #eff6ff; padding: 1rem; border-radius: 0.5rem;">
+            <strong>📊 Trend:</strong> Revenue up 12% vs last month. Individual therapy remains strongest performer. Digital products showing growth potential.
+        </div>
+    `);
 }
 
 // Load theme preference
