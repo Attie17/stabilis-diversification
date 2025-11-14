@@ -4,12 +4,12 @@ let currentRiskFilter = 'all';
 
 // Utility Functions
 function formatCurrency(amount) {
+    if (!amount && amount !== 0) return 'R0';
     if (amount >= 1000000) {
         return `R${(amount / 1000000).toFixed(1)}m`;
     }
     return `R${amount.toLocaleString()}`;
 }
-
 function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -849,13 +849,13 @@ function handleSidebarAction(action) {
             break;
             
         case 'financial':
-            const totalRevenue = projectData.phases.reduce((sum, phase) => sum + phase.revenueTarget, 0);
+            const totalRevenue = projectData.phases.reduce((sum, phase) => sum + phase.revenue, 0);
             showModal('Financial Dashboard', `
                 <h3>Revenue Targets by Phase</h3>
                 ${projectData.phases.map(phase => `
                     <div style="padding: 0.75rem; background: var(--bg-secondary); border-radius: 0.5rem; margin-bottom: 0.5rem;">
                         <strong>${phase.name}</strong><br>
-                        <span style="font-size: 1.25rem; color: var(--success);">${formatCurrency(phase.revenueTarget)}</span>
+                        <span style="font-size: 1.25rem; color: var(--success);">${formatCurrency(phase.revenue)}</span>
                     </div>
                 `).join('')}
                 <div style="padding: 1rem; background: var(--primary); color: white; border-radius: 0.5rem; margin-top: 1rem; text-align: center;">
@@ -1297,3 +1297,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
