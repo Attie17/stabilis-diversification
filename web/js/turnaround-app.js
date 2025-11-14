@@ -808,6 +808,18 @@ function handleSidebarAction(action) {
             switchView('dashboard');
             break;
             
+        case 'overdue':
+            // Show overdue milestones
+            switchView('dashboard');
+            setTimeout(() => {
+                const overdueSection = document.querySelector('.upcoming-milestones');
+                if (overdueSection) {
+                    overdueSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                alert('⚠️ Overdue Milestones\n\nShowing critical milestones on dashboard.\n\nMilestones past their due date need immediate attention!');
+            }, 300);
+            break;
+            
         case 'kpi-dashboard':
             switchView('kpis');
             break;

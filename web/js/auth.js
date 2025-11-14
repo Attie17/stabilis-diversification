@@ -134,7 +134,7 @@ function showLoginScreen() {
             <div class="login-modal">
                 <div class="login-header">
                     <h2>🔐 Stabilis Project Access</h2>
-                    <p>Please sign in to continue</p>
+                    <p>Sign in to continue</p>
                 </div>
                 <div class="login-body">
                     <label for="user-select">Select Your Name:</label>
@@ -157,18 +157,19 @@ function showLoginScreen() {
                         type="password" 
                         id="user-password" 
                         class="login-input" 
-                        placeholder="Enter your password"
+                        placeholder="Use default: firstname2025"
                         autocomplete="current-password"
                     />
                     <div id="login-error" class="login-error" style="display: none;"></div>
+                    <div id="login-info" class="login-info" style="display: none;"></div>
                     
                     <button onclick="loginUser()" class="login-btn" id="login-btn" disabled>
                         Sign In
                     </button>
                 </div>
                 <div class="login-footer">
-                    <p>🔒 Secure access - Each user has a unique password</p>
-                    <p class="login-hint">Contact admin if you forgot your password</p>
+                    <p>🔒 Default passwords: <strong>firstname2025</strong> (e.g., attie2025)</p>
+                    <p class="login-hint">Example: Attie Nel → attie2025, Suzanne Gelderblom → suzanne2025</p>
                 </div>
             </div>
         </div>
@@ -179,13 +180,33 @@ function showLoginScreen() {
     const userSelect = document.getElementById('user-select');
     const passwordInput = document.getElementById('user-password');
     const loginBtn = document.getElementById('login-btn');
+    const loginInfo = document.getElementById('login-info');
+    
+    // Show password hint when user selects their name
+    userSelect.addEventListener('change', (e) => {
+        if (e.target.value) {
+            const firstName = e.target.value.split(' ')[0].toLowerCase();
+            loginInfo.innerHTML = `💡 Your default password is: <strong>${firstName}2025</strong>`;
+            loginInfo.style.display = 'block';
+            loginInfo.style.background = 'rgba(16, 185, 129, 0.2)';
+            loginInfo.style.border = '1px solid #10b981';
+            loginInfo.style.color = '#6ee7b7';
+            loginInfo.style.padding = '0.75rem';
+            loginInfo.style.borderRadius = '6px';
+            loginInfo.style.marginBottom = '1rem';
+            loginInfo.style.fontSize = '0.9rem';
+            loginInfo.style.textAlign = 'center';
+        } else {
+            loginInfo.style.display = 'none';
+        }
+        checkFormValidity();
+    });
     
     // Enable login button when both fields are filled
     function checkFormValidity() {
         loginBtn.disabled = !userSelect.value || !passwordInput.value;
     }
     
-    userSelect.addEventListener('change', checkFormValidity);
     passwordInput.addEventListener('input', checkFormValidity);
     
     // Allow Enter key to submit

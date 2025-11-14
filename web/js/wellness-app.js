@@ -385,6 +385,10 @@ function handleSidebarAction(action) {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
     
+    // Close sidebar
+    if (sidebar) sidebar.classList.remove('active');
+    if (overlay) overlay.classList.remove('active');
+    
     switch(action) {
         case 'home':
             window.location.href = '/';
@@ -407,35 +411,51 @@ function handleSidebarAction(action) {
                 }
             }
             break;
-        case 'view-metrics':
-            alert('Revenue Dashboard: R250k/month target\n300+ sessions/month\n75% practitioner utilization\n10+ contracts');
-            break;
-        case 'practitioner-schedule':
-            alert('Practitioner Schedule: Feature coming soon!');
-            break;
-        case 'referral-tracker':
-            alert('Referral Tracker: Feature coming soon!');
-            break;
-        case 'session-capacity':
-            alert('Session Capacity View: Feature coming soon!');
-            break;
-        case 'revenue-dashboard':
-            alert('Revenue Dashboard: Feature coming soon!');
-            break;
         case 'this-week':
             showThisWeek();
             break;
         case 'overdue':
             showOverdue();
             break;
+        case 'view-metrics':
+            alert('📊 Key Metrics Dashboard\n\n' +
+                '💰 Monthly Revenue Target: R250,000\n' +
+                '📅 Sessions per Month: 300+\n' +
+                '👥 Practitioner Utilization: 75%\n' +
+                '🤝 School/Corporate Contracts: 10+\n' +
+                '💻 Digital Product Revenue: R50,000/month\n\n' +
+                'Full dashboard coming soon!');
+            break;
+        case 'practitioner-schedule':
+            alert('📅 Practitioner Schedule\n\nView and manage practitioner availability, bookings, and capacity.\n\n⏳ Feature coming soon!');
+            break;
+        case 'referral-tracker':
+            alert('🔗 Referral Tracker\n\nTrack referral sources: GPs, schools, corporate partners, and conversion rates.\n\n⏳ Feature coming soon!');
+            break;
+        case 'session-capacity':
+            alert('📈 Session Capacity View\n\nMonitor session capacity, utilization rates, and booking trends.\n\n⏳ Feature coming soon!');
+            break;
+        case 'revenue-dashboard':
+            alert('💰 Revenue Dashboard\n\nDetailed revenue breakdown by service type, practitioner, and time period.\n\n⏳ Feature coming soon!');
+            break;
         case 'toggle-theme':
-            toggleTheme();
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            const themeIndicator = document.getElementById('theme-indicator');
+            if (themeIndicator) {
+                themeIndicator.textContent = isDark ? '🌙' : '☀️';
+            }
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
             break;
         case 'clear-data':
-            if (confirm('Are you sure you want to clear all local data? This cannot be undone.')) {
-                clearLocalData();
+            if (confirm('⚠️ Clear all local progress data?\n\nThis will reset all milestone completion status.\n\nThis cannot be undone.')) {
+                localStorage.removeItem('stabilis-wellness-data');
+                alert('✅ Local data cleared. Page will reload.');
+                location.reload();
             }
             break;
+        default:
+            alert(`⏳ ${action}\n\nThis feature is under development and will be available in a future update.`);
     }
     
     sidebar.classList.remove('active');
