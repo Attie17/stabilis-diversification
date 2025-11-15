@@ -310,7 +310,6 @@ function renderMilestone(milestone, phaseId) {
             <div class="milestone-details" id="details-${milestone.id}" style="display: none;">
                 <button class="close-btn" onclick="toggleMilestoneDetails('${milestone.id}')">&times;</button>
                 <p><strong>Description:</strong> ${milestone.description}</p>
-                ${milestone.details ? renderMilestoneDetails(milestone.details) : ''}
                 <div id="copilot-btn-${milestone.id}"></div>
             </div>
             
@@ -338,27 +337,7 @@ function renderMilestone(milestone, phaseId) {
     `;
 }
 
-function renderMilestoneDetails(details) {
-    let html = '';
-    
-    if (details.whatYouNeed) {
-        html += '<div class="detail-section"><h4>✅ What You Need:</h4><ul>';
-        details.whatYouNeed.forEach(item => {
-            html += `<li>${item}</li>`;
-        });
-        html += '</ul></div>';
-    }
-    
-    if (details.tips) {
-        html += '<div class="detail-section"><h4>💡 Tips:</h4><ul>';
-        details.tips.forEach(tip => {
-            html += `<li>${tip}</li>`;
-        });
-        html += '</ul></div>';
-    }
-    
-    return html;
-}
+// renderMilestoneDetails removed - content now only shows in AI Copilot modal
 
 // Toggle Functions
 function togglePhase(phaseId) {

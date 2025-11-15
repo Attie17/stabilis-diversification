@@ -2,21 +2,26 @@
 // Manages who can access AI Copilot for which milestones
 
 const teamRoles = {
+    // Developer with full access
+    developer: [
+        { name: "Developer", role: "System Administrator", access: "all", password: null }
+    ],
+    
     // Leadership with full access
     admin: [
-        { name: "Attie Nel", role: "CEO & Project Manager", access: "all", password: "attie2025" },
-        { name: "Natasha Jacobs", role: "Finance Manager", access: "all", password: "natasha2025" },
-        { name: "Karin Weideman", role: "Operational Manager", access: "all", password: "karin2025" },
-        { name: "Berno Paul", role: "Clinical Lead", access: "all", password: "berno2025" }
+        { name: "Attie Nel", role: "CEO & Project Manager", access: "all", password: null },
+        { name: "Natasha Jacobs", role: "Finance Manager", access: "all", password: null },
+        { name: "Karin Weideman", role: "Operational Manager", access: "all", password: null },
+        { name: "Berno Paul", role: "Clinical Lead", access: "all", password: null }
     ],
     
     // Team members with specific milestone access
     team: [
-        { name: "Lizette Botha", role: "Case Manager", milestones: [], password: "lizette2025" },
-        { name: "Bertha Vorster", role: "Admin & Admissions Officer", milestones: [], password: "bertha2025" },
-        { name: "Sne Khonyane", role: "Youth Clinical Lead & Wellness Coordinator", milestones: [], password: "sne2025" },
-        { name: "Ilse Booysen", role: "After Care Coordinator", milestones: [], password: "ilse2025" },
-        { name: "Suzanne Gelderblom", role: "Senior Therapist & Wellness Champion", milestones: [], password: "suzanne2025" }
+        { name: "Lizette Botha", role: "Case Manager", milestones: [], password: null },
+        { name: "Bertha Vorster", role: "Admin & Admissions Officer", milestones: [], password: null },
+        { name: "Sne Khonyane", role: "Youth Clinical Lead & Wellness Coordinator", milestones: [], password: null },
+        { name: "Ilse Booysen", role: "After Care Coordinator", milestones: [], password: null },
+        { name: "Suzanne Gelderblom", role: "Senior Therapist & Wellness Champion", milestones: [], password: null }
     ]
 };
 
@@ -141,6 +146,11 @@ function showLoginScreen() {
                     <label for="user-select">Select Your Name:</label>
                     <select id="user-select" class="login-select">
                         <option value="">-- Choose Your Name --</option>
+                        <optgroup label="System Access">
+                            ${teamRoles.developer.map(user => 
+                                `<option value="${user.name}">${user.name} (${user.role})</option>`
+                            ).join('')}
+                        </optgroup>
                         <optgroup label="Leadership Team">
                             ${teamRoles.admin.map(user => 
                                 `<option value="${user.name}">${user.name} (${user.role})</option>`
@@ -158,7 +168,7 @@ function showLoginScreen() {
                         type="password" 
                         id="user-password" 
                         class="login-input" 
-                        placeholder="Use default: firstname2025"
+                        placeholder="Enter your password"
                         autocomplete="current-password"
                     />
                     <div id="login-error" class="login-error" style="display: none;"></div>
@@ -169,8 +179,7 @@ function showLoginScreen() {
                     </button>
                 </div>
                 <div class="login-footer">
-                    <p>🔒 Default passwords: <strong>firstname2025</strong> (e.g., attie2025)</p>
-                    <p class="login-hint">Example: Attie Nel → attie2025, Suzanne Gelderblom → suzanne2025</p>
+                    <p>🔒 First time signing in? You'll be prompted to create a password.</p>
                 </div>
             </div>
         </div>
@@ -183,25 +192,8 @@ function showLoginScreen() {
     const loginBtn = document.getElementById('login-btn');
     const loginInfo = document.getElementById('login-info');
     
-    // Show password hint when user selects their name
-    userSelect.addEventListener('change', (e) => {
-        if (e.target.value) {
-            const firstName = e.target.value.split(' ')[0].toLowerCase();
-            loginInfo.innerHTML = `💡 Your default password is: <strong>${firstName}2025</strong>`;
-            loginInfo.style.display = 'block';
-            loginInfo.style.background = 'rgba(16, 185, 129, 0.2)';
-            loginInfo.style.border = '1px solid #10b981';
-            loginInfo.style.color = '#6ee7b7';
-            loginInfo.style.padding = '0.75rem';
-            loginInfo.style.borderRadius = '6px';
-            loginInfo.style.marginBottom = '1rem';
-            loginInfo.style.fontSize = '0.9rem';
-            loginInfo.style.textAlign = 'center';
-        } else {
-            loginInfo.style.display = 'none';
-        }
-        checkFormValidity();
-    });
+    // Enable form validation when user selects their name
+    userSelect.addEventListener('change', checkFormValidity);
     
     // Enable login button when both fields are filled
     function checkFormValidity() {
@@ -227,14 +219,25 @@ window.loginUser = function() {
     if (!selectedName || !enteredPassword) return;
     
     // Find user in team data
+    const developerUser = teamRoles.developer.find(u => u.name === selectedName);
     const adminUser = teamRoles.admin.find(u => u.name === selectedName);
     const teamUser = teamRoles.team.find(u => u.name === selectedName);
     
-    const foundUser = adminUser || teamUser;
+    const foundUser = developerUser || adminUser || teamUser;
     
     if (foundUser) {
+        // Check if this is first login (no password set)
+        const userPasswords = JSON.parse(localStorage.getItem('stabilis-passwords') || '{}');
+        
+        if (!userPasswords[selectedName]) {
+            // First time login - create password
+            showFirstLoginPasswordSetup(selectedName, enteredPassword, foundUser);
+            return;
+        }
+        
         // Verify password
-        if (foundUser.password === enteredPassword) {
+        const storedPassword = atob(userPasswords[selectedName]);
+        if (storedPassword === enteredPassword) {
             // Password correct
             currentUser = { ...foundUser };
             currentUser.name = selectedName;
@@ -269,6 +272,105 @@ window.loginUser = function() {
             }, 3000);
         }
     }
+};
+
+// First login password setup
+function showFirstLoginPasswordSetup(userName, attemptedPassword, userObj) {
+    const setupHTML = `
+        <div class="login-overlay" id="password-setup-overlay">
+            <div class="login-modal">
+                <div class="login-header">
+                    <h2>👋 Welcome, ${userName}!</h2>
+                    <p>Please create your password</p>
+                </div>
+                <div class="login-body">
+                    <div class="login-info" style="display: block; background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem;">
+                        ℹ️ This is your first time signing in. Please create a secure password (minimum 6 characters).
+                    </div>
+                    
+                    <label for="new-user-password">Create Password:</label>
+                    <input 
+                        type="password" 
+                        id="new-user-password" 
+                        class="login-input" 
+                        placeholder="Minimum 6 characters"
+                        autocomplete="new-password"
+                    />
+                    
+                    <label for="confirm-user-password">Confirm Password:</label>
+                    <input 
+                        type="password" 
+                        id="confirm-user-password" 
+                        class="login-input" 
+                        placeholder="Re-enter your password"
+                        autocomplete="new-password"
+                    />
+                    
+                    <div id="setup-error" class="login-error" style="display: none;"></div>
+                    
+                    <button onclick="completePasswordSetup('${userName}', ${JSON.stringify(userObj).replace(/"/g, '&quot;')})" class="login-btn" id="setup-btn">
+                        Create Password & Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove old login overlay and add setup
+    document.querySelector('.login-overlay').remove();
+    document.body.insertAdjacentHTML('beforeend', setupHTML);
+    
+    document.getElementById('new-user-password').focus();
+}
+
+// Complete password setup
+window.completePasswordSetup = function(userName, userObj) {
+    const newPassword = document.getElementById('new-user-password').value;
+    const confirmPassword = document.getElementById('confirm-user-password').value;
+    const errorDiv = document.getElementById('setup-error');
+    
+    // Clear previous errors
+    errorDiv.style.display = 'none';
+    
+    // Validation
+    if (!newPassword || !confirmPassword) {
+        errorDiv.textContent = '❌ Please fill in both fields';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (newPassword.length < 6) {
+        errorDiv.textContent = '❌ Password must be at least 6 characters';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+        errorDiv.textContent = '❌ Passwords do not match';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // Store password
+    const userPasswords = JSON.parse(localStorage.getItem('stabilis-passwords') || '{}');
+    userPasswords[userName] = btoa(newPassword);
+    localStorage.setItem('stabilis-passwords', JSON.stringify(userPasswords));
+    
+    // Log user in
+    currentUser = { ...userObj };
+    currentUser.name = userName;
+    const userToStore = { ...currentUser };
+    delete userToStore.password;
+    localStorage.setItem('stabilis-user', JSON.stringify(userToStore));
+    
+    // Remove setup screen
+    document.getElementById('password-setup-overlay').remove();
+    
+    // Start inactivity tracking
+    initInactivityTracking();
+    
+    // Update UI
+    updateUIForUser();
 };
 
 // Inactivity timeout configuration
@@ -425,13 +527,18 @@ window.changePassword = function() {
         return;
     }
     
-    // Find current user's stored password
-    const adminUser = teamRoles.admin.find(u => u.name === currentUser.name);
-    const teamUser = teamRoles.team.find(u => u.name === currentUser.name);
-    const userWithPassword = adminUser || teamUser;
+    // Get stored password
+    const userPasswords = JSON.parse(localStorage.getItem('stabilis-passwords') || '{}');
+    const storedPassword = userPasswords[currentUser.name] ? atob(userPasswords[currentUser.name]) : null;
+    
+    if (!storedPassword) {
+        errorDiv.textContent = '❌ No password found. Please contact administrator.';
+        errorDiv.style.display = 'block';
+        return;
+    }
     
     // Verify current password
-    if (userWithPassword.password !== currentPassword) {
+    if (storedPassword !== currentPassword) {
         errorDiv.textContent = '❌ Current password is incorrect';
         errorDiv.style.display = 'block';
         return;
@@ -451,12 +558,8 @@ window.changePassword = function() {
         return;
     }
     
-    // Update password in memory
-    userWithPassword.password = newPassword;
-    
-    // Store encrypted indicator (not the actual password)
-    const userPasswords = JSON.parse(localStorage.getItem('stabilis-passwords') || '{}');
-    userPasswords[currentUser.name] = btoa(newPassword); // Basic encoding, not real encryption
+    // Store new password
+    userPasswords[currentUser.name] = btoa(newPassword);
     localStorage.setItem('stabilis-passwords', JSON.stringify(userPasswords));
     
     // Show success message
@@ -469,26 +572,10 @@ window.changePassword = function() {
     }, 2000);
 };
 
-// Load custom passwords on init
-function loadCustomPasswords() {
-    const userPasswords = JSON.parse(localStorage.getItem('stabilis-passwords') || '{}');
-    
-    // Apply custom passwords to teamRoles
-    Object.keys(userPasswords).forEach(userName => {
-        const password = atob(userPasswords[userName]); // Basic decoding
-        
-        const adminUser = teamRoles.admin.find(u => u.name === userName);
-        const teamUser = teamRoles.team.find(u => u.name === userName);
-        const user = adminUser || teamUser;
-        
-        if (user) {
-            user.password = password;
-        }
-    });
-}
+// Load custom passwords on init - no longer needed since passwords are only in localStorage
+// Removed loadCustomPasswords function as all passwords are now stored in localStorage only
 
-// Call this on page load
-loadCustomPasswords();
+// Call initialization (removed loadCustomPasswords call)
 
 // Check if user can access AI Copilot for a milestone
 function canAccessCopilot(milestoneId) {
