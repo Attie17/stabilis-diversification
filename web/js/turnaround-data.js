@@ -436,7 +436,7 @@ const turnaroundData = {
     
     team: [
         { role: "CEO & Project Manager", name: "Attie Nel", responsibility: "Overall turnaround leadership, board liaison, strategic decisions, project governance" },
-        { role: "Finance Officer", name: "Natasha Jacobs", responsibility: "Cash management, SARS compliance, AR/AP oversight, KPI reporting" },
+        { role: "Finance Officer", name: "Nastasha Jacobs", responsibility: "Cash management, SARS compliance, AR/AP oversight, KPI reporting" },
         { role: "Clinical Manager", name: "Berno Paul", responsibility: "Protect clinical throughput, payer-aligned pathways, quality maintenance" },
         { role: "Administrative Officer", name: "Bertha Vorster", responsibility: "AR collections, supplier liaison, admin redeployment" },
         { role: "Clinical Admin", name: "Lizette Botha", responsibility: "Pre-admission deposits, documentation compliance, authorisation tracking" }

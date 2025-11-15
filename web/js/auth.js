@@ -10,7 +10,7 @@ const teamRoles = {
     // Leadership with full access
     admin: [
         { name: "Attie Nel", role: "CEO & Project Manager", access: "all", password: null },
-        { name: "Natasha Jacobs", role: "Finance Manager", access: "all", password: null },
+        { name: "Nastasha Jacobs", role: "Finance Manager", access: "all", password: null },
         { name: "Karin Weideman", role: "Operational Manager", access: "all", password: null },
         { name: "Berno Paul", role: "Clinical Lead", access: "all", password: null }
     ],
@@ -28,30 +28,30 @@ const teamRoles = {
 // Milestone ownership mapping
 const milestoneOwners = {
     // TURNAROUND PROJECT
-    "T1-M1": ["Natasha Jacobs"], // File VAT Returns - Finance Manager
-    "T1-M2": ["Natasha Jacobs"], // SARS Payment Plan - Finance Manager
+    "T1-M1": ["Nastasha Jacobs"], // File VAT Returns - Finance Manager
+    "T1-M2": ["Nastasha Jacobs"], // SARS Payment Plan - Finance Manager
     "T1-M3": ["Berno Paul"], // Maintenance Cap - Clinical Lead
-    "T1-M4": ["Natasha Jacobs"], // 13-Week Cash Forecast - Finance Manager
+    "T1-M4": ["Nastasha Jacobs"], // 13-Week Cash Forecast - Finance Manager
     "T1-M5": ["Lizette Botha"], // AR Collections Blitz - Case Manager
     "T1-M6": ["Bertha Vorster"], // Pre-Admission Deposits - Admissions Officer
     "T1-M7": ["Attie Nel"], // Headcount Freeze - CEO
-    "T1-M8": ["Natasha Jacobs"], // Renegotiate Supplier Terms - Finance Manager
+    "T1-M8": ["Nastasha Jacobs"], // Renegotiate Supplier Terms - Finance Manager
     "T1-M9": ["Berno Paul"], // Clinical Throughput Audit - Clinical Lead
     "T1-M10": ["Lizette Botha"], // Billing & Auth Compliance - Case Manager
-    "T1-M11": ["Natasha Jacobs"], // Weekly Cash Meeting - Finance Manager
+    "T1-M11": ["Nastasha Jacobs"], // Weekly Cash Meeting - Finance Manager
     "T1-M12": ["Bertha Vorster"], // Patient Satisfaction Survey - Admin
     "T1-M13": ["Berno Paul"], // Staff Retention Strategy - Clinical Lead
-    "T1-M14": ["Natasha Jacobs"], // Cost Allocation Model - Finance Manager
+    "T1-M14": ["Nastasha Jacobs"], // Cost Allocation Model - Finance Manager
     "T1-M15": ["Lizette Botha"], // Medical Aid Panel Review - Case Manager
     "T1-M16": ["Berno Paul"], // Quality Assurance Framework - Clinical Lead
-    "T1-M17": ["Natasha Jacobs"], // Financial Controls Documentation - Finance Manager
+    "T1-M17": ["Nastasha Jacobs"], // Financial Controls Documentation - Finance Manager
     "T1-M18": ["Attie Nel"], // 180-Day Review & Handover - CEO & PM
     
     // DIVERSIFICATION PROJECT
     "P1-M1": ["Attie Nel"], // Kick-off Meeting - CEO
     "P1-M2": ["Attie Nel"], // Appoint Leads - CEO
     "P1-M3": ["Berno Paul"], // Operational Mapping - Clinical Lead
-    "P1-M4": ["Natasha Jacobs", "Bertha Vorster"], // Pricing & Billing Policy - Finance & Admin
+    "P1-M4": ["Nastasha Jacobs", "Bertha Vorster"], // Pricing & Billing Policy - Finance & Admin
     "P1-M5": ["Lizette Botha"], // Compliance Check - Case Manager
     "P1-M6": ["Attie Nel"], // Finalize Implementation Calendar - Project Manager
     "P2-M1": ["Berno Paul"], // Adult Outpatient Pilot - Adult Clinical Lead
@@ -59,26 +59,26 @@ const milestoneOwners = {
     "P2-M3": ["Sne Khonyane"], // Adolescent Outpatient Prep - Youth Clinical Lead
     "P2-M4": ["Ilse Booysen"], // Aftercare Structure - After Care Coordinator
     "P2-M5": ["Attie Nel"], // Revenue Tracking System - Project Manager
-    "P2-M6": ["Natasha Jacobs"], // Phase 2 Financial Review - Finance Manager
+    "P2-M6": ["Nastasha Jacobs"], // Phase 2 Financial Review - Finance Manager
     "P3-M1": ["Berno Paul"], // Adult Groups Expansion - Clinical Lead
     "P3-M2": ["Sne Khonyane"], // Youth Outpatient Launch - Youth Clinical Lead
     "P3-M3": ["Ilse Booysen"], // Aftercare Pilot - After Care Coordinator
     "P3-M4": ["Sne Khonyane"], // School Outreach Prep - School Outreach Facilitator
     "P3-M5": ["Attie Nel"], // Staff Training Programme - Project Manager
-    "P3-M6": ["Natasha Jacobs"], // Phase 3 Financial Review - Finance Manager
+    "P3-M6": ["Nastasha Jacobs"], // Phase 3 Financial Review - Finance Manager
     "P4-M1": ["Sne Khonyane"], // School Outreach Launch - School Outreach Facilitator
     "P4-M2": ["Lizette Botha"], // Medical Panel Expansion - Case Manager
     "P4-M3": ["Berno Paul"], // Clinical Protocol Update - Clinical Lead
     "P4-M4": ["Bertha Vorster"], // Admissions Workflow Optimisation - Admissions Officer
     "P4-M5": ["Attie Nel"], // Marketing Campaign - Project Manager
-    "P4-M6": ["Natasha Jacobs"], // Phase 4 Financial Review - Finance Manager
+    "P4-M6": ["Nastasha Jacobs"], // Phase 4 Financial Review - Finance Manager
     "P5-M1": ["Berno Paul"], // Full Adult Programme Suite - Clinical Lead
     "P5-M2": ["Sne Khonyane"], // Full Youth Programme Suite - Youth Clinical Lead
     "P5-M3": ["Ilse Booysen"], // Aftercare Full Rollout - After Care Coordinator
     "P5-M4": ["Sne Khonyane"], // School Outreach Expansion - School Outreach Facilitator
     "P5-M5": ["Lizette Botha"], // Medical Aid Contracting Review - Case Manager
     "P5-M6": ["Attie Nel"], // Final Project Review - Project Manager
-    "P5-M7": ["Natasha Jacobs"], // Financial Performance Report - Finance Manager
+    "P5-M7": ["Nastasha Jacobs"], // Financial Performance Report - Finance Manager
     
     // WELLNESS CENTRE PROJECT - PHASE 1
     "W1-M1": ["Sne Khonyane"], // Operational Setup - Coordinator handles day-to-day setup
@@ -106,7 +106,7 @@ const milestoneOwners = {
     "W2-M5": ["Sne Khonyane"], // Corporate Wellbeing Programme - Coordinator pitches and executes
     "W2-M6": ["Sne Khonyane"], // Digital Presence & Client Experience - Coordinator manages marketing
     "W2-M7": ["Suzanne Gelderblom"], // Clinical Audit & Documentation Review - Champion ensures compliance
-    "W2-M8": ["Suzanne Gelderblom", "Natasha Jacobs"], // Financial Review & Pricing - Champion + Finance
+    "W2-M8": ["Suzanne Gelderblom", "Nastasha Jacobs"], // Financial Review & Pricing - Champion + Finance
     "W2-M9": ["Suzanne Gelderblom", "Sne Khonyane"], // Annual Strategy Review - Both strategize
     
     // WELLNESS CENTRE PROJECT - PHASE 3

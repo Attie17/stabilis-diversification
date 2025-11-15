@@ -36,7 +36,7 @@ Users were asked for a password but didn't know what it was. System expected pre
 | Name | Password |
 |------|----------|
 | Attie Nel | `attie2025` |
-| Natasha Jacobs | `natasha2025` |
+| Nastasha Jacobs | `natasha2025` |
 | Berno Paul | `berno2025` |
 | Lizette Botha | `lizette2025` |
 | Bertha Vorster | `bertha2025` |

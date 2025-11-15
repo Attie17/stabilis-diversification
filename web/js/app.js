@@ -993,7 +993,7 @@ function showEditMilestoneModal() {
             <p>Only the following users can edit milestones:</p>
             <ul>
                 <li>Attie Nel (CEO/Project Manager)</li>
-                <li>Natasha Jacobs (Finance Manager/Admin)</li>
+                <li>Nastasha Jacobs (Finance Manager/Admin)</li>
                 <li>Karin Weideman (Operational Manager)</li>
             </ul>
             <p>Please contact one of these administrators if you need to make changes.</p>
@@ -1228,7 +1228,7 @@ function canEditMilestones() {
     if (!currentUser) return false;
     
     // Check if user is in the admin list with edit permissions
-    const allowedUsers = ['Attie Nel', 'Natasha Jacobs', 'Karin Weideman'];
+    const allowedUsers = ['Attie Nel', 'Nastasha Jacobs', 'Karin Weideman'];
     return allowedUsers.includes(currentUser.name);
 }
 

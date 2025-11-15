@@ -9,7 +9,7 @@
 | Name | Role | Password |
 |------|------|----------|
 | Attie Nel | CEO & Project Manager | `attie2025` |
-| Natasha Jacobs | Finance Manager | `natasha2025` |
+| Nastasha Jacobs | Finance Manager | `natasha2025` |
 | Berno Paul | Clinical Lead | `berno2025` |
 
 ---
@@ -31,7 +31,7 @@
 - **Keep passwords confidential** - Do not share with others
 - **Change default passwords** - Contact admin to update your password
 - **Session security** - You'll stay logged in until you click "Logout"
-- **Lost password?** - Contact Attie Nel or Natasha Jacobs for reset
+- **Lost password?** - Contact Attie Nel or Nastasha Jacobs for reset
 
 ---
 

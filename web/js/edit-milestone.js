@@ -14,7 +14,7 @@ function canEditMilestones() {
     const editableUsers = [
         "Developer",          // System Administrator
         "Attie Nel",          // CEO & Project Manager
-        "Natasha Jacobs",     // Finance Manager  
+        "Nastasha Jacobs",     // Finance Manager  
         "Karin Weideman"      // Operational Manager
     ];
     
@@ -35,7 +35,7 @@ function canEditMilestones() {
 // Show edit milestone modal
 window.showEditMilestoneModal = function() {
     if (!canEditMilestones()) {
-        alert('⚠️ Access Denied\n\nOnly the CEO, Finance Manager, and Operational Manager can edit milestones.\n\nCurrent authorized users:\n• Attie Nel (CEO & Project Manager)\n• Natasha Jacobs (Finance Manager)\n• Karin Weideman (Operational Manager)');
+        alert('⚠️ Access Denied\n\nOnly the CEO, Finance Manager, and Operational Manager can edit milestones.\n\nCurrent authorized users:\n• Attie Nel (CEO & Project Manager)\n• Nastasha Jacobs (Finance Manager)\n• Karin Weideman (Operational Manager)');
         return;
     }
     
@@ -79,7 +79,7 @@ window.showEditMilestoneModal = function() {
                                 <option value="">-- Select person --</option>
                                 <optgroup label="Leadership">
                                     <option value="Attie Nel">Attie Nel (CEO & Project Manager)</option>
-                                    <option value="Natasha Jacobs">Natasha Jacobs (Finance Manager)</option>
+                                    <option value="Nastasha Jacobs">Nastasha Jacobs (Finance Manager)</option>
                                     <option value="Karin Weideman">Karin Weideman (Operational Manager)</option>
                                     <option value="Berno Paul">Berno Paul (Clinical Lead)</option>
                                 </optgroup>

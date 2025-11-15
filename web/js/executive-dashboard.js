@@ -4,7 +4,7 @@
 // Check if user has executive access
 function hasExecutiveAccess() {
     const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
-    const executiveUsers = ['Developer', 'Attie Nel', 'Natasha Jacobs'];
+    const executiveUsers = ['Developer', 'Attie Nel', 'Nastasha Jacobs'];
     return executiveUsers.includes(currentUser.name);
 }
 

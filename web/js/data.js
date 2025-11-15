@@ -320,7 +320,7 @@ const projectData = {
         },
         {
             role: "Finance Officer",
-            name: "Natasha Jacobs",
+            name: "Nastasha Jacobs",
             responsibilities: "Pricing, billing, financial tracking"
         },
         {
