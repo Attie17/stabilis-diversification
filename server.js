@@ -12,6 +12,11 @@ app.get('/', (req, res) => {
 // Serve static files from web directory
 app.use(express.static('web'));
 
+// Executive dashboard route
+app.get('/executive', (req, res) => {
+    res.sendFile(path.join(__dirname, 'web', 'executive-dashboard.html'));
+});
+
 // Diversification project route
 app.get('/diversification', (req, res) => {
     res.sendFile(path.join(__dirname, 'web', 'index.html'));

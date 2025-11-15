@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Executive Dashboard - Stabilis</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/executive-dashboard.css">
+</head>
+<body>
+    <div class="executive-container">
+        <!-- Header -->
+        <header class="executive-header">
+            <div class="header-left">
+                <h1>📊 Executive Command Center</h1>
+                <div class="last-updated" id="last-updated">Loading...</div>
+            </div>
+            <div class="header-right">
+                <button onclick="refreshDashboard()" class="refresh-btn" title="Refresh Data">🔄</button>
+                <div class="user-info" id="user-info"></div>
+            </div>
+        </header>
+
+        <!-- Critical Alerts Banner -->
+        <div class="alerts-banner" id="alerts-banner" style="display: none;"></div>
+
+        <!-- Top Stats Grid -->
+        <section class="top-stats">
+            <div class="stat-card turnaround-card">
+                <div class="stat-icon">🚨</div>
+                <div class="stat-content">
+                    <h3>Turnaround</h3>
+                    <div class="stat-number" id="turnaround-progress">0%</div>
+                    <div class="stat-meta" id="turnaround-meta">Loading...</div>
+                </div>
+            </div>
+            <div class="stat-card diversification-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-content">
+                    <h3>Diversification</h3>
+                    <div class="stat-number" id="diversification-progress">0%</div>
+                    <div class="stat-meta" id="diversification-meta">Loading...</div>
+                </div>
+            </div>
+            <div class="stat-card wellness-card">
+                <div class="stat-icon">💚</div>
+                <div class="stat-content">
+                    <h3>Wellness Centre</h3>
+                    <div class="stat-number" id="wellness-progress">0%</div>
+                    <div class="stat-meta" id="wellness-meta">Loading...</div>
+                </div>
+            </div>
+            <div class="stat-card overall-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-content">
+                    <h3>Overall Progress</h3>
+                    <div class="stat-number" id="overall-progress">0%</div>
+                    <div class="stat-meta" id="overall-meta">Loading...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Navigation -->
+        <nav class="quick-nav">
+            <button class="nav-btn active" onclick="showSection('overview')">📊 Overview</button>
+            <button class="nav-btn" onclick="showSection('financial')">💰 Financial</button>
+            <button class="nav-btn" onclick="showSection('risks')">⚠️ Risks</button>
+            <button class="nav-btn" onclick="showSection('timeline')">📅 Timeline</button>
+            <button class="nav-btn" onclick="showSection('team')">👥 Team</button>
+            <button class="nav-btn" onclick="showSection('projects')">🎯 Projects</button>
+        </nav>
+
+        <!-- Content Sections -->
+        <main class="dashboard-content">
+            <!-- Overview Section -->
+            <section id="section-overview" class="content-section active">
+                <div class="section-grid">
+                    <!-- Critical Items -->
+                    <div class="dashboard-card full-width">
+                        <h2>🚨 Requires Immediate Attention</h2>
+                        <div id="critical-items" class="critical-list">Loading...</div>
+                    </div>
+
+                    <!-- Revenue Summary -->
+                    <div class="dashboard-card">
+                        <h2>💰 Revenue Summary (18 Months)</h2>
+                        <div id="revenue-summary" class="financial-summary">Loading...</div>
+                    </div>
+
+                    <!-- Risk Overview -->
+                    <div class="dashboard-card">
+                        <h2>⚠️ Risk Overview</h2>
+                        <div id="risk-overview" class="risk-summary">Loading...</div>
+                    </div>
+
+                    <!-- This Week -->
+                    <div class="dashboard-card">
+                        <h2>📅 This Week's Milestones</h2>
+                        <div id="this-week" class="milestone-list">Loading...</div>
+                    </div>
+
+                    <!-- Team Capacity -->
+                    <div class="dashboard-card">
+                        <h2>👥 Team Capacity</h2>
+                        <div id="team-capacity" class="team-summary">Loading...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Financial Section -->
+            <section id="section-financial" class="content-section">
+                <div class="section-grid">
+                    <div class="dashboard-card full-width">
+                        <h2>💰 Consolidated Financial Overview</h2>
+                        <div id="financial-overview">Loading...</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h2>📊 Revenue by Project</h2>
+                        <div id="revenue-breakdown">Loading...</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h2>💳 Budget vs Actual</h2>
+                        <div id="budget-actual">Loading...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Risks Section -->
+            <section id="section-risks" class="content-section">
+                <div class="section-grid">
+                    <div class="dashboard-card full-width">
+                        <h2>⚠️ All Risks Across Projects</h2>
+                        <div id="all-risks">Loading...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Timeline Section -->
+            <section id="section-timeline" class="content-section">
+                <div class="section-grid">
+                    <div class="dashboard-card full-width">
+                        <h2>📅 Master Timeline - All Projects</h2>
+                        <div id="master-timeline">Loading...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Team Section -->
+            <section id="section-team" class="content-section">
+                <div class="section-grid">
+                    <div class="dashboard-card full-width">
+                        <h2>👥 Team Allocation Across Projects</h2>
+                        <div id="team-allocation">Loading...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projects Section -->
+            <section id="section-projects" class="content-section">
+                <div class="section-grid">
+                    <div class="dashboard-card">
+                        <h2>🚨 Turnaround Project</h2>
+                        <button onclick="window.location.href='turnaround.html'" class="view-project-btn">View Full Project</button>
+                        <div id="turnaround-detail">Loading...</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h2>📈 Diversification Project</h2>
+                        <button onclick="window.location.href='index.html'" class="view-project-btn">View Full Project</button>
+                        <div id="diversification-detail">Loading...</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h2>💚 Wellness Centre Project</h2>
+                        <button onclick="window.location.href='wellness.html'" class="view-project-btn">View Full Project</button>
+                        <div id="wellness-detail">Loading...</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/turnaround-data.js"></script>
+    <script src="js/wellness-data.js"></script>
+    <script src="js/executive-dashboard.js"></script>
+</body>
+</html>

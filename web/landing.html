@@ -94,6 +94,15 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             initAuth();
+            
+            // Check if executive user and redirect to dashboard
+            const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
+            const executiveUsers = ['Developer', 'Attie Nel', 'Natasha Jacobs'];
+            
+            if (executiveUsers.includes(currentUser.name)) {
+                // Redirect to executive dashboard
+                window.location.href = 'executive-dashboard.html';
+            }
         });
     </script>
 </body>
