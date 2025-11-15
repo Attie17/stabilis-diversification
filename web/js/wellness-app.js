@@ -444,13 +444,13 @@ function bindEvents() {
     document.querySelectorAll('.sidebar-section-title').forEach(btn => {
         btn.addEventListener('click', function() {
             const toggle = this.getAttribute('data-toggle');
-            const content = document.getElementById(toggle);
+            const section = this.closest('.sidebar-section');
             const arrow = this.querySelector('.section-arrow');
             
             // Close all other sections
-            document.querySelectorAll('.sidebar-section-content').forEach(section => {
-                if (section.id !== toggle) {
-                    section.classList.remove('active');
+            document.querySelectorAll('.sidebar-section').forEach(s => {
+                if (s !== section) {
+                    s.classList.remove('expanded');
                 }
             });
             document.querySelectorAll('.section-arrow').forEach(a => {
@@ -460,8 +460,8 @@ function bindEvents() {
             });
             
             // Toggle current section
-            content.classList.toggle('active');
-            arrow.textContent = content.classList.contains('active') ? '▲' : '▼';
+            section.classList.toggle('expanded');
+            arrow.textContent = section.classList.contains('expanded') ? '▲' : '▼';
         });
     });
     
