@@ -308,7 +308,7 @@ function showFirstLoginPasswordSetup(userName, attemptedPassword, userObj) {
                     
                     <div id="setup-error" class="login-error" style="display: none;"></div>
                     
-                    <button onclick="completePasswordSetup('${userName}', ${JSON.stringify(userObj).replace(/"/g, '&quot;')})" class="login-btn" id="setup-btn">
+                    <button onclick="completePasswordSetup()" class="login-btn" id="setup-btn">
                         Create Password & Sign In
                     </button>
                 </div>
@@ -320,11 +320,17 @@ function showFirstLoginPasswordSetup(userName, attemptedPassword, userObj) {
     document.querySelector('.login-overlay').remove();
     document.body.insertAdjacentHTML('beforeend', setupHTML);
     
+    // Store user data temporarily
+    window._pendingPasswordSetup = { userName, userObj };
+    
     document.getElementById('new-user-password').focus();
 }
 
 // Complete password setup
-window.completePasswordSetup = function(userName, userObj) {
+window.completePasswordSetup = function() {
+    if (!window._pendingPasswordSetup) return;
+    
+    const { userName, userObj } = window._pendingPasswordSetup;
     const newPassword = document.getElementById('new-user-password').value;
     const confirmPassword = document.getElementById('confirm-user-password').value;
     const errorDiv = document.getElementById('setup-error');
@@ -365,6 +371,9 @@ window.completePasswordSetup = function(userName, userObj) {
     
     // Remove setup screen
     document.getElementById('password-setup-overlay').remove();
+    
+    // Clean up temporary data
+    delete window._pendingPasswordSetup;
     
     // Start inactivity tracking
     initInactivityTracking();

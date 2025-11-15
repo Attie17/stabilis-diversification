@@ -6,21 +6,20 @@ function canEditMilestones() {
     // Try both possible localStorage keys
     const currentUser = JSON.parse(localStorage.getItem('stabilis-current-user') || localStorage.getItem('stabilis-user') || '{}');
     
-    console.log('Edit permission check:', currentUser);
-    
     if (!currentUser.name) {
-        console.log('No user name found');
         return false;
     }
     
-    // Check if user is admin (CEO, Finance Manager, Operational Manager)
+    // Check if user is admin (CEO, Finance Manager, Operational Manager, Developer)
     const editableUsers = [
+        "Developer",          // System Administrator
         "Attie Nel",          // CEO & Project Manager
         "Natasha Jacobs",     // Finance Manager  
         "Karin Weideman"      // Operational Manager
     ];
     
     const editableRoles = [
+        "System Administrator",
         "CEO & Project Manager",
         "Finance Manager",
         "Operational Manager"
@@ -30,7 +29,6 @@ function canEditMilestones() {
     const hasAccess = editableUsers.includes(currentUser.name) || 
                      editableRoles.some(role => currentUser.role && currentUser.role.includes(role.split(' ')[0]));
     
-    console.log('Edit access granted:', hasAccess);
     return hasAccess;
 }
 
