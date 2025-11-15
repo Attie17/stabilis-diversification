@@ -304,38 +304,33 @@ const projectData = {
     
     team: [
         {
-            role: "CEO",
-            name: "TBD",
-            responsibilities: "Project sponsor, strategic decisions, board liaison"
-        },
-        {
-            role: "Project Manager",
-            name: "TBD",
-            responsibilities: "Day-to-day coordination, milestone tracking"
+            role: "CEO & Project Manager",
+            name: "Attie Nel",
+            responsibilities: "Strategic oversight, project governance, cross-project coordination, board liaison"
         },
         {
             role: "Adult Clinical Lead",
-            name: "TBD",
+            name: "Berno Paul",
             responsibilities: "Adult OP design, delivery, outcomes"
         },
         {
             role: "Youth Lead",
-            name: "TBD",
+            name: "Sne Khonyane",
             responsibilities: "Adolescent OP, school outreach, safeguarding"
         },
         {
             role: "Finance Officer",
-            name: "TBD",
+            name: "Natasha Jacobs",
             responsibilities: "Pricing, billing, financial tracking"
         },
         {
             role: "Admin Coordinator",
-            name: "TBD",
+            name: "Bertha Vorster",
             responsibilities: "Admissions, compliance, medical-aid liaison"
         },
         {
             role: "Comms Officer",
-            name: "TBD",
+            name: "Karin Weideman",
             responsibilities: "Marketing, referral development, brand"
         },
         {

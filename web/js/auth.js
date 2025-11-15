@@ -337,7 +337,7 @@ function updateUIForUser() {
         userInfo.id = 'user-info';
         userInfo.className = 'user-info';
         userInfo.innerHTML = `
-            <span class="user-name">👤 ${currentUser.name}</span>
+            <span class="user-name" style="color: white;">👤 ${currentUser.name}</span>
             <button onclick="showChangePasswordModal()" class="change-password-btn" title="Change Password">🔒</button>
             <button onclick="logoutUser()" class="logout-btn">Logout</button>
         `;

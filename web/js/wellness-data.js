@@ -760,6 +760,11 @@ const wellnessProject = {
 
     team: [
         {
+            role: "CEO & Project Manager",
+            name: "Attie Nel",
+            responsibilities: "Strategic oversight, project governance, cross-project coordination, board liaison"
+        },
+        {
             role: "Wellness Champion (Senior Therapist)",
             name: "Suzanne Gelderblom",
             responsibilities: "Strategic oversight, clinical supervision, curriculum development, senior therapy sessions, quality assurance, partnership negotiations"
