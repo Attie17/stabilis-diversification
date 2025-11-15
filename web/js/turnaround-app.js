@@ -853,6 +853,9 @@ function handleSidebarAction(action) {
         case 'budget-actual':
             window.location.href = '/reports/budget-actual.html';
             break;
+        case 'cashflow-projection':
+            window.location.href = '/reports/cashflow-projection.html';
+            break;
             
         case 'toggle-theme':
             document.body.classList.toggle('dark-theme');
