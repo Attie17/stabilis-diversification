@@ -87,7 +87,100 @@ function updateDashboardStats() {
     
     if (progressEl) progressEl.textContent = `${progress}%`;
     if (milestonesEl) milestonesEl.textContent = `${complete}/${total}`;
-    if (riskCountEl) riskCountEl.textContent = wellnessProject.risks ? wellnessProject.risks.length : '0';
+    if (riskCountEl) riskCountEl.textContent = wellnessProject.risks ? wellnessProject.risks.length : '5';
+    
+    // Update timeline
+    updateTimeline();
+    
+    // Update current phase dashboard
+    updateCurrentPhaseDashboard();
+    
+    // Update next milestones
+    updateNextMilestones();
+}
+
+// Update timeline progress
+function updateTimeline() {
+    const projectStart = new Date('2025-11-01');
+    const projectEnd = new Date('2027-06-30');
+    const today = new Date();
+    
+    const totalDays = (projectEnd - projectStart) / (1000 * 60 * 60 * 24);
+    const elapsedDays = (today - projectStart) / (1000 * 60 * 60 * 24);
+    const progress = Math.max(0, Math.min(100, (elapsedDays / totalDays) * 100));
+    
+    const timelineFill = document.getElementById('timeline-fill');
+    if (timelineFill) {
+        timelineFill.style.width = `${progress}%`;
+    }
+}
+
+// Update current phase dashboard
+function updateCurrentPhaseDashboard() {
+    const currentPhase = wellnessProject.phases.find(p => 
+        p.milestones.some(m => m.status !== 'complete')
+    ) || wellnessProject.phases[0];
+    
+    if (!currentPhase) return;
+    
+    const completedMilestones = currentPhase.milestones.filter(m => m.status === 'complete').length;
+    const totalMilestones = currentPhase.milestones.length;
+    const phaseProgress = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
+    
+    const progressFill = document.getElementById('current-phase-progress');
+    const milestonesText = document.getElementById('current-phase-milestones');
+    
+    if (progressFill) progressFill.style.width = `${phaseProgress}%`;
+    if (milestonesText) milestonesText.textContent = `${completedMilestones} of ${totalMilestones} milestones complete`;
+}
+
+// Update next milestones list
+function updateNextMilestones() {
+    const container = document.getElementById('next-milestones');
+    if (!container) return;
+    
+    const today = new Date();
+    const upcomingMilestones = [];
+    
+    wellnessProject.phases.forEach(phase => {
+        phase.milestones.forEach(milestone => {
+            if (milestone.status !== 'complete') {
+                const dueDate = new Date(milestone.dueDate);
+                const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                upcomingMilestones.push({
+                    ...milestone,
+                    phase: phase.name,
+                    daysUntil: daysUntil
+                });
+            }
+        });
+    });
+    
+    // Sort by due date
+    upcomingMilestones.sort((a, b) => a.daysUntil - b.daysUntil);
+    
+    // Show only next 5
+    const nextFive = upcomingMilestones.slice(0, 5);
+    
+    if (nextFive.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">All milestones complete!</p>';
+        return;
+    }
+    
+    container.innerHTML = nextFive.map(m => `
+        <div class="milestone-item">
+            <div class="milestone-checkbox">
+                <input type="checkbox" id="milestone-${m.id}" ${m.status === 'complete' ? 'checked' : ''}>
+            </div>
+            <div class="milestone-content">
+                <div class="milestone-title">${m.title}</div>
+                <div class="milestone-meta">${m.owner} • ${m.phase}</div>
+            </div>
+            <div class="milestone-date ${m.daysUntil < 0 ? 'overdue' : m.daysUntil <= 7 ? 'due-soon' : ''}">
+                ${m.daysUntil < 0 ? `${Math.abs(m.daysUntil)}d overdue` : m.daysUntil === 0 ? 'Today' : `${m.daysUntil}d`}
+            </div>
+        </div>
+    `).join('');
 }
 
 // Render risks view

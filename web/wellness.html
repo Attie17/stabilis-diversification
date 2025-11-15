@@ -152,33 +152,48 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">⚠️</div>
-                        <div class="stat-value" id="risk-count">0</div>
+                        <div class="stat-value" id="risk-count">5</div>
                         <div class="stat-label">Active Risks</div>
                     </div>
                 </div>
 
-                <!-- Project Summary -->
-                <section class="project-summary">
-                    <div class="summary-card">
-                        <h3>🎯 Strategic Vision</h3>
-                        <p><strong>Phase 1:</strong> Launch multidisciplinary wellness center with adult/youth OP, therapy, and corporate packages<br>
-                        <strong>Phase 1B:</strong> Integrate behavioural addiction tracks (gambling, porn, gaming, social media, vaping)<br>
-                        <strong>Phase 2:</strong> Scale to high-visibility service with consistent caseloads and partnerships<br>
-                        <strong>Phase 3:</strong> Become core revenue engine with regional influence and digital products</p>
+                <!-- Timeline -->
+                <div class="card">
+                    <h2>Project Timeline</h2>
+                    <div class="timeline-progress">
+                        <div class="timeline-bar">
+                            <div class="timeline-fill" id="timeline-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="timeline-info">
+                            <span id="timeline-start">Nov 2025</span>
+                            <span id="timeline-end">Jun 2027</span>
+                        </div>
                     </div>
-                    <div class="summary-card">
-                        <h3>📊 Key Metrics</h3>
-                        <ul class="metrics-list">
-                            <li><strong>Timeline:</strong> 19 months (Nov 2025 – Jun 2027)</li>
-                            <li><strong>Budget:</strong> R2,800,000</li>
-                            <li><strong>Milestones:</strong> 29 across 4 phases</li>
-                            <li><strong>Target Revenue:</strong> R250,000/month</li>
-                            <li><strong>Sessions:</strong> 300+ per month</li>
-                            <li><strong>Contracts:</strong> 10+ school/corporate partnerships</li>
-                            <li><strong>Behavioural Addiction Tracks:</strong> 5 specialist programmes</li>
-                        </ul>
+                </div>
+
+                <!-- Current Phase -->
+                <div class="card">
+                    <h2>Current Phase</h2>
+                    <div id="current-phase-dashboard">
+                        <div class="phase-badge">Phase 1</div>
+                        <h3>Foundation & Launch</h3>
+                        <p>Nov 2025 – Apr 2026</p>
+                        <div class="phase-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="current-phase-progress" style="width: 0%"></div>
+                            </div>
+                            <span id="current-phase-milestones">0 of 0 milestones complete</span>
+                        </div>
                     </div>
-                </section>
+                </div>
+
+                <!-- Next Milestones -->
+                <div class="card">
+                    <h2>Next Milestones</h2>
+                    <div class="milestone-list" id="next-milestones">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
             </div>
 
             <!-- Phases View -->
