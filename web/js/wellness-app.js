@@ -501,6 +501,19 @@ function loadSavedState() {
     });
 }
 
+// Sidebar toggle functions
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('active');
+}
+
 // Sidebar Events
 function bindEvents() {
     // Navigation tabs
@@ -513,25 +526,12 @@ function bindEvents() {
         });
     });
     
-    const menuBtn = document.getElementById('menu-btn');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
-    const sidebarClose = document.getElementById('sidebar-close');
+    // Hamburger menu
+    document.getElementById('menu-btn')?.addEventListener('click', toggleSidebar);
     
-    menuBtn?.addEventListener('click', () => {
-        sidebar.classList.add('active');
-        sidebarOverlay.classList.add('active');
-    });
-    
-    sidebarClose?.addEventListener('click', () => {
-        sidebar.classList.remove('active');
-        sidebarOverlay.classList.remove('active');
-    });
-    
-    sidebarOverlay?.addEventListener('click', () => {
-        sidebar.classList.remove('active');
-        sidebarOverlay.classList.remove('active');
-    });
+    // Close sidebar
+    document.getElementById('sidebar-close')?.addEventListener('click', closeSidebar);
+    document.getElementById('sidebar-overlay')?.addEventListener('click', closeSidebar);
     
     // Sidebar section toggles
     document.querySelectorAll('.sidebar-section-title').forEach(btn => {
@@ -568,12 +568,8 @@ function bindEvents() {
 }
 
 function handleSidebarAction(action) {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    
     // Close sidebar
-    if (sidebar) sidebar.classList.remove('active');
-    if (overlay) overlay.classList.remove('active');
+    closeSidebar();
     
     switch(action) {
         case 'home':
@@ -670,9 +666,6 @@ function handleSidebarAction(action) {
         default:
             alert(`⏳ ${action}\n\nThis feature is under development and will be available in a future update.`);
     }
-    
-    sidebar.classList.remove('active');
-    overlay.classList.remove('active');
 }
 
 function showThisWeek() {
