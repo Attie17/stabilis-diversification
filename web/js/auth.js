@@ -142,6 +142,9 @@ function showLoginScreen() {
                     <h2>🔐 Stabilis Project Access</h2>
                     <p>Sign in to continue</p>
                 </div>
+                <div class="login-mission">
+                    <p><strong>Stabilis exists to end the unbearable pain that makes people self-destruct — by building the resilience that makes that pain survivable.</strong></p>
+                </div>
                 <div class="login-body">
                     <label for="user-select">Select Your Name:</label>
                     <select id="user-select" class="login-select">
