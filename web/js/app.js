@@ -214,11 +214,20 @@ function handleReportNavigation(reportKey, url) {
 
 // Render copilot buttons based on user access
 function renderCopilotButtons() {
+    // Wait for copilotData and getCopilotButton to be available
+    if (typeof window.getCopilotButton !== 'function') {
+        console.warn('getCopilotButton not yet loaded, retrying...');
+        setTimeout(renderCopilotButtons, 100);
+        return;
+    }
+    
     projectData.phases.forEach(phase => {
         phase.milestones.forEach(m => {
             const container = document.getElementById(`copilot-btn-${m.id}`);
             if (container) {
                 container.innerHTML = getCopilotButton(m.id, 'diversification');
+            } else {
+                console.warn(`Copilot container not found for ${m.id}`);
             }
         });
     });

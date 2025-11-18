@@ -945,6 +945,9 @@ function showRevenueCalculatorModal() {
     showModal('💰 Revenue Calculator', showRevenueCalculator());
 }
 
+// Export copilotData globally for access from other scripts
+window.copilotData = copilotData;
+
 // Export functions
 window.showCopilot = showCopilot;
 window.showRevenueCalculator = showRevenueCalculator;
