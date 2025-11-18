@@ -951,3 +951,61 @@ window.showRevenueCalculator = showRevenueCalculator;
 window.showRevenueCalculatorModal = showRevenueCalculatorModal;
 window.showGeneralHelp = showGeneralHelp;
 window.calculateCustomRevenue = calculateCustomRevenue;
+
+// Generate Copilot button (role-based access)
+function getCopilotButton(milestoneId, projectType = 'diversification') {
+    const user = window.currentUser || JSON.parse(localStorage.getItem('stabilis-user') || 'null');
+    
+    // Check if user has access to copilot
+    const hasAccess = user && (
+        user.name === 'Developer' ||
+        user.role === 'Project Manager' ||
+        user.role === 'Team Lead' ||
+        user.role === 'Clinical Lead' ||
+        user.role === 'Finance Officer'
+    );
+    
+    if (!hasAccess) {
+        return ''; // No button for non-privileged users
+    }
+    
+    // Check if guidance exists for this milestone
+    let copilotData;
+    if (projectType === 'turnaround') {
+        copilotData = window.turnaroundCopilotData;
+    } else if (projectType === 'wellness') {
+        copilotData = window.wellnessCopilotData || window.copilotData;
+    } else {
+        copilotData = window.copilotData;
+    }
+    
+    const hasGuidance = copilotData && copilotData.milestones && copilotData.milestones[milestoneId];
+    const buttonClass = hasGuidance ? 'copilot-btn-available' : 'copilot-btn-unavailable';
+    const buttonText = hasGuidance ? '🤖 AI Copilot Help' : '🤖 AI Copilot (Coming Soon)';
+    
+    return `
+        <button class="copilot-toggle-btn ${buttonClass}" 
+                onclick="toggleCopilot('${milestoneId}')" 
+                ${!hasGuidance ? 'disabled' : ''}>
+            ${buttonText}
+        </button>
+    `;
+}
+
+// Toggle copilot visibility
+function toggleCopilot(milestoneId) {
+    const copilotContent = document.getElementById(`copilot-${milestoneId}`);
+    if (copilotContent) {
+        const isVisible = copilotContent.style.display !== 'none';
+        copilotContent.style.display = isVisible ? 'none' : 'block';
+        
+        // Update button text
+        const button = event.target;
+        if (button) {
+            button.textContent = isVisible ? '🤖 AI Copilot Help' : '🤖 Hide Copilot';
+        }
+    }
+}
+
+window.getCopilotButton = getCopilotButton;
+window.toggleCopilot = toggleCopilot;

@@ -907,3 +907,8 @@ function showWellnessGeneralHelp() {
         </div>
     `;
 }
+
+// Export functions
+window.wellnessCopilotData = wellnessCopilotData;
+window.showWellnessCopilot = showWellnessCopilot;
+window.showWellnessGeneralHelp = showWellnessGeneralHelp;

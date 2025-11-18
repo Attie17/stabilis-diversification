@@ -711,6 +711,7 @@ function showFinancialCalculatorModal() {
 }
 
 // Export functions
+window.turnaroundCopilotData = turnaroundCopilotData;
 window.showTurnaroundCopilot = showTurnaroundCopilot;
 window.showFinancialCalculator = showFinancialCalculator;
 window.showFinancialCalculatorModal = showFinancialCalculatorModal;
