@@ -1,22 +1,64 @@
 {
-  "buildCommand": "echo 'No build needed'",
-  "outputDirectory": "web",
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/",
-      "destination": "/landing.html"
-    },
-    {
-      "source": "/executive",
-      "destination": "/executive-dashboard.html"
-    },
-    {
-      "source": "/diversification",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/turnaround",
-      "destination": "/turnaround.html"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "web"
+      }
     }
-  ]
+  ],
+  "routes": [
+    {
+      "src": "/api/health",
+      "dest": "/api/health.js"
+    },
+    {
+      "src": "/api/chat",
+      "dest": "/api/chat.js",
+      "methods": ["POST"]
+    },
+    {
+      "src": "/api/dashboard",
+      "dest": "/api/dashboard.js"
+    },
+    {
+      "src": "/api/ai/(.*)",
+      "dest": "/api/$1.js"
+    },
+    {
+      "src": "/",
+      "dest": "/web/landing.html"
+    },
+    {
+      "src": "/executive",
+      "dest": "/web/executive-dashboard.html"
+    },
+    {
+      "src": "/diversification",
+      "dest": "/web/index.html"
+    },
+    {
+      "src": "/turnaround",
+      "dest": "/web/turnaround.html"
+    },
+    {
+      "src": "/wellness",
+      "dest": "/web/wellness.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/web/$1"
+    }
+  ],
+  "functions": {
+    "api/*.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
 }

@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "Stabilis Diversification Implementation Project (Nov 2025 - Mar 2027)",
   "scripts": {
-    "build": "echo Building project artifacts...",
+    "build": "echo 'Static site - no build needed'",
+    "vercel-build": "echo 'Vercel build complete'",
     "start": "node server.js",
+    "dev": "node server.js",
     "status": "powershell -ExecutionPolicy Bypass -File ./scripts/project-status.ps1",
     "dashboard": "powershell -Command \"Get-Content .\\PROJECT-DASHBOARD.md\"",
     "phase1": "powershell -Command \"Get-Content .\\phases\\PHASE1-MOBILISATION.md\"",

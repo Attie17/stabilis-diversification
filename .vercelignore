@@ -1,11 +1,49 @@
+# Vercel Deployment Exclusions
+
+# Node modules and dependencies
 node_modules
+package-lock.json
+
+# Git and version control
 .git
+.gitignore
+
+# IDE and editor files
 .vscode
+*.code-workspace
+
+# PowerShell scripts (Windows-specific)
 *.ps1
 scripts/
+
+# Project documentation (optional - remove lines below to include docs)
 phases/
 reports/
 tracking/
 docs/
 *.md
 !README.md
+!VERCEL-DEPLOY.md
+
+# Environment and config
+.env
+.env.local
+.env.production
+config/
+
+# Server files (replaced by serverless functions)
+server.js
+
+# Service files (included in serverless functions)
+# services/ - keep this for API functions to use
+
+# Logs and temporary files
+*.log
+logs/
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
