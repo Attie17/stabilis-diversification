@@ -976,7 +976,7 @@
     </div>
 
     <div style="text-align: center; margin-top: 3rem;">
-        <a href="javascript:window.history.back()" class="back-btn">← Return to Project Dashboard</a>
+        <a href="../executive-dashboard.html" class="back-btn">← Return to Project Dashboard</a>
     </div>
     </div>
 
@@ -1018,6 +1018,117 @@
             breakdownSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             breakdownSection.style.animation = 'highlight 1s ease';
         };
+
+        // Calculate investment totals dynamically
+        function calculateInvestmentTotals() {
+            const projects = [
+                { selector: '.investment-card:nth-child(1)', name: 'Turnaround' },
+                { selector: '.investment-card:nth-child(2)', name: 'Diversification' },
+                { selector: '.investment-card:nth-child(3)', name: 'Wellness' }
+            ];
+
+            let grandTotal = 0;
+
+            projects.forEach(project => {
+                const card = document.querySelector(project.selector);
+                if (!card) return;
+
+                const items = card.querySelectorAll('.item-cost');
+                let projectTotal = 0;
+
+                items.forEach(item => {
+                    const value = item.textContent.replace(/[^0-9]/g, '');
+                    projectTotal += parseInt(value) || 0;
+                });
+
+                grandTotal += projectTotal;
+
+                // Update the investment amount display
+                const amountDisplay = card.querySelector('.investment-amount');
+                if (amountDisplay) {
+                    amountDisplay.textContent = `R${projectTotal.toLocaleString()}`;
+                }
+            });
+
+            // Update ROI section totals
+            const totalInvestmentValue = document.querySelector('.roi-card:nth-child(1) .roi-value');
+            if (totalInvestmentValue) {
+                const millions = (grandTotal / 1000000).toFixed(1);
+                totalInvestmentValue.textContent = `R${millions}M`;
+            }
+
+            // Update ROI breakdown
+            const roiBreakdown = document.querySelector('.roi-card:nth-child(1) .roi-breakdown');
+            if (roiBreakdown) {
+                const turnaroundTotal = parseInt(document.querySelectorAll('.investment-card:nth-child(1) .item-cost')[0]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(1) .item-cost')[1]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(1) .item-cost')[2]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(1) .item-cost')[3]?.textContent.replace(/[^0-9]/g, '') || 0);
+                
+                const diversificationTotal = parseInt(document.querySelectorAll('.investment-card:nth-child(2) .item-cost')[0]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(2) .item-cost')[1]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(2) .item-cost')[2]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(2) .item-cost')[3]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(2) .item-cost')[4]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(2) .item-cost')[5]?.textContent.replace(/[^0-9]/g, '') || 0);
+                
+                const wellnessTotal = parseInt(document.querySelectorAll('.investment-card:nth-child(3) .item-cost')[0]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(3) .item-cost')[1]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(3) .item-cost')[2]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(3) .item-cost')[3]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(3) .item-cost')[4]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(3) .item-cost')[5]?.textContent.replace(/[^0-9]/g, '') || 0) +
+                    parseInt(document.querySelectorAll('.investment-card:nth-child(3) .item-cost')[6]?.textContent.replace(/[^0-9]/g, '') || 0);
+
+                roiBreakdown.innerHTML = `
+                    <div>Turnaround: R${turnaroundTotal.toLocaleString()}</div>
+                    <div>Diversification: R${diversificationTotal.toLocaleString()}</div>
+                    <div>Wellness: R${wellnessTotal.toLocaleString()}</div>
+                `;
+            }
+
+            // Update Investment Summary section
+            const summaryValue = document.querySelector('.summary-item:nth-child(1) .summary-value');
+            if (summaryValue) {
+                summaryValue.textContent = `R${grandTotal.toLocaleString()}`;
+            }
+
+            // Calculate ROI with new total
+            const revenueGenerated = 10974325; // 18-month revenue
+            const netGain = revenueGenerated - grandTotal;
+            const roiPercentage = ((netGain / grandTotal) * 100).toFixed(0);
+
+            // Update Net Gain
+            const netGainValue = document.querySelector('.summary-item:nth-child(3) .summary-value');
+            if (netGainValue) {
+                netGainValue.textContent = `R${netGain.toLocaleString()}`;
+            }
+
+            // Update ROI percentage
+            const roiValue = document.querySelector('.summary-item:nth-child(4) .summary-value');
+            if (roiValue) {
+                roiValue.textContent = `${roiPercentage}%`;
+            }
+
+            // Update ROI card note
+            const roiNote = document.querySelector('.roi-card.success .roi-note');
+            if (roiNote) {
+                const millions = (netGain / 1000000).toFixed(2);
+                const investMillions = (grandTotal / 1000000).toFixed(1);
+                roiNote.textContent = `R${millions}M net gain on R${investMillions}M investment`;
+            }
+
+            // Calculate and update payback period
+            const monthlyRevenue = revenueGenerated / 18; // Average monthly revenue
+            const paybackMonths = Math.ceil(grandTotal / monthlyRevenue);
+            const paybackValue = document.querySelector('.roi-card:nth-child(3) .roi-value');
+            if (paybackValue) {
+                paybackValue.textContent = `~${paybackMonths} Months`;
+            }
+        }
+
+        // Run calculation on page load
+        setTimeout(calculateInvestmentTotals, 100);
     </script>
     <script src="../js/auth.js"></script>
     <script src="../js/report-access.js"></script>
