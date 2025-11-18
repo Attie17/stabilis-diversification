@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -9,6 +10,7 @@
     <title>Wellness Centre - Stabilis</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div id="app">
         <!-- Sidebar -->
@@ -28,6 +30,8 @@
                         <button class="sidebar-item" data-action="home">← Back to Project Hub</button>
                         <button class="sidebar-item" data-action="switch-diversification">View Diversification</button>
                         <button class="sidebar-item" data-action="switch-turnaround">View Turnaround</button>
+                        <button class="sidebar-item" data-action="executive-dashboard">Executive Dashboard
+                            (Steering)</button>
                     </div>
                 </div>
 
@@ -39,7 +43,8 @@
                     </button>
                     <div class="sidebar-section-content" id="help-guides">
                         <button class="sidebar-item" data-action="quick-start">Quick Start Tutorial</button>
-                        <button class="sidebar-item" data-action="mark-complete">How to Mark Milestones Complete</button>
+                        <button class="sidebar-item" data-action="mark-complete">How to Mark Milestones
+                            Complete</button>
                         <button class="sidebar-item" data-action="wellness-overview">Wellness Centre Overview</button>
                         <button class="sidebar-item" data-action="practitioner-guide">Practitioner Management</button>
                         <button class="sidebar-item" data-action="gestures">Mobile Gestures Guide</button>
@@ -72,11 +77,13 @@
                         <button class="sidebar-item" data-action="cost-analysis">Cost Analysis Report</button>
                         <button class="sidebar-item" data-action="phase-progress">Phase Progress Report</button>
                         <button class="sidebar-item" data-action="risk-assessment">Risk Assessment Report</button>
-                        <button class="sidebar-item" data-action="resource-utilization">Resource Utilization Report</button>
+                        <button class="sidebar-item" data-action="resource-utilization">Resource Utilization
+                            Report</button>
                         <button class="sidebar-item" data-action="kpi-dashboard-report">KPI Dashboard Report</button>
                         <button class="sidebar-item" data-action="timeline-analysis">Timeline Analysis Report</button>
                         <button class="sidebar-item" data-action="budget-actual">Budget vs Actual Report</button>
-                        <button class="sidebar-item" data-action="cashflow-projection">Cashflow Projection Report</button>
+                        <button class="sidebar-item" data-action="cashflow-projection">Cashflow Projection
+                            Report</button>
                     </div>
                 </div>
 
@@ -91,6 +98,20 @@
                         <button class="sidebar-item" data-action="referral-tracker">Referral Tracker</button>
                         <button class="sidebar-item" data-action="session-capacity">Session Capacity View</button>
                         <button class="sidebar-item" data-action="revenue-dashboard">Revenue Dashboard</button>
+                    </div>
+                </div>
+
+                <!-- AI Copilot -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="ai-copilot">
+                        <span>🤖 AI Copilot</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="ai-copilot">
+                        <button class="sidebar-item" data-action="copilot-guide">📖 Copilot Guide</button>
+                        <button class="sidebar-item" onclick="showGeneralHelp()">💬 Ask Me Anything</button>
+                        <button class="sidebar-item" onclick="showRevenueCalculatorModal()">💰 Revenue
+                            Calculator</button>
                     </div>
                 </div>
 
@@ -115,7 +136,7 @@
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
         <!-- Header -->
-        <header class="app-header">
+        <header class="app-header wellness-header">
             <div class="header-content">
                 <button class="menu-btn" id="menu-btn">☰</button>
                 <h1>Stabilis Wellness Centre</h1>
@@ -198,22 +219,28 @@
 
             <!-- Phases View -->
             <div id="phases-view" class="view">
-                <div id="phases-container"></div>
+                <div class="phases-container" id="phases-container">
+                    <!-- Populated by JS -->
+                </div>
             </div>
 
             <!-- Risks View -->
             <div id="risks-view" class="view">
-                <div class="card">
-                    <h2>Risk Register</h2>
-                    <div id="risks-container"></div>
+                <div class="risk-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="high">🔴 High</button>
+                    <button class="filter-btn" data-filter="medium">🟡 Medium</button>
+                    <button class="filter-btn" data-filter="low">🟢 Low</button>
+                </div>
+                <div class="risk-list" id="risk-list">
+                    <!-- Populated by JS -->
                 </div>
             </div>
 
             <!-- Team View -->
             <div id="team-view" class="view">
-                <div class="card">
-                    <h2>Project Team</h2>
-                    <div id="team-container"></div>
+                <div class="team-grid" id="team-grid">
+                    <!-- Populated by JS -->
                 </div>
             </div>
 
@@ -230,6 +257,8 @@
     <script src="js/wellness-data.js"></script>
     <script src="js/wellness-copilot.js"></script>
     <script src="js/edit-milestone.js"></script>
+    <script src="js/ai-copilot.js"></script>
     <script src="js/wellness-app.js"></script>
 </body>
+
 </html>

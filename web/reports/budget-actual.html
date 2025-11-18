@@ -1,22 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Budget vs Actual - Stabilis</title>
     <link rel="stylesheet" href="../css/style.css">
     <style>
-        .report-container { max-width: 1400px; margin: 2rem auto; padding: 2rem; }
-        .report-header { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; }
-        .back-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: white; color: #3b82f6; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; text-decoration: none; }
-        .budget-table { width: 100%; border-collapse: collapse; background: white; }
-        .budget-table th, .budget-table td { padding: 1rem; text-align: right; border-bottom: 1px solid #e5e7eb; }
-        .budget-table th:first-child, .budget-table td:first-child { text-align: left; }
-        .budget-table th { background: #f9fafb; font-weight: 600; color: #1f2937; }
-        .budget-table .over-budget { color: #ef4444; font-weight: 600; }
-        .budget-table .under-budget { color: #10b981; font-weight: 600; }
-        .report-section { background: white; border-radius: 0.75rem; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .report-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .report-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: white;
+            color: #3b82f6;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .budget-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .budget-table th,
+        .budget-table td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .budget-table th:first-child,
+        .budget-table td:first-child {
+            text-align: left;
+        }
+
+        .budget-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .budget-table .over-budget {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .budget-table .under-budget {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .report-section {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .budget-breakdown-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            font: inherit;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+        }
+
+        .budget-breakdown-btn:focus-visible {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
+
+        .breakdown-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+        }
+
+        .breakdown-modal.active {
+            display: flex;
+        }
+
+        .breakdown-card {
+            background: white;
+            width: min(520px, 92%);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.25);
+            position: relative;
+        }
+
+        .breakdown-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.35rem;
+        }
+
+        .breakdown-card ul {
+            padding-left: 1.25rem;
+            margin: 1rem 0;
+        }
+
+        .breakdown-card li {
+            margin-bottom: 0.4rem;
+        }
+
+        .breakdown-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.25rem;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: #475569;
+        }
     </style>
 </head>
+
 <body>
     <div class="report-container">
         <div class="report-header">
@@ -29,47 +153,222 @@
             <h2>Investment Budget Tracking</h2>
             <table class="budget-table">
                 <thead>
-                    <tr><th>Project</th><th>Budget</th><th>Actual Spend</th><th>Remaining</th><th>Variance</th></tr>
+                    <tr>
+                        <th>Project</th>
+                        <th>Budget</th>
+                        <th>Actual Spend</th>
+                        <th>Remaining</th>
+                        <th>Variance</th>
+                    </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>Turnaround</td>
-                        <td>R150,000</td>
-                        <td>R0</td>
+                        <td><button class="budget-breakdown-btn" data-project="Turnaround"
+                                data-type="budget">R150,000</button></td>
+                        <td><button class="budget-breakdown-btn" data-project="Turnaround"
+                                data-type="actual">R0</button></td>
                         <td>R150,000</td>
                         <td class="under-budget">0%</td>
                     </tr>
                     <tr>
                         <td>Diversification</td>
-                        <td>R500,000</td>
-                        <td>R0</td>
+                        <td><button class="budget-breakdown-btn" data-project="Diversification"
+                                data-type="budget">R500,000</button></td>
+                        <td><button class="budget-breakdown-btn" data-project="Diversification"
+                                data-type="actual">R0</button></td>
                         <td>R500,000</td>
                         <td class="under-budget">0%</td>
                     </tr>
                     <tr>
                         <td>Wellness Centre</td>
-                        <td>R2,800,000</td>
-                        <td>R0</td>
+                        <td><button class="budget-breakdown-btn" data-project="Wellness Centre"
+                                data-type="budget">R2,800,000</button></td>
+                        <td><button class="budget-breakdown-btn" data-project="Wellness Centre"
+                                data-type="actual">R0</button></td>
                         <td>R2,800,000</td>
                         <td class="under-budget">0%</td>
                     </tr>
                     <tr style="background: #f3f4f6; font-weight: 700;">
                         <td>TOTAL</td>
-                        <td>R3,450,000</td>
-                        <td>R0</td>
+                        <td><button class="budget-breakdown-btn" data-project="Total"
+                                data-type="budget">R3,450,000</button></td>
+                        <td><button class="budget-breakdown-btn" data-project="Total" data-type="actual">R0</button>
+                        </td>
                         <td>R3,450,000</td>
                         <td class="under-budget">On Track</td>
                     </tr>
                 </tbody>
             </table>
-            <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;">Note: Projects not yet commenced. Spending will be tracked monthly once implementation begins.</p>
+            <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;">Note: Projects not yet commenced. Spending
+                will be tracked monthly once implementation begins.</p>
         </div>
 
         <div style="text-align: center; margin-top: 3rem;">
             <button class="back-btn" onclick="window.history.back()"> Return to Dashboard</button>
         </div>
     </div>
+    <div class="breakdown-modal" id="budget-breakdown-modal" aria-hidden="true" role="dialog"
+        aria-labelledby="budget-breakdown-title">
+        <div class="breakdown-card">
+            <button class="breakdown-close" type="button" id="budget-breakdown-close"
+                aria-label="Close breakdown">✕</button>
+            <h3 id="budget-breakdown-title">Budget Breakdown</h3>
+            <p id="budget-breakdown-subtitle" style="color:#475569; margin-top:0;">Loading details…</p>
+            <ul id="budget-breakdown-list"></ul>
+            <p id="budget-breakdown-note" style="color:#475569; font-size:0.9rem;"></p>
+        </div>
+    </div>
     <script src="../js/auth.js"></script>
     <script>initAuth();</script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/report-access.js"></script>
+    <script>
+        const budgetBreakdowns = {
+            'Turnaround': {
+                budget: {
+                    total: 'R150,000',
+                    items: [
+                        { label: 'Financial audit & compliance reset', amount: 'R50,000' },
+                        { label: 'Accounting system + tooling', amount: 'R30,000' },
+                        { label: 'Cash discipline training & workshops', amount: 'R20,000' },
+                        { label: 'Interim CFO / consultant support', amount: 'R50,000' }
+                    ],
+                    note: 'Based on the turnaround program bill of materials captured in `phases/PHASE1-MOBILISATION.md`.'
+                },
+                actual: {
+                    total: 'R0',
+                    items: [
+                        { label: 'Spend begins after SARS repayment schedule approval (Phase 2)', amount: 'Pending' }
+                    ],
+                    note: 'Implementation still in mobilisation. Cash is being reserved until the 13-week forecast is signed off.'
+                }
+            },
+            'Diversification': {
+                budget: {
+                    total: 'R500,000',
+                    items: [
+                        { label: 'Clinical & admissions training', amount: 'R150,000' },
+                        { label: 'Facility upgrades for adolescent wing', amount: 'R120,000' },
+                        { label: 'Marketing & positioning campaign', amount: 'R80,000' },
+                        { label: 'Technology (EMR + CRM tooling)', amount: 'R70,000' },
+                        { label: 'Program development materials', amount: 'R50,000' },
+                        { label: 'Clinical equipment & consumables', amount: 'R30,000' }
+                    ],
+                    note: 'Matches the Phase 2–4 investment plan referenced in `web/reports/revenue-projection.html`.'
+                },
+                actual: {
+                    total: 'R0',
+                    items: [
+                        { label: 'Awaiting pilot launch (PHASE2-PILOT.md) before releasing funds', amount: 'Pending' }
+                    ],
+                    note: 'Procurement checklists are prepared; spend is staged against milestone acceptance.'
+                }
+            },
+            'Wellness Centre': {
+                budget: {
+                    total: 'R2,800,000',
+                    items: [
+                        { label: 'Lease & renovations (12 months)', amount: 'R720,000' },
+                        { label: 'Practitioner salaries (first 6 months)', amount: 'R900,000' },
+                        { label: 'Furniture & equipment fit-out', amount: 'R400,000' },
+                        { label: 'Technology stack (booking, EMR, digital)', amount: 'R250,000' },
+                        { label: 'Launch marketing & referral campaigns', amount: 'R300,000' },
+                        { label: 'Licensing, insurance, legal', amount: 'R100,000' },
+                        { label: 'Working capital reserve', amount: 'R130,000' }
+                    ],
+                    note: 'Direct lift from the Wellness Centre capex schedule stored in `web/reports/revenue-projection.html`.'
+                },
+                actual: {
+                    total: 'R0',
+                    items: [
+                        { label: 'Spending unlocks after facility lease signed (PHASE1 milestones)', amount: 'Pending' }
+                    ],
+                    note: 'Landlord negotiations are still in progress; cash is ring-fenced until handover.'
+                }
+            }
+        };
+
+        budgetBreakdowns['Total'] = {
+            budget: {
+                total: 'R3,450,000',
+                items: [
+                    { label: 'Turnaround allocation', amount: 'R150,000' },
+                    { label: 'Diversification allocation', amount: 'R500,000' },
+                    { label: 'Wellness Centre allocation', amount: 'R2,800,000' }
+                ],
+                note: 'Sum of the three programme envelopes.'
+            },
+            actual: {
+                total: 'R0',
+                items: [
+                    { label: 'No cash released yet across any stream', amount: 'Pending' }
+                ],
+                note: 'Finance team will start monthly accrual tracking once the first PO is issued.'
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof initReportPage === 'function') {
+                initReportPage({
+                    reportKey: 'budget-actual',
+                    reportTitle: 'Budget vs Actual Report'
+                });
+            }
+            attachBudgetBreakdownHandlers();
+        });
+
+        function attachBudgetBreakdownHandlers() {
+            document.querySelectorAll('.budget-breakdown-btn').forEach(btn => {
+                btn.addEventListener('click', () => showBudgetBreakdown(btn.dataset.project, btn.dataset.type));
+            });
+            document.getElementById('budget-breakdown-close')?.addEventListener('click', closeBudgetBreakdown);
+            document.getElementById('budget-breakdown-modal')?.addEventListener('click', (event) => {
+                if (event.target.id === 'budget-breakdown-modal') closeBudgetBreakdown();
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') closeBudgetBreakdown();
+            });
+        }
+
+        function showBudgetBreakdown(project, type) {
+            const modal = document.getElementById('budget-breakdown-modal');
+            const title = document.getElementById('budget-breakdown-title');
+            const subtitle = document.getElementById('budget-breakdown-subtitle');
+            const list = document.getElementById('budget-breakdown-list');
+            const note = document.getElementById('budget-breakdown-note');
+            const projectData = budgetBreakdowns[project] || {};
+            const breakdown = projectData[type] || null;
+
+            const label = type === 'budget' ? 'Budget' : 'Actual Spend';
+            title.textContent = `${project} — ${label}`;
+
+            if (!breakdown) {
+                subtitle.textContent = 'No supporting data recorded yet.';
+                list.innerHTML = '';
+                note.textContent = '';
+            } else {
+                subtitle.textContent = `Total: ${breakdown.total}`;
+                list.innerHTML = breakdown.items.map(item => `
+                    <li>
+                        <strong>${item.label}</strong><br>
+                        <span style="color:#2563eb">${item.amount}</span>
+                    </li>
+                `).join('');
+                note.textContent = breakdown.note || '';
+            }
+
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeBudgetBreakdown() {
+            const modal = document.getElementById('budget-breakdown-modal');
+            if (!modal) return;
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+    </script>
 </body>
+
 </html>

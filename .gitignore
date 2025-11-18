@@ -32,3 +32,9 @@ logs/
 # Keep these project files
 !.vscode/settings.json
 !.vscode/*.code-snippets
+.vercel
+
+# AI Assistant Environment
+.env
+*.log
+node_modules

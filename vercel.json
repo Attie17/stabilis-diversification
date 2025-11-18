@@ -1,0 +1,22 @@
+{
+  "buildCommand": "echo 'No build needed'",
+  "outputDirectory": "web",
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/executive",
+      "destination": "/executive-dashboard.html"
+    },
+    {
+      "source": "/diversification",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/turnaround",
+      "destination": "/turnaround.html"
+    }
+  ]
+}

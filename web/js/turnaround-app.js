@@ -1,6 +1,29 @@
 // Turnaround App - adapted from diversification app.js
 // App State
 let currentView = 'dashboard';
+const TURNAROUND_UPDATE_STORAGE_KEY = 'stabilis-turnaround-updates';
+const REPORT_TITLES = {
+    'revenue-projection': 'Revenue Projection Report',
+    'cost-analysis': 'Cost Analysis Report',
+    'phase-progress': 'Phase Progress Report',
+    'risk-assessment': 'Risk Assessment Report',
+    'resource-utilization': 'Resource Utilization Report',
+    'kpi-dashboard-report': 'KPI Dashboard',
+    'timeline-analysis': 'Timeline Analysis Report',
+    'budget-actual': 'Budget vs Actual Report',
+    'cashflow-projection': 'Cashflow Projection Report'
+};
+const PROJECT_REPORT_ACCESS = {
+    'revenue-projection': ['Attie Nel', 'Nastasha Jacobs'],
+    'cost-analysis': ['Nastasha Jacobs', 'Attie Nel'],
+    'phase-progress': ['Attie Nel', 'Berno Paul', 'Lydia Gittens'],
+    'risk-assessment': ['Attie Nel', 'Berno Paul', 'Lydia Gittens'],
+    'resource-utilization': ['Attie Nel', 'Lydia Gittens'],
+    'kpi-dashboard-report': ['Attie Nel', 'Nastasha Jacobs', 'Berno Paul', 'Lydia Gittens'],
+    'timeline-analysis': ['Attie Nel'],
+    'budget-actual': ['Nastasha Jacobs', 'Attie Nel'],
+    'cashflow-projection': ['Nastasha Jacobs', 'Attie Nel']
+};
 
 // Reuse utility functions
 function formatCurrency(amount) {
@@ -26,10 +49,10 @@ function getProjectProgress() {
     const start = new Date(turnaroundData.startDate);
     const end = new Date(turnaroundData.endDate);
     const today = new Date();
-    
+
     if (today < start) return 0;
     if (today > end) return 100;
-    
+
     const total = end - start;
     const elapsed = today - start;
     return Math.round((elapsed / total) * 100);
@@ -47,13 +70,89 @@ function getCurrentPhase() {
 function getMilestoneStatus() {
     let total = 0;
     let complete = 0;
-    
+
     turnaroundData.phases.forEach(phase => {
         total += phase.milestones.length;
         complete += phase.milestones.filter(m => m.status === 'complete').length;
     });
-    
+
     return { total, complete };
+}
+
+function getSteeringMembers() {
+    return window.STEERING_COMMITTEE || [];
+}
+
+function isDeveloperUser() {
+    return currentUser && currentUser.name === 'Developer';
+}
+
+function ensureUserSession(actionLabel = 'this shortcut') {
+    if (currentUser) return true;
+    showModal('Sign In Required', `
+        <p>Please sign in to use ${actionLabel}.</p>
+        <p>Cross-project navigation stays hidden until a steering member is active.</p>
+    `);
+    return false;
+}
+
+function hasSteeringAccess() {
+    if (!currentUser) return false;
+    const steering = getSteeringMembers();
+    return steering.includes(currentUser.name) || isDeveloperUser();
+}
+
+function showSteeringOnlyModal(actionLabel = 'this area') {
+    const steering = getSteeringMembers();
+    const listMarkup = steering.length
+        ? `<ul style="margin-top:0.5rem;">${steering.map(name => `<li>${name}</li>`).join('')}</ul>`
+        : '';
+    showModal('Navigation Restricted', `
+        <h3>${actionLabel} is locked</h3>
+        <p>Only the steering committee can open multi-project navigation.</p>
+        ${listMarkup}
+        <p style="margin-top:0.75rem;">Compiled reporting is available from the Executive Dashboard.</p>
+    `);
+}
+
+function navigateToIfSteering(url, actionLabel) {
+    if (!ensureUserSession(actionLabel)) return;
+    if (!hasSteeringAccess()) {
+        showSteeringOnlyModal(actionLabel);
+        return;
+    }
+    window.location.href = url;
+}
+
+function ensureReportAccess(reportKey) {
+    if (!currentUser) return false;
+    if (hasSteeringAccess()) return true;
+    const allowed = PROJECT_REPORT_ACCESS[reportKey] || [];
+    return allowed.includes(currentUser.name);
+}
+
+function showReportAccessDenied(reportKey) {
+    const title = REPORT_TITLES[reportKey] || 'This report';
+    const allowed = PROJECT_REPORT_ACCESS[reportKey] || getSteeringMembers();
+    const listMarkup = allowed.length
+        ? `<ul style="margin-top:0.5rem;">${allowed.map(name => `<li>${name}</li>`).join('')}</ul>`
+        : '';
+    showModal('Access Restricted', `
+        <h3>${title}</h3>
+        <p>This report is limited to its owners for this project.</p>
+        ${listMarkup}
+        <p style="margin-top:0.75rem;">Company-wide compilations remain on the Executive Dashboard.</p>
+    `);
+}
+
+function handleReportNavigation(reportKey, url) {
+    const label = REPORT_TITLES[reportKey] || 'This report';
+    if (!ensureUserSession(label)) return;
+    if (!ensureReportAccess(reportKey)) {
+        showReportAccessDenied(reportKey);
+        return;
+    }
+    window.location.href = url;
 }
 
 // Render copilot buttons based on user access
@@ -72,7 +171,7 @@ function renderCopilotButtons() {
 function init() {
     // Initialize authentication first
     initAuth();
-    
+
     updateCountdown();
     updateDashboard();
     renderPhases();
@@ -80,20 +179,20 @@ function init() {
     renderKPIs();
     renderRisks();
     bindEvents();
-    
+
     setInterval(updateCountdown, 60000);
 }
 
 function updateCountdown() {
     const daysRemaining = getDaysUntil(turnaroundData.endDate);
     const countdown = document.getElementById('countdown');
-    
+
     if (daysRemaining > 0) {
         countdown.textContent = `${daysRemaining} days left`;
     } else {
         countdown.textContent = 'Complete!';
     }
-    
+
     document.getElementById('days-remaining').textContent = Math.max(0, daysRemaining);
 }
 
@@ -102,22 +201,22 @@ function updateDashboard() {
     const progress = getProjectProgress();
     document.getElementById('timeline-fill').style.width = `${progress}%`;
     document.getElementById('progress-percent').textContent = `${progress}%`;
-    
+
     // Milestones
     const { total, complete } = getMilestoneStatus();
     document.getElementById('milestones-done').textContent = `${complete}/${total}`;
-    
+
     // Dates
     document.getElementById('timeline-start').textContent = formatDate(turnaroundData.startDate);
     document.getElementById('timeline-end').textContent = formatDate(turnaroundData.endDate);
-    
+
     // Current Phase
     const currentPhase = getCurrentPhase();
     const phaseElement = document.getElementById('current-phase');
     const phaseComplete = currentPhase.milestones.filter(m => m.status === 'complete').length;
     const phaseTotal = currentPhase.milestones.length;
     const phaseProgress = phaseTotal > 0 ? Math.round((phaseComplete / phaseTotal) * 100) : 0;
-    
+
     phaseElement.innerHTML = `
         <div class="phase-badge urgent">${currentPhase.id}</div>
         <h3>${currentPhase.name}</h3>
@@ -129,7 +228,7 @@ function updateDashboard() {
             <span>${phaseComplete} of ${phaseTotal} milestones complete</span>
         </div>
     `;
-    
+
     // Critical milestones (next 7 days)
     renderCriticalMilestones();
 }
@@ -138,7 +237,7 @@ function renderCriticalMilestones() {
     const today = new Date();
     const weekEnd = new Date(today);
     weekEnd.setDate(weekEnd.getDate() + 7);
-    
+
     const critical = [];
     turnaroundData.phases.forEach(phase => {
         phase.milestones.forEach(milestone => {
@@ -148,13 +247,13 @@ function renderCriticalMilestones() {
             }
         });
     });
-    
+
     const container = document.getElementById('critical-milestones');
     if (critical.length === 0) {
         container.innerHTML = '<p style="color: var(--success);">✅ No critical milestones in next 7 days</p>';
         return;
     }
-    
+
     container.innerHTML = critical.map(m => `
         <div class="milestone-item ${m.priority}">
             <input type="checkbox" class="milestone-checkbox" data-id="${m.id}" ${m.status === 'complete' ? 'checked' : ''}>
@@ -173,12 +272,12 @@ function renderCriticalMilestones() {
 
 function renderPhases() {
     const container = document.getElementById('phases-container');
-    
+
     container.innerHTML = turnaroundData.phases.map(phase => {
         const complete = phase.milestones.filter(m => m.status === 'complete').length;
         const total = phase.milestones.length;
         const progress = total > 0 ? Math.round((complete / total) * 100) : 0;
-        
+
         return `
             <div class="phase-card" data-phase-id="${phase.id}">
                 <div class="phase-header">
@@ -317,7 +416,7 @@ function renderPhases() {
 
 function renderKPIs() {
     const container = document.getElementById('kpi-grid');
-    
+
     // KPI context/history data
     const kpiContext = {
         'Operating Margin': 'Currently running R1.9m deficit due to maintenance spike (R1.015m vs R236k prior year) and revenue quality issues. Must achieve positive margin to stop reserve depletion.',
@@ -329,12 +428,12 @@ function renderKPIs() {
         'Claim Denial Rate': 'UNKNOWN - but R854k bad debt provision this year suggests high denial/documentation issues. Historical problem: claims submitted without proper auth letters, extended stays beyond approved days, incomplete clinical notes. Medical aids (Discovery, Momentum) rejecting retrospectively.',
         'SARS Compliance': 'VAT returns NOT SUBMITTED for 2 periods. Auditor flagged. Penalty clock running. Must file immediately and negotiate payment plan to avoid escalation to asset seizure.'
     };
-    
+
     container.innerHTML = turnaroundData.kpis.map(kpi => {
         const trendClass = kpi.trend === 'critical' ? 'urgent' : kpi.trend === 'warning' ? 'warning' : 'ok';
         const trendIcon = kpi.trend === 'critical' ? '🔴' : kpi.trend === 'warning' ? '🟡' : '🟢';
         const context = kpiContext[kpi.name] || 'No additional context available.';
-        
+
         return `
             <div class="kpi-card ${trendClass}">
                 <div class="kpi-header">
@@ -374,11 +473,11 @@ function renderKPIs() {
 
 function renderRisks() {
     const container = document.getElementById('risk-list');
-    
+
     container.innerHTML = turnaroundData.risks.map(risk => {
         const severityClass = risk.severity === 'high' ? 'high' : risk.severity === 'medium' ? 'medium' : 'low';
         const severityIcon = risk.severity === 'high' ? '🔴' : risk.severity === 'medium' ? '🟡' : '🟢';
-        
+
         return `
             <div class="risk-card ${severityClass}">
                 <div class="risk-header">
@@ -403,20 +502,20 @@ let currentOpenChecklist = null;
 let currentOpenNotes = null;
 let unsavedNotes = {};
 
-window.togglePhase = function(phaseId, event) {
+window.togglePhase = function (phaseId, event) {
     if (event) event.stopPropagation();
-    
+
     const phaseCard = document.querySelector(`[data-phase-id="${phaseId}"]`);
     const description = phaseCard.querySelector('.phase-description-section');
     const milestones = phaseCard.querySelector('.phase-milestones');
     const arrow = phaseCard.querySelector('.expand-btn');
-    
+
     // Toggle display
     const isOpen = description.style.display === 'block';
     description.style.display = isOpen ? 'none' : 'block';
     milestones.style.display = isOpen ? 'none' : 'block';
     arrow.textContent = isOpen ? '▼' : '▲';
-    
+
     // Close all milestone details when closing phase
     if (isOpen) {
         milestones.querySelectorAll('.milestone-details').forEach(d => d.style.display = 'none');
@@ -425,12 +524,12 @@ window.togglePhase = function(phaseId, event) {
     }
 };
 
-window.toggleMilestoneDetails = function(milestoneId, event) {
+window.toggleMilestoneDetails = function (milestoneId, event) {
     if (event) event.stopPropagation();
-    
+
     const milestoneCard = document.querySelector(`[data-milestone-id="${milestoneId}"]`);
     const details = milestoneCard.querySelector('.milestone-details');
-    
+
     // Close previous milestone if different
     if (currentOpenMilestone && currentOpenMilestone !== milestoneId) {
         const prevDetails = document.querySelector(`[data-milestone-details="${currentOpenMilestone}"]`);
@@ -438,69 +537,69 @@ window.toggleMilestoneDetails = function(milestoneId, event) {
             checkUnsavedAndClose(currentOpenMilestone, prevDetails);
         }
     }
-    
+
     // Toggle current
     const isOpen = details.style.display === 'block';
     details.style.display = isOpen ? 'none' : 'block';
     currentOpenMilestone = isOpen ? null : milestoneId;
-    
+
     // Close checklist and notes when closing milestone
     if (isOpen) {
         closeAllInMilestone(milestoneId);
     }
 };
 
-window.toggleChecklist = function(milestoneId, event) {
+window.toggleChecklist = function (milestoneId, event) {
     if (event) event.stopPropagation();
-    
+
     const checklistContent = document.getElementById(`checklist-${milestoneId}`);
     const notesSection = document.getElementById(`notes-${milestoneId}`);
     const isOpen = checklistContent.style.display === 'block';
-    
+
     // Close notes if open
     if (notesSection && !isOpen) {
         notesSection.style.display = 'none';
     }
-    
+
     checklistContent.style.display = isOpen ? 'none' : 'block';
     currentOpenChecklist = isOpen ? null : milestoneId;
 };
 
-window.toggleChecklistNote = function(milestoneId, checklistIdx, event) {
+window.toggleChecklistNote = function (milestoneId, checklistIdx, event) {
     if (event) event.stopPropagation();
-    
+
     const noteSection = document.getElementById(`checklist-note-${milestoneId}-${checklistIdx}`);
     const isOpen = noteSection.style.display === 'block';
-    
+
     noteSection.style.display = isOpen ? 'none' : 'block';
 };
 
-window.toggleMilestoneNotes = function(milestoneId, event) {
+window.toggleMilestoneNotes = function (milestoneId, event) {
     if (event) event.stopPropagation();
-    
+
     const notesSection = document.getElementById(`notes-${milestoneId}`);
     const checklistContent = document.getElementById(`checklist-${milestoneId}`);
     const isOpen = notesSection.style.display === 'block';
-    
+
     // Close checklist if open
     if (checklistContent && !isOpen) {
         checklistContent.style.display = 'none';
     }
-    
+
     notesSection.style.display = isOpen ? 'none' : 'block';
     currentOpenNotes = isOpen ? null : milestoneId;
 };
 
-window.toggleTurnaroundCopilot = function(milestoneId, event) {
+window.toggleTurnaroundCopilot = function (milestoneId, event) {
     if (event) event.stopPropagation();
-    
+
     const copilotSection = document.getElementById(`copilot-${milestoneId}`);
     const isOpen = copilotSection.style.display === 'block';
-    
+
     copilotSection.style.display = isOpen ? 'none' : 'block';
 };
 
-window.saveMilestoneNoteAndClose = function(milestoneId) {
+window.saveMilestoneNoteAndClose = function (milestoneId) {
     const textarea = document.getElementById(`note-text-${milestoneId}`);
     saveMilestoneNote(milestoneId, textarea.value);
     delete unsavedNotes[milestoneId];
@@ -508,7 +607,7 @@ window.saveMilestoneNoteAndClose = function(milestoneId) {
     currentOpenNotes = null;
 };
 
-window.saveChecklistNoteAndClose = function(milestoneId, checklistIdx) {
+window.saveChecklistNoteAndClose = function (milestoneId, checklistIdx) {
     const textarea = document.querySelector(`[data-milestone="${milestoneId}"][data-checklist="${checklistIdx}"]`);
     saveChecklistNote(milestoneId, checklistIdx, textarea.value);
     delete unsavedNotes[`${milestoneId}-${checklistIdx}`];
@@ -519,11 +618,11 @@ function closeAllInMilestone(milestoneId) {
     // Close checklist
     const checklist = document.getElementById(`checklist-${milestoneId}`);
     if (checklist) checklist.style.display = 'none';
-    
+
     // Close notes
     const notes = document.getElementById(`notes-${milestoneId}`);
     if (notes) notes.style.display = 'none';
-    
+
     currentOpenChecklist = null;
     currentOpenNotes = null;
 }
@@ -550,25 +649,143 @@ function bindEvents() {
             switchView(view);
         });
     });
-    
+
     // Modal close
     document.getElementById('modal-close')?.addEventListener('click', closeModal);
     document.getElementById('modal')?.addEventListener('click', (e) => {
         if (e.target.id === 'modal') closeModal();
     });
-    
+
     // FAB
-    document.getElementById('add-update')?.addEventListener('click', () => {
-        showModal('Add Update', '<p>Quick update feature coming soon</p>');
+    document.getElementById('add-update')?.addEventListener('click', openTurnaroundUpdateModal);
+}
+
+function openTurnaroundUpdateModal() {
+    const milestoneOptions = ['<option value="">General turnaround update</option>']
+        .concat(turnaroundData.phases.flatMap(phase =>
+            phase.milestones.map(m => `<option value="${m.id}">${m.id} — ${m.name}</option>`)
+        ));
+
+    const updates = getTurnaroundUpdates();
+
+    showModal('Log Crisis Update', `
+        <form id="turnaround-update-form" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
+            <label style="display:flex;flex-direction:column;font-size:0.9rem;gap:0.35rem;">
+                <span>Milestone (optional)</span>
+                <select name="milestone" style="padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border-color);">
+                    ${milestoneOptions.join('')}
+                </select>
+            </label>
+            <label style="display:flex;flex-direction:column;font-size:0.9rem;gap:0.35rem;">
+                <span>Status</span>
+                <select name="status" style="padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border-color);">
+                    <option value="on-track">On Track</option>
+                    <option value="watching">Watching</option>
+                    <option value="at-risk">At Risk</option>
+                    <option value="blocked">Blocked</option>
+                </select>
+            </label>
+            <label style="display:flex;flex-direction:column;font-size:0.9rem;gap:0.35rem;">
+                <span>Update Summary</span>
+                <textarea name="summary" rows="4" placeholder="Record cash flow, compliance, or operational updates" style="padding:0.75rem;border-radius:0.75rem;border:1px solid var(--border-color);"></textarea>
+            </label>
+            <button type="submit" style="padding:0.75rem;border:none;border-radius:0.75rem;background:var(--danger);color:white;font-size:1rem;cursor:pointer;">Save Update</button>
+        </form>
+        <div id="turnaround-update-feedback" style="min-height:1.25rem;font-size:0.9rem;color:var(--success);"></div>
+        <div>
+            <h3 style="margin:0.5rem 0;">Recent Updates</h3>
+            <div id="turnaround-update-history" style="display:flex;flex-direction:column;gap:0.5rem;max-height:240px;overflow:auto;">
+                ${renderTurnaroundUpdateHistory(updates)}
+            </div>
+        </div>
+    `);
+
+    requestAnimationFrame(() => {
+        document.getElementById('turnaround-update-form')?.addEventListener('submit', handleTurnaroundUpdateSubmit);
+    });
+}
+
+function getTurnaroundUpdates() {
+    try {
+        return JSON.parse(localStorage.getItem(TURNAROUND_UPDATE_STORAGE_KEY)) || [];
+    } catch (error) {
+        console.warn('Failed to read turnaround updates', error);
+        return [];
+    }
+}
+
+function saveTurnaroundUpdate(update) {
+    const updates = getTurnaroundUpdates();
+    updates.unshift(update);
+    localStorage.setItem(TURNAROUND_UPDATE_STORAGE_KEY, JSON.stringify(updates.slice(0, 30)));
+}
+
+function renderTurnaroundUpdateHistory(updates) {
+    if (!updates || updates.length === 0) {
+        return '<p style="color:var(--text-muted);">No crisis updates logged yet.</p>';
+    }
+    return updates.slice(0, 6).map(update => `
+        <div style="padding:0.75rem;border-radius:0.5rem;background:var(--bg-secondary);">
+            <div style="font-size:0.85rem;color:var(--text-muted);">${formatTurnaroundTimestamp(update.timestamp)} • ${update.user || 'Team Member'}</div>
+            <div style="font-weight:600;margin:0.25rem 0;">${(update.status || 'update').replace(/-/g, ' ')}</div>
+            <p style="margin:0;font-size:0.95rem;">${update.summary}</p>
+            ${update.milestoneId ? `<div style="font-size:0.8rem;color:var(--text-muted);">Milestone: ${update.milestoneId}</div>` : ''}
+        </div>
+    `).join('');
+}
+
+function handleTurnaroundUpdateSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    const summary = form.summary.value.trim();
+    const feedback = document.getElementById('turnaround-update-feedback');
+
+    if (!summary) {
+        if (feedback) {
+            feedback.style.color = 'var(--danger)';
+            feedback.textContent = 'Please enter a short summary before saving.';
+        }
+        return;
+    }
+
+    const update = {
+        id: `TR-UP-${Date.now()}`,
+        milestoneId: form.milestone.value || null,
+        status: form.status.value,
+        summary,
+        user: (typeof currentUser !== 'undefined' && currentUser?.name) ? currentUser.name : 'Turnaround Lead',
+        timestamp: new Date().toISOString()
+    };
+
+    saveTurnaroundUpdate(update);
+    form.reset();
+    const historyContainer = document.getElementById('turnaround-update-history');
+    if (historyContainer) {
+        historyContainer.innerHTML = renderTurnaroundUpdateHistory(getTurnaroundUpdates());
+    }
+    if (feedback) {
+        feedback.style.color = 'var(--success)';
+        feedback.textContent = 'Update captured locally. Include it in the daily crisis huddle.';
+        setTimeout(() => feedback.textContent = '', 4000);
+    }
+}
+
+function formatTurnaroundTimestamp(value) {
+    if (!value) return 'Just now';
+    return new Date(value).toLocaleString('en-ZA', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     });
 }
 
 function switchView(viewName) {
     currentView = viewName;
-    
+
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    
+
     document.getElementById(`${viewName}-view`).classList.add('active');
     document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
 }
@@ -623,7 +840,7 @@ function saveMilestoneNote(milestoneId, note) {
     const notes = JSON.parse(localStorage.getItem('turnaround-milestone-notes') || '{}');
     notes[milestoneId] = note;
     localStorage.setItem('turnaround-milestone-notes', JSON.stringify(notes));
-    
+
     // Show save indicator
     const indicator = document.querySelector(`[data-save-status="${milestoneId}"]`);
     if (indicator) {
@@ -643,7 +860,7 @@ function saveChecklistNote(milestoneId, checklistIndex, note) {
     const notes = JSON.parse(localStorage.getItem('turnaround-checklist-notes') || '{}');
     notes[`${milestoneId}-${checklistIndex}`] = note;
     localStorage.setItem('turnaround-checklist-notes', JSON.stringify(notes));
-    
+
     // Show save indicator
     const indicator = document.querySelector(`[data-save-status="${milestoneId}-${checklistIndex}"]`);
     if (indicator) {
@@ -676,7 +893,7 @@ function saveUpload(milestoneId, file) {
     if (!uploads[milestoneId]) {
         uploads[milestoneId] = [];
     }
-    
+
     uploads[milestoneId].push({
         name: file.name,
         size: file.size,
@@ -685,7 +902,7 @@ function saveUpload(milestoneId, file) {
         // In production, upload file to server and store URL
         // For demo, just store metadata
     });
-    
+
     localStorage.setItem('turnaround-uploads', JSON.stringify(uploads));
 }
 
@@ -702,7 +919,7 @@ function renderUploadList(milestoneId) {
     if (uploads.length === 0) {
         return '<li style="color: var(--text-secondary); font-size: 0.875rem;">No attachments yet</li>';
     }
-    
+
     return uploads.map((file, index) => `
         <li class="upload-item">
             <div class="upload-item-info">
@@ -720,11 +937,11 @@ function renderUploadList(milestoneId) {
 }
 
 // Global functions for onclick handlers
-window.triggerUpload = function(milestoneId) {
+window.triggerUpload = function (milestoneId) {
     document.getElementById(`upload-${milestoneId}`).click();
 };
 
-window.handleFileUpload = function(milestoneId, files) {
+window.handleFileUpload = function (milestoneId, files) {
     Array.from(files).forEach(file => {
         saveUpload(milestoneId, {
             name: file.name,
@@ -732,7 +949,7 @@ window.handleFileUpload = function(milestoneId, files) {
             type: file.type
         });
     });
-    
+
     // Refresh upload list
     const listContainer = document.getElementById(`uploads-${milestoneId}`);
     if (listContainer) {
@@ -740,7 +957,7 @@ window.handleFileUpload = function(milestoneId, files) {
     }
 };
 
-window.removeUploadAndRefresh = function(milestoneId, fileIndex) {
+window.removeUploadAndRefresh = function (milestoneId, fileIndex) {
     if (confirm('Remove this file?')) {
         removeUpload(milestoneId, fileIndex);
         const listContainer = document.getElementById(`uploads-${milestoneId}`);
@@ -750,10 +967,10 @@ window.removeUploadAndRefresh = function(milestoneId, fileIndex) {
     }
 };
 
-window.toggleKPIContext = function(kpiId) {
+window.toggleKPIContext = function (kpiId) {
     const content = document.getElementById(`kpi-context-${kpiId}`);
     const toggle = content.previousElementSibling;
-    
+
     content.classList.toggle('open');
     toggle.classList.toggle('open');
 };
@@ -773,25 +990,29 @@ function closeSidebar() {
 
 function handleSidebarAction(action) {
     closeSidebar();
-    
+
     // Close all expanded sections when navigating
     document.querySelectorAll('.sidebar-section').forEach(s => {
         s.classList.remove('expanded');
     });
-    
-    switch(action) {
+
+    switch (action) {
         case 'home':
-            window.location.href = '/';
+            navigateToIfSteering('/', 'Project Hub navigation');
             break;
-            
+
         case 'switch-diversification':
-            window.location.href = '/index.html';
+            navigateToIfSteering('/index.html', 'Diversification workspace');
             break;
-            
+
         case 'switch-wellness':
-            window.location.href = '/wellness.html';
+            navigateToIfSteering('/wellness.html', 'Wellness workspace');
             break;
-            
+
+        case 'executive-dashboard':
+            navigateToIfSteering('/executive-dashboard.html', 'Executive Dashboard');
+            break;
+
         case 'current-phase':
             switchView('phases');
             setTimeout(() => {
@@ -802,12 +1023,12 @@ function handleSidebarAction(action) {
                 }
             }, 300);
             break;
-            
+
         case 'this-week':
             renderCriticalMilestones();
             switchView('dashboard');
             break;
-            
+
         case 'overdue':
             // Show overdue milestones
             switchView('dashboard');
@@ -819,51 +1040,51 @@ function handleSidebarAction(action) {
                 alert('⚠️ Overdue Milestones\n\nShowing critical milestones on dashboard.\n\nMilestones past their due date need immediate attention!');
             }, 300);
             break;
-            
+
         case 'kpi-dashboard':
             switchView('kpis');
             break;
-        
+
         case 'edit-milestone':
             showEditMilestoneModal();
             break;
-        
+
         // Report navigation
         case 'revenue-projection':
-            window.location.href = '/reports/revenue-projection.html';
+            handleReportNavigation('revenue-projection', '/reports/revenue-projection.html');
             break;
         case 'cost-analysis':
-            window.location.href = '/reports/cost-analysis.html';
+            handleReportNavigation('cost-analysis', '/reports/cost-analysis.html');
             break;
         case 'phase-progress':
-            window.location.href = '/reports/phase-progress.html';
+            handleReportNavigation('phase-progress', '/reports/phase-progress.html');
             break;
         case 'risk-assessment':
-            window.location.href = '/reports/risk-assessment.html';
+            handleReportNavigation('risk-assessment', '/reports/risk-assessment.html');
             break;
         case 'resource-utilization':
-            window.location.href = '/reports/resource-utilization.html';
+            handleReportNavigation('resource-utilization', '/reports/resource-utilization.html');
             break;
         case 'kpi-dashboard-report':
-            window.location.href = '/reports/kpi-dashboard.html';
+            handleReportNavigation('kpi-dashboard-report', '/reports/kpi-dashboard.html');
             break;
         case 'timeline-analysis':
-            window.location.href = '/reports/timeline-analysis.html';
+            handleReportNavigation('timeline-analysis', '/reports/timeline-analysis.html');
             break;
         case 'budget-actual':
-            window.location.href = '/reports/budget-actual.html';
+            handleReportNavigation('budget-actual', '/reports/budget-actual.html');
             break;
         case 'cashflow-projection':
-            window.location.href = '/reports/cashflow-projection.html';
+            handleReportNavigation('cashflow-projection', '/reports/cashflow-projection.html');
             break;
-            
+
         case 'toggle-theme':
             document.body.classList.toggle('dark-theme');
             const isDark = document.body.classList.contains('dark-theme');
             document.getElementById('theme-indicator').textContent = isDark ? '🌙' : '☀️';
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             break;
-            
+
         case 'clear-data':
             if (confirm('Clear all local progress data? This cannot be undone.')) {
                 localStorage.removeItem('stabilis-turnaround-data');
@@ -884,12 +1105,12 @@ if (savedTheme === 'dark') {
 
 document.addEventListener('DOMContentLoaded', () => {
     init();
-    
+
     // Sidebar event listeners
     document.getElementById('menu-btn')?.addEventListener('click', toggleSidebar);
     document.getElementById('sidebar-close')?.addEventListener('click', closeSidebar);
     document.getElementById('sidebar-overlay')?.addEventListener('click', closeSidebar);
-    
+
     // Sidebar items
     document.querySelectorAll('.sidebar-item').forEach(item => {
         item.addEventListener('click', (e) => {
@@ -897,30 +1118,30 @@ document.addEventListener('DOMContentLoaded', () => {
             if (action) handleSidebarAction(action);
         });
     });
-    
+
     // Sidebar section toggles
     document.querySelectorAll('.sidebar-section-title').forEach(title => {
         title.addEventListener('click', (e) => {
             const section = e.currentTarget.closest('.sidebar-section');
             const wasExpanded = section.classList.contains('expanded');
-            
+
             // Close all other sections
             document.querySelectorAll('.sidebar-section').forEach(s => {
                 s.classList.remove('expanded');
             });
-            
+
             // Toggle this section
             if (!wasExpanded) {
                 section.classList.add('expanded');
             }
         });
     });
-    
+
     // Update theme indicator
     if (savedTheme === 'dark' && document.getElementById('theme-indicator')) {
         document.getElementById('theme-indicator').textContent = '🌙';
     }
-    
+
     // Auto-save notes with debounce
     let noteTimeout;
     document.addEventListener('input', (e) => {
@@ -931,7 +1152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveMilestoneNote(milestoneId, e.target.value);
             }, 1000);
         }
-        
+
         if (e.target.classList.contains('notes-textarea') && e.target.getAttribute('data-checklist') !== null) {
             const milestoneId = e.target.getAttribute('data-milestone');
             const checklistIndex = e.target.getAttribute('data-checklist');
@@ -940,7 +1161,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveChecklistNote(milestoneId, checklistIndex, e.target.value);
             }, 1000);
         }
-        
+
         if (e.target.hasAttribute('data-kpi')) {
             const kpiName = e.target.getAttribute('data-kpi');
             clearTimeout(noteTimeout);

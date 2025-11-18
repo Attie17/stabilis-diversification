@@ -6,7 +6,7 @@ const turnaroundData = {
     startDate: "2025-11-12",
     endDate: "2026-05-11", // 180 days
     description: "Crisis response and operational stabilization to arrest cash bleed, restore compliance, and establish sustainable operating discipline.",
-    
+
     phases: [
         {
             id: "T1",
@@ -113,7 +113,7 @@ const turnaroundData = {
                 {
                     id: "T1-M6",
                     name: "Enforce Pre-Admission Deposits",
-                    owner: "Clinical Admin",
+                    owner: "Medical Manager",
                     dueDate: "2025-12-01",
                     status: "planned",
                     priority: "medium",
@@ -342,7 +342,7 @@ const turnaroundData = {
                 {
                     id: "T3-M4",
                     name: "Embed Payer-Aligned Care Pathways",
-                    owner: "Clinical Manager",
+                    owner: "Medical Manager",
                     dueDate: "2026-05-01",
                     status: "planned",
                     priority: "medium",
@@ -380,7 +380,7 @@ const turnaroundData = {
             ]
         }
     ],
-    
+
     risks: [
         {
             id: "TR1",
@@ -433,15 +433,16 @@ const turnaroundData = {
             status: "active"
         }
     ],
-    
+
     team: [
         { role: "CEO & Project Manager", name: "Attie Nel", responsibility: "Overall turnaround leadership, board liaison, strategic decisions, project governance" },
         { role: "Finance Officer", name: "Nastasha Jacobs", responsibility: "Cash management, SARS compliance, AR/AP oversight, KPI reporting" },
         { role: "Clinical Manager", name: "Berno Paul", responsibility: "Protect clinical throughput, payer-aligned pathways, quality maintenance" },
+        { role: "Medical Manager", name: "Lydia Gittens", responsibility: "Coordinate patient care plans, enforce admission deposits & authorisations, run clinical audits, escalate non-compliance" },
         { role: "Administrative Officer", name: "Bertha Vorster", responsibility: "AR collections, supplier liaison, admin redeployment" },
         { role: "Clinical Admin", name: "Lizette Botha", responsibility: "Pre-admission deposits, documentation compliance, authorisation tracking" }
     ],
-    
+
     kpis: [
         { name: "Operating Margin", target: "≥5%", current: "-15.5%", trend: "critical" },
         { name: "DSO (Days Sales Outstanding)", target: "≤30 days", current: "28 days", trend: "ok" },
@@ -453,3 +454,7 @@ const turnaroundData = {
         { name: "SARS Compliance", target: "100%", current: "VAT overdue", trend: "critical" }
     ]
 };
+
+if (typeof window !== 'undefined') {
+    window.turnaroundData = turnaroundData;
+}

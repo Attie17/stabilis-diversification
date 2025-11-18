@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Stabilis Diversification Implementation Project (Nov 2025 - Mar 2027)",
   "scripts": {
-    "prebuild": "powershell -ExecutionPolicy Bypass -File ./scripts/ultrathink.ps1",
     "build": "echo Building project artifacts...",
     "start": "node server.js",
     "status": "powershell -ExecutionPolicy Bypass -File ./scripts/project-status.ps1",
@@ -30,6 +29,17 @@
   "author": "Stabilis Project Team",
   "license": "PRIVATE",
   "dependencies": {
-    "express": "^4.18.2"
+    "@supabase/supabase-js": "^2.83.0",
+    "chokidar": "^4.0.3",
+    "diff": "^8.0.2",
+    "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "marked": "^17.0.0",
+    "node-cron": "^4.2.1",
+    "node-fetch": "^2.7.0",
+    "openai": "^6.9.1"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }

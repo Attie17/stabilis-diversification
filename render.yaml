@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: stabilis-project-hub
+    env: node
+    plan: free
+    branch: main
+    rootDir: .
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 18

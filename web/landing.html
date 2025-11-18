@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -9,6 +10,7 @@
     <title>Stabilis - Project Hub</title>
     <link rel="stylesheet" href="css/landing.css">
 </head>
+
 <body>
     <div class="landing-container">
         <!-- Compact Header -->
@@ -16,6 +18,9 @@
             <div class="hero-content">
                 <div class="logo">STABILIS</div>
                 <h1 class="hero-title">Project Hub</h1>
+                <div class="hero-actions">
+                    <button class="new-user-btn" onclick="startNewUserFlow()">I am new here</button>
+                </div>
                 <div class="user-info" id="user-info" style="display: none; margin-top: 0.5rem;">
                     <span id="username-display"></span>
                     <button onclick="showChangePasswordModal()" class="icon-btn" title="Change Password">🔒</button>
@@ -57,12 +62,13 @@
                 <div class="triangle-icon">💡</div>
                 <h3>Strategic Triangle</h3>
                 <p class="triangle-desc">
-                    <strong class="text-danger">Turnaround</strong> fixes the holes → 
-                    <strong class="text-primary">Diversification</strong> upgrades the engine → 
+                    <strong class="text-danger">Turnaround</strong> fixes the holes →
+                    <strong class="text-primary">Diversification</strong> upgrades the engine →
                     <strong class="text-success">Wellness Centre</strong> builds the highway for long-term growth.
                 </p>
                 <p class="triangle-note">
-                    The Turnaround Project must stabilize operations before Diversification and Wellness can scale safely. 
+                    The Turnaround Project must stabilize operations before Diversification and Wellness can scale
+                    safely.
                     This creates the foundation for sustainable expansion across all three initiatives.
                 </p>
             </div>
@@ -89,21 +95,20 @@
             <p>&copy; 2025 Stabilis</p>
         </footer>
     </div>
-    
+
     <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             initAuth();
-            
-            // Check if executive user and redirect to dashboard
+            const params = new URLSearchParams(window.location.search);
+            const stayOnLanding = params.get('stay') === '1';
             const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
-            const executiveUsers = ['Developer', 'Attie Nel', 'Nastasha Jacobs'];
-            
-            if (executiveUsers.includes(currentUser.name)) {
-                // Redirect to executive dashboard
+            const executiveUsers = window.EXECUTIVE_USERS || ['Developer', 'Attie Nel', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
+            if (!stayOnLanding && executiveUsers.includes(currentUser.name)) {
                 window.location.href = 'executive-dashboard.html';
             }
         });
     </script>
 </body>
+
 </html>

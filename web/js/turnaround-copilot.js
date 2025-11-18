@@ -5,487 +5,518 @@ const turnaroundCopilotData = {
     // Milestone-specific guidance
     milestones: {
         "T1-M1": {
-            title: "File VAT Returns",
-            simpleExplanation: "Submit your VAT paperwork to SARS immediately. This is urgent - you owe money and penalties are adding up daily.",
+            title: "File Outstanding VAT Returns",
+            simpleExplanation: "Submit every missed VAT return this week so SARS penalties stop and compliance is back on track.",
             whatYouNeed: [
-                "📋 All invoices from the period",
-                "💰 Bank statements showing VAT collected",
-                "📝 VAT calculation worksheet",
-                "🔐 SARS eFiling login credentials",
-                "☎️ SARS contact number if you need help"
+                "📂 Invoice and receipt packs for each overdue VAT period",
+                "📊 Reconciled VAT liability worksheet (current balance R313,930)",
+                "🔐 SARS eFiling credentials and OTP device",
+                "🧾 Submission checklist plus proof-of-filing log",
+                "📨 Template update for CEO once each return is submitted"
             ],
             tips: [
-                "Do this TODAY - every day late = more penalties",
-                "If you don't know how, hire a bookkeeper or accountant NOW",
-                "Keep proof that you submitted (confirmation email/reference number)",
-                "Set a reminder for next VAT deadline - don't let this happen again"
+                "Block two uninterrupted hours per return — partial work leads to mistakes.",
+                "Use the SARS statement of account to confirm every outstanding period before you start.",
+                "Upload supporting PDFs (invoices, reconciliations) before submitting the return.",
+                "Capture confirmation numbers + screenshots the moment a return is accepted.",
+                "Set the next VAT deadline reminder while eFiling is open so this never slips again."
             ],
             commonQuestions: [
                 {
-                    q: "What if I don't have all the paperwork?",
-                    a: "File your best estimate based on what you have. It's better to file something than nothing. You can amend later."
+                    q: "What if source documents are missing?",
+                    a: "Use bank exports + prior management accounts to estimate, then note which periods need later correction. SARS prefers an honest estimate over silence."
                 },
                 {
-                    q: "Can I pay the VAT later?",
-                    a: "You must FILE now. Then negotiate a payment plan with SARS (see Milestone T1-M2)."
+                    q: "Can we wait until cash is available?",
+                    a: "No. Filing and payment are separate. File now to freeze penalties, then manage the payment via Milestone T1-M2."
                 }
             ]
         },
         "T1-M2": {
-            title: "SARS Payment Plan",
-            simpleExplanation: "Arrange monthly payments with SARS so they don't shut you down. This stops the debt from getting worse.",
+            title: "SARS Payment Plan Agreement",
+            simpleExplanation: "Negotiate and sign a realistic repayment arrangement for VAT + PAYE so SARS confidence returns and interest stops compounding.",
             whatYouNeed: [
-                "📊 Cash flow forecast showing what you can afford monthly",
-                "📋 List of all SARS debts (VAT, PAYE, penalties)",
-                "📞 SARS debt management contact details",
-                "📝 Written payment plan proposal",
-                "🤝 Senior manager to sign agreements"
+                "📉 13-week cash forecast showing what you can afford monthly",
+                "📑 Consolidated statement of VAT (R313,930) + PAYE (R82,273) debt",
+                "☎️ SARS debt-management contact details and case/reference numbers",
+                "📝 Draft proposal letter with repayment amount, date, and debit-order instructions",
+                "✍️ Executive signatory ready to authorise the agreement"
             ],
             tips: [
-                "Be realistic - don't promise payments you can't afford",
-                "SARS prefers smaller, consistent payments over big promises",
-                "Get everything in writing - emails, reference numbers",
-                "Stick to the plan - missing payments makes things worse",
-                "Set up debit orders so you don't forget"
+                "Lead with numbers, not panic — show the forecast and the offer you can keep.",
+                "Offer an amount you can honour every month; defaulting kills credibility.",
+                "Ask for penalty relief or interest pause once you prove commitment.",
+                "Set debit orders for the day after your biggest AR inflow to avoid bounced payments.",
+                "Record the name, time, and escalation path for every SARS call — you will reference it later."
             ],
             commonQuestions: [
                 {
-                    q: "What if SARS refuses the payment plan?",
-                    a: "Escalate to a tax practitioner or attorney. SARS must be reasonable if you're making genuine efforts."
+                    q: "What if SARS demands more than we can pay?",
+                    a: "Escalate with your written cash forecast and explain payroll risk. Offer to review after 60 days of clean payments."
                 },
                 {
-                    q: "How long can we stretch the payments?",
-                    a: "SARS typically allows 6-12 months, sometimes up to 24 months for genuine hardship."
+                    q: "Do we need a tax practitioner present?",
+                    a: "Not always, but bring one in immediately if SARS stops responding or threatens enforcement."
+                }
+            ]
+        },
+        "T1-M3": {
+            title: "Implement Maintenance Spending Cap",
+            simpleExplanation: "Drop maintenance spend from 8.1% to <=3% of revenue by freezing non-essential work and approving only safety/compliance issues.",
+            whatYouNeed: [
+                "🗒️ List of all maintenance contracts, invoices, and expiry dates",
+                "📉 Snapshot of current monthly spend vs target R30k cap",
+                "✋ CEO memo announcing the freeze + exception process",
+                "🧰 Basic in-house task list (what staff can fix vs what needs contractors)",
+                "📅 Tracker showing requests, approvals, and spend vs cap"
+            ],
+            tips: [
+                "Cancel or pause any cosmetic/non-safety work today — cash first, aesthetics later.",
+                "Require CEO approval for any job above R20k and document the reason.",
+                "Get three quotes for necessary jobs so you know the real price point.",
+                "Retrain facilities staff to handle small fixes to avoid call-out fees.",
+                "Review the tracker weekly; if you bust the cap one week, cut the next."
+            ],
+            commonQuestions: [
+                {
+                    q: "What qualifies as an exception?",
+                    a: "Anything tied to safety, licensing, or operations coming to a halt. Comfort upgrades do not qualify."
+                },
+                {
+                    q: "How do we keep the facility presentable?",
+                    a: "Focus on cleanliness, signage, and organisation. Those have impact without capex."
+                }
+            ]
+        },
+        "T1-M4": {
+            title: "Build 13-Week Rolling Cash Forecast",
+            simpleExplanation: "Create a weekly cash view (13 weeks) so leadership knows exactly when the balance dips and which levers to pull before money runs out.",
+            whatYouNeed: [
+                "💻 Forecast template with weekly columns for receipts and payments",
+                "📅 Payroll calendar, supplier commitments, and SARS plan dates",
+                "📈 AR pipeline by week (expected collections and probability)",
+                "🏦 Opening cash balance per bank account",
+                "📎 Standing meeting slot with CEO/Finance to review variances"
+            ],
+            tips: [
+                "Populate last week's actuals first, then extend forward so the forecast stays grounded in reality.",
+                "Flag any week that dips below zero in red and list the mitigation (delay spend, accelerate AR, investor draw).",
+                "Assign one owner per data source (AR, AP, payroll) to avoid version wars.",
+                "Store each week's snapshot so you can show variance vs actual later (target <10%).",
+                "Add best-case and worst-case scenarios if cash is extremely tight."
+            ],
+            commonQuestions: [
+                {
+                    q: "Do we include possible donations or grants?",
+                    a: "Only if they are signed and dated. Hopes do not pay bills."
+                },
+                {
+                    q: "How often do we update the forecast?",
+                    a: "Weekly, immediately after actual bank balances are confirmed."
                 }
             ]
         },
         "T1-M5": {
             title: "Launch AR Collections Blitz",
-            simpleExplanation: "'AR' means Accounts Receivable - the money owed to you by clients, patients, or medical aids for services already delivered. This is a 2-4 week intensive campaign to collect outstanding debts and free up cash flow.",
+            simpleExplanation: "Run a 2-4 week sprint to unlock R200k+ of stuck receivables and push DSO back to <=30 days.",
             whatYouNeed: [
-                "📋 List of all outstanding invoices (who owes what)",
-                "📞 Contact details for medical aids and patients",
-                "💰 Aging report (30 days, 60 days, 90+ days overdue)",
-                "📝 Claims rejected or pending with documentation gaps",
-                "👥 Team dedicated to making calls and following up"
+                "📋 Full aged AR report highlighting >30/>60/>90 days",
+                "📞 Contact list for top 20 debtors (patients + medical aids)",
+                "📝 Claims rejection log with documentation gaps",
+                "💬 Call scripts + escalation templates",
+                "👥 Dedicated follow-up squad (finance + admin + clinical input)"
             ],
             tips: [
-                "Focus on oldest debts first (90+ days) - these are hardest to collect later",
-                "Call medical aids daily - don't wait for them to pay",
-                "Identify rejected claims and resubmit with correct documentation",
-                "Offer payment plans to patients who can't pay in full",
-                "Track DSO (Days Sales Outstanding) - goal is to shorten it",
-                "Document every call, email, and promise - follow up relentlessly"
+                "Start with invoices >90 days — they are hardest to recover later.",
+                "Sit next to clinical/admin teammates so documentation fixes happen while the payer is still on the line.",
+                "Offer quick-settlement discounts only if cash is received within 48 hours.",
+                "Track DSO daily during the blitz so the team sees progress.",
+                "Log every promise-to-pay with a due date and chase it the minute it slips."
             ],
             commonQuestions: [
                 {
-                    q: "What is DSO and why does it matter?",
-                    a: "DSO = Days Sales Outstanding. It's how long it takes to get paid after providing service. Lower is better. If DSO is 60 days, you're waiting 2 months for your money - that kills cash flow!"
+                    q: "What if a medical aid still delays payment?",
+                    a: "Escalate to their provider relations desk with claim proof, authorisation letter, and clinical notes. Keep the CEO in copy for leverage."
                 },
                 {
-                    q: "What if medical aids won't pay?",
-                    a: "1) Check if claim was submitted correctly. 2) Verify patient had active cover. 3) Escalate to medical aid's dispute department. 4) Get everything in writing."
+                    q: "Do we write off very old balances?",
+                    a: "Not during the blitz. Exhaust calls, resubmissions, and settlement offers before considering a write-off."
                 },
                 {
-                    q: "Should we write off old debts?",
-                    a: "Not yet! During the blitz, try everything. Only write off after exhausting all options. Even 50% of an old debt is better than zero."
-                }
-            ]
-        },
-        "T1-M3": {
-            title: "Maintenance Cap at 3%",
-            simpleExplanation: "Stop spending 8.1% on maintenance - limit it to 3% immediately. This frees up cash you desperately need.",
-            whatYouNeed: [
-                "📋 List of all maintenance contracts",
-                "💰 What you're paying each contractor monthly",
-                "🔧 Urgent repairs vs nice-to-have repairs list",
-                "📝 New maintenance policy document",
-                "👥 Staff to handle basic fixes in-house"
-            ],
-            tips: [
-                "Cancel non-essential contracts TODAY",
-                "Train staff to do basic maintenance (changing lightbulbs, minor fixes)",
-                "Create approval process - director must sign off on all maintenance over R500",
-                "Negotiate better rates with remaining contractors",
-                "Only fix what's broken - postpone upgrades and cosmetic work"
-            ],
-            commonQuestions: [
-                {
-                    q: "What if something breaks?",
-                    a: "Fix critical safety issues immediately. Everything else waits unless it stops operations."
-                },
-                {
-                    q: "Won't this make the facility look bad?",
-                    a: "Clean and organized beats expensive and bankrupt. Focus on cleanliness, not fancy repairs."
-                }
-            ]
-        },
-        "T1-M4": {
-            title: "Cash Position & Burn Rate Diagnosis",
-            simpleExplanation: "Get a brutally honest picture of how much cash Stabilis has, how long it will last, and which expenses are burning through money the fastest. No guesses. No smoothing. Pure reality.",
-            whatYouNeed: [
-                "💰 Bank balances across all accounts",
-                "🧾 List of all scheduled payments for next 60 days",
-                "📉 Age analysis for money owed TO Stabilis (AR)",
-                "📊 Last 3 months' actual expenses (not budgeted)",
-                "📅 Payroll details + dates"
-            ],
-            tips: [
-                "Use actuals, not budget projections — budgets lie, statements don't.",
-                "Sort expenses by size — the top 5 usually explain 80% of the burn.",
-                "Flag all non-essential spending for immediate pause.",
-                "Report cash runway as: *days to zero* — executives understand that instantly."
-            ],
-            commonQuestions: [
-                {
-                    q: "What if the cash position looks worse than expected?",
-                    a: "Then we face it early. Turnaround fails when teams soften the numbers. The earlier we know the truth, the faster we can act."
-                },
-                {
-                    q: "Should we include expected donations or subsidies?",
-                    a: "Only if already approved in writing. Hopes and promises are not cash."
+                    q: "How do we measure success?",
+                    a: "Cash collected >=R200k within 30 days and DSO trending back to <=30 days."
                 }
             ]
         },
         "T1-M6": {
-            title: "Emergency Expense Controls",
-            simpleExplanation: "Freeze or slow non-essential spending immediately. The goal is simple: stop the bleeding long enough to stabilise operations and buy time for the turnaround plan.",
+            title: "Enforce Pre-Admission Deposits",
+            simpleExplanation: "No admission without either a paid deposit or written medical-aid authorisation — this prevents fresh bad debt.",
             whatYouNeed: [
-                "📄 Prioritised expense list (essential vs optional)",
-                "🛑 Freeze/hold list for immediate implementation",
-                "📧 Template message to staff and suppliers explaining temporary measures",
-                "📊 Weekly review process to monitor spending"
+                "📄 Deposit policy (R10k or 50% of estimated stay) approved by CEO",
+                "📝 Updated admission contract with deposit clause highlighted",
+                "✅ Pre-authorisation checklist + contact directory",
+                "🧾 POS/EFT proof capture process",
+                "📊 Weekly compliance tracker shared with Finance"
             ],
             tips: [
-                "Cut quickly but not blindly — protect clinical quality and compliance.",
-                "Communicate clearly so staff don't panic or guess where cuts are happening.",
-                "Review supplier contracts — many are negotiable.",
-                "Shift payments, don't avoid them — preserve long-term credibility."
+                "Train admissions and clinical leads together so no one promises exceptions the policy cannot honour.",
+                "Collect deposits the moment a bed is reserved, not at arrival.",
+                "Use one script for referrers: \"Deposit or pre-auth before we confirm admission.\"",
+                "Escalate requests for exceptions daily to the CEO/Medical Manager with data on cash impact.",
+                "Report compliance every Friday so Finance can link it to cash collections."
             ],
             commonQuestions: [
                 {
-                    q: "What counts as essential?",
-                    a: "Payroll, food, utilities, medical supplies, transport for clients, and regulatory obligations. Everything else is negotiable or deferrable."
+                    q: "What if a patient can’t pay the full deposit?",
+                    a: "Offer a split (e.g., 50% upfront, balance within 48 hours) only with CEO/Medical Manager approval in writing."
                 },
                 {
-                    q: "How long should controls stay in place?",
-                    a: "Until Phase 3 of the turnaround shows stable cash flow. Usually 3–6 months."
+                    q: "Do we ever waive deposits?",
+                    a: "Only when a written medical-aid authorisation covers the stay. Otherwise, no deposit = no admission."
+                },
+                {
+                    q: "Who reports compliance?",
+                    a: "Admissions logs proof, Finance reconciles daily, Medical Manager escalates misses."
                 }
             ]
         },
         "T1-M7": {
-            title: "AR Collections Blitz",
-            simpleExplanation: "Aggressively collect all money owed to Stabilis. This is not routine admin — it's a concentrated sprint to pull cash into the organisation fast.",
+            title: "Freeze Headcount & Redeploy Admin",
+            simpleExplanation: "Implement an immediate hiring freeze and move spare admin hours to AR, documentation, and admissions so payroll % drops without harming clinical throughput.",
             whatYouNeed: [
-                "📋 Full AR age analysis (sorted oldest → newest)",
-                "📞 Contact list for all overdue accounts (people, numbers, scheme reps)",
-                "🧾 Script for follow-up calls and emails",
-                "📈 Daily tracking sheet for promises-to-pay and receipts"
+                "📋 Headcount + vacancies list (incl. contractors and agency staff)",
+                "✋ CEO memo stating replacement hires require written approval",
+                "🧠 Skills matrix showing which admins can support AR/admissions",
+                "📆 Redeployment roster reallocating >=50% of admin hours to cash-linked tasks",
+                "📊 Weekly utilisation + payroll % dashboard"
             ],
             tips: [
-                "Start with the largest overdue amounts — big wins first.",
-                "Call before emailing. Calls move money; emails rarely do.",
-                "Escalate medical-aid claim denials within 24 hours.",
-                "Log every interaction — it prevents duplication and confusion."
+                "Communicate the freeze and redeployment reason candidly so rumours do not fill the gap.",
+                "Pair redeployed admins with finance/clinical buddies for rapid upskilling.",
+                "Protect clinical FTE — if someone resigns, redeploy admin support before touching clinicians.",
+                "Report wins (collections closed, admissions accelerated) so the team sees the payoff.",
+                "Review the roster weekly; if a redeployment is not delivering value, swap quickly."
             ],
             commonQuestions: [
                 {
-                    q: "How aggressive is 'aggressive'?",
-                    a: "Professional but persistent. Daily follow-ups, same-day responses, clear deadlines, and no silent periods."
+                    q: "What about critical clinical resignations?",
+                    a: "CEO must sign off. Consider locums/contractors first so payroll stays flexible."
                 },
                 {
-                    q: "What if we can't collect everything?",
-                    a: "You won't. Aim to recover 60–70% of overdue AR during a blitz. Anything above that is exceptional."
+                    q: "How do we manage morale?",
+                    a: "Be transparent, provide coaching, and recognise teams who keep the organisation alive."
                 },
                 {
-                    q: "Should we offer settlements?",
-                    a: "Only if approved by CEO/Finance and only for very old or doubtful debts."
+                    q: "When does the freeze lift?",
+                    a: "Once payroll % stabilises and cash runway exceeds 60 days — reviewed monthly by CEO."
                 }
             ]
         },
         "T2-M1": {
-            title: "Fix Admissions Workflow",
-            simpleExplanation: "Tighten every step of admissions so clients move from enquiry to admission smoothly, with correct documents and pre-authorisations ready. No delays, no confusion.",
+            title: "Align Tariffs to Payer Authorizations",
+            simpleExplanation: "Match lengths of stay, package pricing, and coding to what medical aids actually approve so claims pay on the first submission.",
             whatYouNeed: [
-                "📋 Updated admissions SOP",
-                "🧾 Pre-auth + deposit checklist",
-                "📞 Referral response script",
-                "📮 One shared admissions email/WhatsApp line"
+                "📑 90-day claims vs authorisations export with denial reasons",
+                "📊 Length-of-stay vs funded-days analysis",
+                "📘 Medical-aid tariff guides (Discovery, Momentum, Bonitas)",
+                "🧮 Updated rate card + package descriptions",
+                "📝 Sign-off deck for Clinical + Finance leadership"
             ],
             tips: [
-                "Respond to enquiries within 1 hour during work hours.",
-                "Use one clear script for every referrer.",
-                "Pre-auth before arrival — not after.",
-                "Document every step. Errors cost money."
+                "Group offerings into standard programmes that mirror common authorisation windows (e.g., 21/28/90 days).",
+                "Stop unfunded extensions unless a written motivation is approved before the limit is reached.",
+                "Train clinicians on how tariff mismatches create denials so they plan discharges accordingly.",
+                "Update admission/referral scripts so sales teams stop promising care the payer won’t fund.",
+                "Re-run denial reports weekly for the first month to prove the fix is working."
             ],
             commonQuestions: [
                 {
-                    q: "What if families arrive without documents?",
-                    a: "Have a 'missing documents' pack ready. Complete it immediately before admission."
+                    q: "What if clinical need exceeds the funded days?",
+                    a: "Submit a motivation with clinical evidence before the limit, or shift patients to a self-pay agreement."
                 },
                 {
-                    q: "Should we accept walk-ins?",
-                    a: "Yes only if clinically safe and a deposit/pre-auth can be secured immediately."
+                    q: "Can we charge above the medical-aid guideline?",
+                    a: "Only if the client signs for the top-up. Otherwise align to payer limits so claims are paid in full."
                 }
             ]
         },
         "T2-M2": {
-            title: "Fix Billing Workflow",
-            simpleExplanation: "Make billing clean, fast, and accurate. Every session, every day, every claim must be captured correctly the first time to prevent denials.",
+            title: "Establish Weekly AR Clinic",
+            simpleExplanation: "Create a standing Monday AR war-room that clears the top 20 problem accounts every week until aging >60 days is below 15%.",
             whatYouNeed: [
-                "🧾 Billing SOP (updated)",
-                "📊 Daily billing tracker",
-                "📞 Medical-aid escalation list",
-                "🗂️ Folder structure for claims + notes"
+                "📅 Recurring calendar invite (e.g., Monday 09:00) with mandatory attendees",
+                "📄 Aged AR report segmented by >30/>60/>90 days",
+                "🧑‍🤝‍🧑 Named action owners (Finance Officer, Admin Officer, Clinical Admin)",
+                "📓 Tracker for commitments, documentation gaps, and due dates",
+                "📞 Escalation contacts for each payer/patient"
             ],
             tips: [
-                "Bill daily — never weekly or monthly.",
-                "Match case notes to claims the same day.",
-                "Fix denials within 24 hours.",
-                "Double-check ICD-10 and procedure codes for consistency."
+                "Close out last week’s promises before adding new accounts to the list.",
+                "Bring documentation (notes, auth letters) into the room so fixes happen immediately.",
+                "Limit the agenda to the top 20 balances to keep the meeting fast and focused.",
+                "Celebrate same-week cash wins publicly — momentum matters.",
+                "Update the tracker live so nothing disappears after the meeting."
             ],
             commonQuestions: [
                 {
-                    q: "What causes most denials?",
-                    a: "Missing notes, expired authorisations, incorrect coding, or late submissions."
+                    q: "Who chairs the clinic?",
+                    a: "Finance Officer owns the number, but Admin or CEO can chair if they keep the pace tight."
                 },
                 {
-                    q: "How fast must we resubmit?",
-                    a: "Within 24 hours. Speed directly affects cash flow."
+                    q: "What about disputes outside our control?",
+                    a: "Log the dispute, assign an owner, set a next escalation date, and keep it red until resolution."
                 }
             ]
         },
         "T2-M3": {
-            title: "Fix Clinical Scheduling",
-            simpleExplanation: "Stabilise group and 1:1 schedules so staff, clients, and admissions all know exactly what happens when. No more cancelled groups or last-minute reshuffles.",
+            title: "Implement 12-Month Maintenance Plan",
+            simpleExplanation: "Move from reactive fixes to a planned, quarterly-capped maintenance schedule that stays within R360k for the year.",
             whatYouNeed: [
-                "📅 Master timetable for all programmes",
-                "🧑‍⚕️ Staff roster with backups",
-                "📄 Group size limits per programme",
-                "📞 Communication plan for schedule changes"
+                "🧾 Facility audit with risk rating (safety/compliance vs cosmetic)",
+                "📅 12-month maintenance calendar split by quarter",
+                "📑 Three quotes for any job >R20k",
+                "💸 Budget tracker aligned to 3% of revenue (≈R360k annual)",
+                "✍️ CEO approval workflow for any over-cap request"
             ],
             tips: [
-                "Plan one month ahead, review weekly.",
-                "If one clinician is absent, have a backup ready.",
-                "Lock session times — consistency builds trust.",
-                "Avoid overlapping groups for the same staff member."
+                "Schedule safety/compliance jobs first; cosmetic work only if budget remains.",
+                "Bundle similar tasks to reduce contractor call-out fees.",
+                "Track actual vs plan monthly and reallocate within the quarter if something slips.",
+                "Keep maintenance vendors informed about the cap so expectations are set upfront.",
+                "Update the facilities board weekly so everyone sees what is planned and approved."
             ],
             commonQuestions: [
                 {
-                    q: "What if a clinician is suddenly unavailable?",
-                    a: "Use pre-assigned backups. Never cancel unless clinically necessary."
+                    q: "What if an emergency exceeds the cap?",
+                    a: "Log it as an exception, get CEO approval, and offset by delaying another job in the same quarter."
                 },
                 {
-                    q: "How many clients per group?",
-                    a: "8–12 for adult OP; 8–10 for youth; inpatient per-unit standards."
+                    q: "Who owns the calendar?",
+                    a: "Clinical Manager keeps it updated, Finance validates spend against budget."
                 }
             ]
         },
         "T2-M4": {
-            title: "Fix Cash-Handling Rules",
-            simpleExplanation: "Put strict controls on deposits, receipts, and how money is moved. Cash leaks destroy turnarounds — this closes the gaps.",
+            title: "Renegotiate Supplier Terms",
+            simpleExplanation: "Segment suppliers by criticality and push for 45-day terms (or discounts for early payment) so creditor days normalise without straining relationships.",
             whatYouNeed: [
-                "💳 Updated deposit policy",
-                "🧾 Receipt books or POS logs",
-                "📄 Bank reconciliation template",
-                "📝 Staff training notes"
+                "📊 Spend analysis ranking suppliers by annual value",
+                "📞 Contact list + negotiation script for each supplier tier",
+                "📗 Proposed term sheet (45 days for non-critical, structured plan for arrears)",
+                "🧾 Proof of SARS payment plan to demonstrate credibility",
+                "🗂️ Tracker capturing offers, agreements, and follow-up dates"
             ],
             tips: [
-                "All payments receipted immediately — no exceptions.",
-                "Daily banking before 14:00.",
-                "Two-person oversight on cash counts.",
-                "Never mix personal and organisational payments."
+                "Open with transparency: share that a turnaround is underway and cash discipline protects everyone.",
+                "Offer prompt-payment discounts (e.g., 2% for <14 days) only to suppliers where it truly saves money.",
+                "Separate critical suppliers (medical, food, utilities) — keep them current and negotiate gently.",
+                "Document every commitment immediately; handshakes are not enough in a turnaround.",
+                "Monitor creditor days weekly until <=45 (ex-SARS) is sustained."
             ],
             commonQuestions: [
                 {
-                    q: "Can staff handle client cash?",
-                    a: "Only designated staff trained in the procedure. Others must not accept payments."
+                    q: "What if a supplier refuses new terms?",
+                    a: "Escalate with CFO/CEO, offer partial upfront plus structured arrears, or switch only if quality and reliability are guaranteed."
                 },
                 {
-                    q: "When do we issue refunds?",
-                    a: "Only after Finance signs off, and only via EFT — never cash."
+                    q: "Do we share financial statements?",
+                    a: "Share only what supports the negotiation (e.g., SARS plan, board-approved turnaround). Keep sensitive data controlled."
                 }
             ]
         },
         "T2-M5": {
-            title: "Clinical Quality Triage",
-            simpleExplanation: "Identify immediate clinical risks and fix the most urgent ones first. This is not a full audit — it is a triage to stabilise care quickly.",
+            title: "Ring-Fence Lotto Grants for Capex Only",
+            simpleExplanation: "Ensure Lotto funding is used purely for approved capital items so compliance is airtight and operating expenses stay honest.",
             whatYouNeed: [
-                "📄 Incident + complaints summary (last 3 months)",
-                "📊 Attendance + completion trends",
-                "🧠 Staff feedback on pressure points",
-                "📝 List of urgent clinical risks"
+                "📂 Audit of past Lotto spend vs approved categories",
+                "🏷️ Separate accounting codes/cost centres for grant-funded capex",
+                "📝 Draft policy stating grants cannot cover payroll or consumables",
+                "📄 Communication plan for board, finance, and project leads",
+                "📈 Reporting template to update Lotto on utilisation"
             ],
             tips: [
-                "Handle the top 3 risks first — don't try to fix everything at once.",
-                "Look for patterns causing harm or burnout.",
-                "Correct unsafe practices immediately and document it.",
-                "Communicate fixes to the team so everyone feels safer."
+                "Reverse any misclassified operating spend immediately and document the correction.",
+                "Keep supplier invoices + proof of payment linked to the specific grant code for audit readiness.",
+                "Brief every manager so no one accidentally routes OPEX through the grant line.",
+                "Report quarterly even if Lotto only requires annually — transparency builds trust.",
+                "Highlight compliant solar or other capex projects to reinforce that funds are being used as promised."
             ],
             commonQuestions: [
                 {
-                    q: "What if clinicians resist changes?",
-                    a: "Keep it about safety and stability. Changes are temporary until the system strengthens."
+                    q: "Can we temporarily cover operating costs and repay later?",
+                    a: "No. That breaches grant conditions and risks clawback."
                 },
                 {
-                    q: "Do we involve the Board?",
-                    a: "Only for major clinical risk issues. Keep daily triage inside the clinical leadership."
+                    q: "How do we prove compliance?",
+                    a: "Maintain a grant file with approvals, invoices, payment proofs, and photos/completion certificates for each capex item."
                 }
             ]
         },
         "T2-M6": {
-            title: "Staff Communication Reset",
-            simpleExplanation: "Reset how the team communicates: clear updates, clear decisions, and no mixed messages. Stabilisation requires honesty, consistency, and structure.",
+            title: "Establish Board Dashboard",
+            simpleExplanation: "Deliver an 8-KPI dashboard (occupancy, tariff, DSO, denial rate, creditor days, payroll %, maintenance %, operating margin) for monthly board oversight.",
             whatYouNeed: [
-                "📢 Weekly staff update format",
-                "📆 Set meeting rhythms (daily huddles, weekly ops, monthly review)",
-                "📄 One source-of-truth message channel",
-                "🗣️ Space for staff questions/concerns"
+                "📋 Final list of KPIs with definitions and data owners",
+                "📊 Data connections (admissions, billing, finance, HR)",
+                "📈 Dashboard template in Excel/PowerBI with traffic-light rules",
+                "🟢 Threshold library (what counts as green/amber/red)",
+                "📅 Board calendar slot where the dashboard will be reviewed"
             ],
             tips: [
-                "Communicate early — silence creates panic.",
-                "Keep updates short and factual.",
-                "End every meeting with who-does-what-by-when.",
-                "Model the behaviour you want: clarity, calm, and accountability."
+                "Automate data pulls where possible so updates take <1 hour per month.",
+                "Highlight trend lines, not just snapshots — boards care about direction.",
+                "Add short commentary per KPI explaining the driver of any red flag.",
+                "Store each month’s pack so you can evidence progress at the 180-day review.",
+                "Circulate the dashboard 48 hours before the meeting so directors come prepared."
             ],
             commonQuestions: [
                 {
-                    q: "How honest should we be about financial strain?",
-                    a: "Honest, but not alarmist. Staff need clarity without feeling doomed."
+                    q: "Who owns the dashboard?",
+                    a: "Finance Officer curates it, but each KPI owner must certify their data monthly."
                 },
                 {
-                    q: "How do we reduce gossip and misinformation?",
-                    a: "Provide one official update channel and discourage parallel message groups."
+                    q: "What if data sources conflict?",
+                    a: "Pick one authoritative source per metric and document it in the definitions. Consistency beats perfection."
                 }
             ]
         },
         "T3-M1": {
-            title: "Rebuild Referral Pathways",
-            simpleExplanation: "Reconnect with key referrers (hospitals, psychiatrists, psychologists, EAPs, schools) with a clear message that Stabilis is stabilised, structured, and ready for predictable admissions again.",
+            title: "Achieve 5% Operating Margin",
+            simpleExplanation: "Prove the turnaround is working by sustaining >=5% operating margin for two consecutive months without emergency cuts.",
             whatYouNeed: [
-                "📇 Updated referral brochure + programme summaries",
-                "📞 Contact list of top referrers (priority tiering)",
-                "📨 Email + WhatsApp templates for re-introduction",
-                "📋 Tracking sheet for referrals, responses, and follow-ups"
+                "📊 Monthly P&L with granular cost drivers",
+                "📈 Cost lever tracker (payroll %, maintenance %, procurement savings)",
+                "🤝 Weekly finance/CEO review slot focused on variance",
+                "📌 Action log for any line item drifting below target",
+                "🎉 Communication plan to recognise the team once margin holds"
             ],
             tips: [
-                "Lead with clarity: what we offer, who we help, how to refer.",
-                "Be consistent — one voice, one message, across all communication.",
-                "Follow-up 7–10 days after initial outreach.",
-                "Request referral feedback so you can fix friction points quickly."
+                "Attack margin from both ends: lock in revenue discipline while keeping fixed costs flat.",
+                "Translate 5% margin into rands so teams feel the stakes (e.g., R250k surplus/month).",
+                "If margin dips <3%, trigger a rapid response (collections blitz, expense pause) the same week.",
+                "Protect clinical throughput — cancellations eat revenue faster than cost cuts save it.",
+                "Bank the win publicly once achieved to reinforce the behaviour."
             ],
             commonQuestions: [
                 {
-                    q: "What if referrers say they 'stopped referring'?",
-                    a: "Acknowledge past gaps, explain what is now fixed, and offer a direct point-of-contact to rebuild trust."
+                    q: "Do once-off gains count?",
+                    a: "Only if they repeat. Margin must be from sustainable operations, not asset sales."
                 },
                 {
-                    q: "How do we measure success?",
-                    a: "Track: new enquiries, referral source accuracy, and conversion-to-admission rate."
+                    q: "What if inflation pushes costs up mid-target?",
+                    a: "Update the plan immediately and show the board which counter-measures keep margin intact."
                 }
             ]
         },
         "T3-M2": {
-            title: "Stabilise Staffing & Rotas",
-            simpleExplanation: "Lock down a fair, predictable, and sustainable staffing schedule. No chaos, no last-minute swaps, no burnout spirals.",
+            title: "Stabilise Investment Reserves",
+            simpleExplanation: "Stop drawing down investments for at least 90 days and begin rebuilding reserves toward the R6m target.",
             whatYouNeed: [
-                "📅 Master rota (3-month horizon)",
-                "🧑‍⚕️ Clear clinical coverage per programme",
-                "📄 Backup clinician plan for sickness/leave",
-                "📢 Communication plan for rota updates"
+                "💳 Latest reserve statements (opening balance R3.4m)",
+                "🗂️ Register of past drawdowns with reasons",
+                "📄 Draft reserve policy covering minimum balances and rebuild plan",
+                "📈 Cash-flow model proving operations can fund the surplus",
+                "📅 Monthly board report highlighting reserve status"
             ],
             tips: [
-                "Review workloads weekly to catch early signs of burnout.",
-                "Keep rotas visible and central — no private versions.",
-                "Make sure every programme has a backup clinician identified.",
-                "Normalise early communication: staff should flag issues as soon as they know."
+                "Freeze discretionary capex until operating cash flow comfortably covers it.",
+                "Label any request to tap reserves as an exception requiring CEO + Board approval.",
+                "Automate a monthly transfer to reserves once surplus appears so rebuilding is habitual.",
+                "Track days cash on hand to show stakeholders the buffer increasing.",
+                "Communicate progress to lenders/funders — confidence improves when reserves grow."
             ],
             commonQuestions: [
                 {
-                    q: "What if someone frequently calls in sick?",
-                    a: "Document patterns, have a supportive conversation, and update workload or support as needed. Escalate only if patterns persist."
+                    q: "What if we face an emergency expense?",
+                    a: "Use the forecast to cut elsewhere first; only touch reserves if governance approves and a replenishment plan exists."
                 },
                 {
-                    q: "How far ahead must rotas be published?",
-                    a: "At least 30 days — stability requires predictability."
+                    q: "How do we reach the R6m target?",
+                    a: "Commit a fixed rand amount (e.g., R50k/month) once margin is positive, review quarterly, and increase when possible."
                 }
             ]
         },
         "T3-M3": {
-            title: "Fix Documentation & Case Notes",
-            simpleExplanation: "Standardise clinical documentation so billing, audits, and continuity of care run without chaos. Documentation errors are a major source of denials — this fixes that leak.",
+            title: "Normalise Creditor Relationships",
+            simpleExplanation: "Bring every supplier back to <=45 creditor days (ex-SARS) so no one is on hold and service reliability returns.",
             whatYouNeed: [
-                "📄 Standard templates for group notes, 1:1 notes, and assessments",
-                "🧾 Quick-check rules for medical-aid compliance",
-                "📚 Refresher training session for all clinicians",
-                "📊 Weekly documentation completeness audit"
+                "🧾 Aged payables report split by 30/60/90+ days",
+                "📋 Priority list of suppliers over 45 days with contact owners",
+                "📞 Escalation log for any account on stop-supply",
+                "📝 Standard repayment-plan template",
+                "📈 Creditor days dashboard shared weekly"
             ],
             tips: [
-                "Document the same day as the session — not later.",
-                "Use short, clear, structured notes; avoid long narratives.",
-                "Double-check ICD-10 codes and authorisation notes.",
-                "Reward consistency — highlight clinicians who keep clean records."
+                "Clear the worst accounts first — anything >90 days needs a plan today.",
+                "Keep critical suppliers current even if it means delaying lower-tier vendors.",
+                "Send reconciliations monthly so statements and ledgers match (prevents disputes).",
+                "Tie payment promises to the 13-week forecast so Finance knows cash impact.",
+                "Log compliments/escalations to prove improvement to the board."
             ],
             commonQuestions: [
                 {
-                    q: "What if a clinician's notes are always late?",
-                    a: "Start with coaching, then set clear expectations with deadlines. Escalate only if the risk continues."
+                    q: "How do we handle suppliers still in arrears after a plan?",
+                    a: "Review volume, renegotiate terms, or replace only if a vetted alternative exists — and inform the board first."
                 },
                 {
-                    q: "How long should notes be?",
-                    a: "Short, factual, structured — enough to show clinical reasoning and justify billing, nothing more."
+                    q: "Do SARS balances count in creditor days?",
+                    a: "Track separately. The payment plan sits under T1-M2; creditor days should exclude SARS to show true supplier health."
                 }
             ]
         },
         "T3-M4": {
-            title: "Fix Reporting & KPI Dashboard",
-            simpleExplanation: "Create one central dashboard showing the real health of operations: occupancy, DSO, revenue, referrals, completion rates. No more guessing. One source of truth.",
+            title: "Embed Payer-Aligned Care Pathways",
+            simpleExplanation: "Standardise treatment plans (21/28/90 days) to match funder authorisations so denials drop and revenue becomes predictable.",
             whatYouNeed: [
-                "📊 KPI definitions (occupancy, DSO, AR, programme volumes)",
-                "🔗 Data feeds from admissions, billing, and clinical teams",
-                "📈 Dashboard template (Excel/BI tool)",
-                "📅 Weekly snapshot cycle (same time, same day)"
+                "📚 Clinical pathway templates mapped to funder rules",
+                "🧑‍⚕️ Training pack for clinicians on length-of-stay discipline",
+                "📄 Extension justification template for exceptions",
+                "📊 Dashboard showing planned vs actual length of stay",
+                "📝 Readmission + outcome tracker to monitor quality"
             ],
             tips: [
-                "Keep KPIs few and meaningful — don't drown in numbers.",
-                "Use traffic-light colours so issues stand out instantly.",
-                "Discuss the dashboard in weekly ops — not once a month.",
-                "Protect data accuracy: one owner per KPI."
+                "Review every new admission against the pathway during MDT so expectations are set on day one.",
+                "If care must extend, motivate before the funded day count ends.",
+                "Hold weekly variance reviews: why did a patient stay longer and who approved it?",
+                "Share payer feedback with the clinical team so they understand how documentation drives authorisation.",
+                "Link pathway compliance to denial-rate KPIs to show financial impact."
             ],
             commonQuestions: [
                 {
-                    q: "Who updates the dashboard?",
-                    a: "Preferably Finance/IT — the team closest to numbers. Clinicians contribute data but do not maintain the dashboard."
+                    q: "What if a clinician insists on longer stays for clinical reasons?",
+                    a: "Support them with a documented motivation and ensure Finance knows about the pending cost before approval."
                 },
                 {
-                    q: "What if data sources conflict?",
-                    a: "Choose one primary system per metric and standardise immediately."
+                    q: "How do we keep care person-centred if pathways are standardised?",
+                    a: "Use the pathway as the baseline, then document justified variances per patient with explicit approvals."
                 }
             ]
         },
         "T3-M5": {
-            title: "Stabilise Supplier & Contract Management",
-            simpleExplanation: "Rebuild trust and structure with suppliers. Clear terms, predictable payments, no surprises. This protects operations and reputation.",
+            title: "Complete 180-Day Turnaround Review",
+            simpleExplanation: "Compile the six-month results, prove controls are embedded, and secure board approval that the turnaround is complete.",
             whatYouNeed: [
-                "📄 List of all active suppliers + contracts",
-                "🧾 Priority ranking (critical → non-critical)",
-                "📅 Payment plan for arrears",
-                "📨 Supplier communication templates"
+                "📊 KPI pack covering margin, cash, reserves, AR, creditors, compliance",
+                "📁 Evidence files (SARS plan status, supplier letters, audit trails)",
+                "📝 Board presentation + narrative highlighting lessons learned",
+                "📅 Agenda + minutes template for the review meeting",
+                "🎖️ Recognition plan acknowledging teams that delivered the turnaround"
             ],
             tips: [
-                "Be honest: 'We're in turnaround, here's the plan, here's the payment schedule.'",
-                "Pay critical suppliers first (food, medical supplies, utilities).",
-                "Renegotiate where possible — many suppliers accept structured repayment.",
-                "Review contracts annually to avoid creeping costs."
+                "Tell the story in three chapters: crisis, actions, proof of stability.",
+                "Show before/after visuals for each KPI — boards love clear comparisons.",
+                "Document which controls continue post-turnaround (cash forecast cadence, AR clinic, dashboard).",
+                "Highlight remaining risks honestly with mitigation owners.",
+                "Use the meeting to agree on BAU governance (monthly KPI reviews, quarterly audits)."
             ],
             commonQuestions: [
                 {
-                    q: "What if a supplier threatens to stop service?",
-                    a: "Escalate immediately. Negotiate a partial payment and a structured plan. Keep clinical operations protected at all costs."
+                    q: "What if some KPIs are still amber?",
+                    a: "Explain the plan, timeline, and owner. The goal is transparency with credible next steps."
                 },
                 {
-                    q: "Should we switch suppliers?",
-                    a: "Only if the alternative is reliable, affordable, and clinically safe. Don't swap cheaply and risk quality."
+                    q: "Who signs off that the turnaround is complete?",
+                    a: "The Board/Steering Committee does, based on evidence presented and agreement that controls are embedded."
                 }
             ]
         }
@@ -522,23 +553,23 @@ const turnaroundCopilotData = {
     // General guidance for turnaround
     generalHelp: {
         "What is a turnaround project?": "A turnaround is an emergency rescue plan. Your organization is losing money fast. This plan stops the bleeding and gets you back to financial health in 180 days.",
-        
+
         "Why 180 days?": "That's how long your cash reserves will last if nothing changes. We must fix this before the money runs out.",
-        
+
         "What if we don't do this?": "Without this plan: SARS could close you down, suppliers will stop delivering, staff won't get paid. This is survival.",
-        
+
         "Who is responsible?": "Everyone. This is an all-hands crisis. Check your role in the Team tab. Ask if unclear.",
-        
+
         "What does 'operating margin' mean?": "Simple: Are you making or losing money? Negative = losing money each month. We need to get to positive (making money).",
-        
+
         "What is DSO?": "Days Sales Outstanding - how long it takes to collect payment after treatment. Lower is better. 28 days means patients pay within a month.",
-        
+
         "What are 'creditor days'?": "How long you take to pay suppliers. We need to get this to 45 days - pay on time but not too early (you need the cash!).",
-        
+
         "Why focus on pre-admission deposits?": "Cash up front = guaranteed payment. No deposit = risk of non-payment. In a crisis, you can't afford bad debts.",
-        
+
         "Can I add my own milestones?": "Yes, but talk to project manager first. Don't distract from the critical path - every day counts.",
-        
+
         "What if I see a problem?": "Report it IMMEDIATELY to your phase lead. In a turnaround, small problems become disasters if ignored."
     }
 };
@@ -546,7 +577,7 @@ const turnaroundCopilotData = {
 // Turnaround-specific functions
 function showTurnaroundCopilot(milestoneId) {
     const guidance = turnaroundCopilotData.milestones[milestoneId];
-    
+
     if (!guidance) {
         return `
             <div class="copilot-panel">
@@ -559,7 +590,7 @@ function showTurnaroundCopilot(milestoneId) {
             </div>
         `;
     }
-    
+
     return `
         <div class="copilot-panel">
             <div class="copilot-header">
@@ -651,7 +682,7 @@ function showTurnaroundGeneralHelp() {
                 <p class="copilot-answer"><strong>A:</strong> ${answer}</p>
             </div>
         `).join('');
-    
+
     showModal('Crisis Management Help - AI Copilot', `
         <div class="copilot-panel">
             <div class="copilot-header">

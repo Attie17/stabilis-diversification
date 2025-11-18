@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
             margin: 2rem auto;
             padding: 2rem;
         }
+
         .report-header {
             background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
             color: white;
@@ -18,6 +20,7 @@
             border-radius: 1rem;
             margin-bottom: 2rem;
         }
+
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -31,33 +34,39 @@
             cursor: pointer;
             text-decoration: none;
         }
+
         .gantt-container {
             background: white;
             border-radius: 0.75rem;
             padding: 2rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             overflow-x: auto;
         }
+
         .gantt-chart {
             min-width: 1200px;
         }
+
         .gantt-header {
             display: flex;
             border-bottom: 2px solid #e5e7eb;
             padding-bottom: 0.5rem;
             margin-bottom: 1rem;
         }
+
         .gantt-row-label {
             width: 250px;
             font-weight: 600;
             color: #1f2937;
             padding: 0.75rem;
         }
+
         .gantt-timeline {
             flex: 1;
             display: flex;
         }
+
         .gantt-month {
             flex: 1;
             text-align: center;
@@ -65,18 +74,21 @@
             font-weight: 500;
             color: #6b7280;
         }
+
         .gantt-row {
             display: flex;
             border-bottom: 1px solid #f3f4f6;
             min-height: 50px;
             align-items: center;
         }
+
         .gantt-bars {
             flex: 1;
             display: flex;
             position: relative;
             height: 40px;
         }
+
         .gantt-bar {
             position: absolute;
             height: 30px;
@@ -88,16 +100,19 @@
             color: white;
             font-size: 0.75rem;
             font-weight: 600;
-            box-shadow: 0 2px 4px rgba(236,72,153,0.2);
+            box-shadow: 0 2px 4px rgba(236, 72, 153, 0.2);
         }
+
         .gantt-bar.complete {
             background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
-            box-shadow: 0 2px 4px rgba(16,185,129,0.2);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
         }
+
         .gantt-bar.active {
             background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-            box-shadow: 0 2px 4px rgba(59,130,246,0.2);
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
         }
+
         .current-date-marker {
             position: absolute;
             width: 2px;
@@ -105,6 +120,7 @@
             background: #ef4444;
             z-index: 10;
         }
+
         .current-date-label {
             position: absolute;
             top: -25px;
@@ -117,6 +133,7 @@
             font-weight: 600;
             white-space: nowrap;
         }
+
         .legend {
             display: flex;
             gap: 2rem;
@@ -124,34 +141,40 @@
             padding-top: 1rem;
             border-top: 1px solid #e5e7eb;
         }
+
         .legend-item {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             font-size: 0.875rem;
         }
+
         .legend-color {
             width: 30px;
             height: 15px;
             border-radius: 0.25rem;
         }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
+
         .stat-card {
             background: white;
             border-radius: 0.75rem;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
+
         .stat-value {
             font-size: 2rem;
             font-weight: 700;
             color: #1f2937;
         }
+
         .stat-label {
             color: #6b7280;
             font-size: 0.875rem;
@@ -159,6 +182,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="report-container">
         <div class="report-header">
@@ -189,18 +213,21 @@
         <div class="gantt-container">
             <h2 style="margin: 0 0 1.5rem 0;">📊 Project Gantt Chart</h2>
             <div class="gantt-chart" id="gantt-chart"></div>
-            
+
             <div class="legend">
                 <div class="legend-item">
-                    <div class="legend-color" style="background: linear-gradient(90deg, #10b981 0%, #34d399 100%);"></div>
+                    <div class="legend-color" style="background: linear-gradient(90deg, #10b981 0%, #34d399 100%);">
+                    </div>
                     <span>Completed</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);"></div>
+                    <div class="legend-color" style="background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);">
+                    </div>
                     <span>In Progress</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background: linear-gradient(90deg, #ec4899 0%, #f472b6 100%);"></div>
+                    <div class="legend-color" style="background: linear-gradient(90deg, #ec4899 0%, #f472b6 100%);">
+                    </div>
                     <span>Planned</span>
                 </div>
                 <div class="legend-item">
@@ -249,7 +276,7 @@
         function renderGantt() {
             const container = document.getElementById('gantt-chart');
             const months = generateMonthHeaders();
-            
+
             // Header
             let html = '<div class="gantt-header">';
             html += '<div class="gantt-row-label">Phase / Milestone</div>';
@@ -265,7 +292,7 @@
                 const phaseEnd = new Date(phase.endDate);
                 const startOffset = ((phaseStart - projectStart) / (projectEnd - projectStart)) * 100;
                 const width = ((phaseEnd - phaseStart) / (projectEnd - projectStart)) * 100;
-                
+
                 const isComplete = phase.milestones.every(m => m.status === 'complete');
                 const isActive = today >= phaseStart && today <= phaseEnd;
                 const statusClass = isComplete ? 'complete' : isActive ? 'active' : '';
@@ -293,5 +320,18 @@
 
         renderGantt();
     </script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/report-access.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof initReportPage === 'function') {
+                initReportPage({
+                    reportKey: 'timeline-analysis',
+                    reportTitle: 'Timeline Analysis Report'
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>

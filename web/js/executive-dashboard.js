@@ -1,11 +1,219 @@
 // Executive Dashboard - Real-Time Data Aggregation
 // Consolidates data from all three projects
 
+const REPORT_DEFINITIONS = [
+    { key: 'revenue-projection', title: 'Revenue Projection', description: '18-month diversification + wellness revenue outlook.', icon: '💹', path: '/reports/revenue-projection.html' },
+    { key: 'cost-analysis', title: 'Cost Analysis', description: 'Operating cost layers compared to recovery levers.', icon: '💸', path: '/reports/cost-analysis.html' },
+    { key: 'phase-progress', title: 'Phase Progress', description: 'Milestone completion heatmap by roadmap.', icon: '🧭', path: '/reports/phase-progress.html' },
+    { key: 'risk-assessment', title: 'Risk Assessment', description: 'Consolidated risk log with mitigations.', icon: '⚠️', path: '/reports/risk-assessment.html' },
+    { key: 'resource-utilization', title: 'Resource Utilization', description: 'Capacity allocation across squads.', icon: '🧑‍🤝‍🧑', path: '/reports/resource-utilization.html' },
+    { key: 'kpi-dashboard-report', title: 'KPI Dashboard', description: 'Executive KPIs with trajectory deltas.', icon: '📊', path: '/reports/kpi-dashboard.html' },
+    { key: 'timeline-analysis', title: 'Timeline Analysis', description: 'Cross-project schedule performance.', icon: '⏱️', path: '/reports/timeline-analysis.html' },
+    { key: 'budget-actual', title: 'Budget vs Actual', description: 'Variance tracker and burn-rate outlook.', icon: '🧾', path: '/reports/budget-actual.html' },
+    { key: 'cashflow-projection', title: 'Cashflow Projection', description: 'Liquidity and runway forecast.', icon: '💵', path: '/reports/cashflow-projection.html' }
+];
+
+let reportsOverlayListenersBound = false;
+
 // Check if user has executive access
 function hasExecutiveAccess() {
     const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
-    const executiveUsers = ['Developer', 'Attie Nel', 'Nastasha Jacobs'];
+    const executiveUsers = window.EXECUTIVE_USERS || ['Developer', 'Attie Nel', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
     return executiveUsers.includes(currentUser.name);
+}
+
+function getAuthUser() {
+    try {
+        return window.currentUser || JSON.parse(localStorage.getItem('stabilis-user') || 'null');
+    } catch (error) {
+        console.warn('Unable to read user session', error);
+        return null;
+    }
+}
+
+function isSteeringUser(user = getAuthUser()) {
+    if (!user) return false;
+    const steering = window.STEERING_COMMITTEE || ['Attie Nel', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
+    return steering.includes(user.name) || user.name === 'Developer';
+}
+
+function ensureSteeringReportAccess(actionLabel = 'this report') {
+    const user = getAuthUser();
+    if (!user) {
+        alert('Please sign in with a steering account to use the report suite.');
+        return false;
+    }
+    if (!isSteeringUser(user)) {
+        alert(`${actionLabel} is limited to the Steering Committee.`);
+        return false;
+    }
+    return true;
+}
+
+function getReportMeta(reportKey) {
+    return REPORT_DEFINITIONS.find(report => report.key === reportKey);
+}
+
+function openReportWindow(reportKey, action) {
+    const meta = getReportMeta(reportKey);
+    if (!meta) return;
+    let url = meta.path;
+    if (action) {
+        const separator = url.includes('?') ? '&' : '?';
+        url = `${url}${separator}action=${action}`;
+    }
+    const win = window.open(url, '_blank');
+    if (win) {
+        win.opener = null;
+    }
+}
+
+function handleReportCardAction(event) {
+    const target = event.target.closest('[data-report-action]');
+    if (!target) return;
+    const action = target.getAttribute('data-report-action');
+    const key = target.getAttribute('data-report');
+    if (!ensureSteeringReportAccess(`${action || 'open'} report`)) {
+        return;
+    }
+    if (action === 'open') {
+        openReportWindow(key);
+        return;
+    }
+    if (['export', 'print', 'edit'].includes(action)) {
+        openReportWindow(key, action);
+    }
+}
+
+function buildReportCardsMarkup() {
+    return REPORT_DEFINITIONS.map(report => `
+        <div class="report-card">
+            <div class="report-card-header">
+                <h3>${report.icon} ${report.title}</h3>
+                <span class="report-access-badge">Steering Only</span>
+            </div>
+            <p>${report.description}</p>
+            <div class="report-card-actions">
+                <button data-report="${report.key}" data-report-action="open">Open</button>
+                <button data-report="${report.key}" data-report-action="export">Export (.xlsx)</button>
+                <button data-report="${report.key}" data-report-action="print">Print</button>
+                <button data-report="${report.key}" data-report-action="edit">Edit</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderReportsMenu() {
+    const markup = buildReportCardsMarkup();
+    const grid = document.getElementById('reports-grid');
+    if (grid) grid.innerHTML = markup;
+    const menuList = document.getElementById('reports-menu-list');
+    if (menuList) menuList.innerHTML = markup;
+}
+
+function initReportsMenu() {
+    renderReportsMenu();
+    const containers = [
+        document.getElementById('reports-grid'),
+        document.getElementById('reports-menu-list')
+    ].filter(Boolean);
+
+    containers.forEach(container => {
+        if (!container.dataset.reportsBound) {
+            container.addEventListener('click', handleReportCardAction);
+            container.dataset.reportsBound = 'true';
+        }
+    });
+
+    setupReportsMenuOverlay();
+}
+
+function showReportsGuide() {
+    alert('Open launches the full report, Export downloads an Excel version, Print sends it to your printer dialog, and Edit opens the inline editing controls inside the report.');
+}
+
+window.showReportsGuide = showReportsGuide;
+
+function setupReportsMenuOverlay() {
+    if (reportsOverlayListenersBound) return;
+    const overlay = document.getElementById('reports-menu-overlay');
+    if (!overlay) return;
+    overlay.addEventListener('click', event => {
+        if (event.target.id === 'reports-menu-overlay') {
+            closeReportsMenu();
+        }
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && isReportsMenuOpen()) {
+            closeReportsMenu();
+        }
+    });
+    reportsOverlayListenersBound = true;
+}
+
+function isReportsMenuOpen() {
+    const overlay = document.getElementById('reports-menu-overlay');
+    return overlay?.classList.contains('active');
+}
+
+function openReportsMenu() {
+    if (!ensureSteeringReportAccess('open the Reports & Analytics menu')) {
+        return;
+    }
+    const overlay = document.getElementById('reports-menu-overlay');
+    if (!overlay) return;
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('reports-menu-open');
+
+    const firstAction = overlay.querySelector('.report-card-actions button');
+    if (firstAction) {
+        setTimeout(() => firstAction.focus(), 0);
+    }
+}
+
+function closeReportsMenu() {
+    const overlay = document.getElementById('reports-menu-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('reports-menu-open');
+}
+
+window.openReportsMenu = openReportsMenu;
+window.closeReportsMenu = closeReportsMenu;
+
+function cloneProjectData(data) {
+    return data ? JSON.parse(JSON.stringify(data)) : null;
+}
+
+function mergeSavedMilestones(base, saved) {
+    if (!base || !saved || !Array.isArray(saved.phases)) return base;
+    base.phases?.forEach(phase => {
+        const savedPhase = saved.phases.find(sp => sp.id === phase.id);
+        if (!savedPhase || !Array.isArray(savedPhase.milestones)) return;
+        phase.milestones?.forEach(milestone => {
+            const savedMilestone = savedPhase.milestones.find(sm => sm.id === milestone.id);
+            if (savedMilestone) {
+                Object.assign(milestone, savedMilestone);
+            }
+        });
+    });
+    return base;
+}
+
+function getLatestProjectData(baseData, storageKey) {
+    const clone = cloneProjectData(baseData);
+    if (!clone) return null;
+    try {
+        const savedRaw = localStorage.getItem(storageKey);
+        if (!savedRaw) return clone;
+        const saved = JSON.parse(savedRaw);
+        return mergeSavedMilestones(clone, saved);
+    } catch (error) {
+        console.warn(`Failed to hydrate project data for ${storageKey}`, error);
+        return clone;
+    }
 }
 
 // Initialize dashboard
@@ -18,10 +226,10 @@ function initDashboard() {
 
     // Load all data
     loadAllData();
-    
+
     // Update timestamp
     updateTimestamp();
-    
+
     // Set up auto-refresh every 30 seconds
     setInterval(() => {
         loadAllData();
@@ -43,9 +251,15 @@ function updateTimestamp() {
 
 // Load and aggregate all project data
 function loadAllData() {
-    const turnaroundData = typeof window.turnaroundData !== 'undefined' ? window.turnaroundData : null;
-    const diversificationData = typeof window.projectData !== 'undefined' ? window.projectData : null;
-    const wellnessData = typeof window.wellnessData !== 'undefined' ? window.wellnessData : null;
+    const turnaroundData = typeof window.turnaroundData !== 'undefined'
+        ? getLatestProjectData(window.turnaroundData, 'stabilis-turnaround-data')
+        : null;
+    const diversificationData = typeof window.projectData !== 'undefined'
+        ? getLatestProjectData(window.projectData, 'stabilis-project-data')
+        : null;
+    const wellnessData = typeof window.wellnessData !== 'undefined'
+        ? getLatestProjectData(window.wellnessData, 'stabilis-wellness-data')
+        : null;
 
     // Calculate progress for each project
     const turnaroundProgress = calculateProjectProgress(turnaroundData);
@@ -61,7 +275,7 @@ function loadAllData() {
     updateRiskOverview(turnaroundData, diversificationData, wellnessData);
     updateThisWeek(turnaroundData, diversificationData, wellnessData);
     updateTeamCapacity(turnaroundData, diversificationData, wellnessData);
-    
+
     // Update detailed sections
     updateFinancialSection(turnaroundData, diversificationData, wellnessData);
     updateRisksSection(turnaroundData, diversificationData, wellnessData);
@@ -89,13 +303,13 @@ function calculateProjectProgress(projectData) {
             phase.milestones.forEach(m => {
                 total++;
                 if (m.status === 'complete') complete++;
-                
+
                 const dueDate = new Date(m.due || m.dueDate);
                 if (dueDate < today && m.status !== 'complete') {
                     overdue++;
                     if (m.priority === 'critical' || m.priority === 'high') critical++;
                 }
-                
+
                 if (dueDate >= today && dueDate <= nextWeek && m.status !== 'complete') {
                     upcoming++;
                 }
@@ -117,26 +331,26 @@ function calculateProjectProgress(projectData) {
 function updateTopStats(turnaround, diversification, wellness) {
     // Turnaround
     document.getElementById('turnaround-progress').textContent = `${turnaround.percentage}%`;
-    document.getElementById('turnaround-meta').textContent = 
+    document.getElementById('turnaround-meta').textContent =
         `${turnaround.complete}/${turnaround.total} milestones | ${turnaround.overdue} overdue`;
 
     // Diversification
     document.getElementById('diversification-progress').textContent = `${diversification.percentage}%`;
-    document.getElementById('diversification-meta').textContent = 
+    document.getElementById('diversification-meta').textContent =
         `${diversification.complete}/${diversification.total} milestones | ${diversification.overdue} overdue`;
 
     // Wellness
     document.getElementById('wellness-progress').textContent = `${wellness.percentage}%`;
-    document.getElementById('wellness-meta').textContent = 
+    document.getElementById('wellness-meta').textContent =
         `${wellness.complete}/${wellness.total} milestones | ${wellness.overdue} overdue`;
 
     // Overall
     const overallComplete = turnaround.complete + diversification.complete + wellness.complete;
     const overallTotal = turnaround.total + diversification.total + wellness.total;
     const overallPercentage = overallTotal > 0 ? Math.round((overallComplete / overallTotal) * 100) : 0;
-    
+
     document.getElementById('overall-progress').textContent = `${overallPercentage}%`;
-    document.getElementById('overall-meta').textContent = 
+    document.getElementById('overall-meta').textContent =
         `${overallComplete}/${overallTotal} total | ${turnaround.overdue + diversification.overdue + wellness.overdue} overdue`;
 
     // Show alerts if there are critical items
@@ -181,10 +395,11 @@ function updateCriticalItems(turnaround, diversification, wellness) {
                         const isCritical = m.priority === 'critical' || m.priority === 'high';
 
                         if (isOverdue || isCritical) {
+                            const milestoneTitle = m.title || m.name || 'Milestone';
                             criticalItems.push({
                                 project: project.name,
                                 icon: project.icon,
-                                title: m.title,
+                                title: milestoneTitle,
                                 id: m.id,
                                 due: dueDate,
                                 status: m.status,
@@ -210,17 +425,17 @@ function updateCriticalItems(turnaround, diversification, wellness) {
     }
 
     container.innerHTML = criticalItems.slice(0, 10).map(item => {
-        const daysOverdue = item.isOverdue ? 
+        const daysOverdue = item.isOverdue ?
             Math.floor((today - item.due) / (1000 * 60 * 60 * 24)) : 0;
-        
+
         return `
             <div class="critical-item">
                 <div class="critical-item-header">
                     <strong>${item.icon} ${item.project}: ${item.title}</strong>
-                    ${item.isOverdue ? 
-                        `<span class="critical-badge">OVERDUE ${daysOverdue}d</span>` :
-                        `<span class="critical-badge">HIGH PRIORITY</span>`
-                    }
+                    ${item.isOverdue ?
+                `<span class="critical-badge">OVERDUE ${daysOverdue}d</span>` :
+                `<span class="critical-badge">HIGH PRIORITY</span>`
+            }
                 </div>
                 <div style="font-size: 0.875rem; color: #94a3b8;">
                     ${item.id} | Due: ${formatDate(item.due)} | Owner: ${item.owner}
@@ -233,7 +448,7 @@ function updateCriticalItems(turnaround, diversification, wellness) {
 // Update revenue summary
 function updateRevenueSummary(turnaround, diversification, wellness) {
     const container = document.getElementById('revenue-summary');
-    
+
     // Simplified revenue projections
     const revenue = {
         turnaround: 'R0 (Cost reduction focus)',
@@ -265,7 +480,7 @@ function updateRevenueSummary(turnaround, diversification, wellness) {
 // Update risk overview
 function updateRiskOverview(turnaround, diversification, wellness) {
     const container = document.getElementById('risk-overview');
-    
+
     let totalRisks = 0;
     let criticalRisks = 0;
     let highRisks = 0;
@@ -324,11 +539,12 @@ function updateThisWeek(turnaround, diversification, wellness) {
                 if (phase.milestones) {
                     phase.milestones.forEach(m => {
                         const dueDate = new Date(m.due || m.dueDate);
+                        const milestoneTitle = m.title || m.name || 'Milestone';
                         if (dueDate >= today && dueDate <= nextWeek && m.status !== 'complete') {
                             thisWeekMilestones.push({
                                 project: project.name,
                                 icon: project.icon,
-                                title: m.title,
+                                title: milestoneTitle,
                                 due: dueDate,
                                 owner: m.owner
                             });
@@ -357,11 +573,11 @@ function updateThisWeek(turnaround, diversification, wellness) {
 // Update team capacity
 function updateTeamCapacity(turnaround, diversification, wellness) {
     const container = document.getElementById('team-capacity');
-    
+
     // Count team member assignments
     const teamLoad = {};
     const projects = [turnaround, diversification, wellness];
-    
+
     projects.forEach(project => {
         if (project && project.phases) {
             project.phases.forEach(phase => {
@@ -405,7 +621,7 @@ function showSection(sectionName) {
 
     // Show selected section
     document.getElementById(`section-${sectionName}`).classList.add('active');
-    
+
     // Highlight active nav button
     event.target.classList.add('active');
 }
@@ -464,6 +680,9 @@ function updateFinancialSection(turnaround, diversification, wellness) {
 function updateRisksSection(turnaround, diversification, wellness) {
     const container = document.getElementById('all-risks');
     const allRisks = [];
+    const today = new Date();
+    const dayMs = 24 * 60 * 60 * 1000;
+    const attentionWindow = new Date(today.getTime() + 14 * dayMs);
 
     const projects = [
         { name: 'Turnaround', data: turnaround, icon: '🚨' },
@@ -474,32 +693,66 @@ function updateRisksSection(turnaround, diversification, wellness) {
     projects.forEach(project => {
         if (project.data && project.data.risks) {
             project.data.risks.forEach(risk => {
+                const attentionFallbackDays = risk.severity === 'critical' ? 7 : (risk.severity === 'high' ? 14 : 21);
+                const reviewDate = risk.reviewBy || risk.reviewDue || risk.targetDate;
+                const attentionDue = reviewDate ? new Date(reviewDate) : new Date(today.getTime() + attentionFallbackDays * dayMs);
+
                 allRisks.push({
                     project: project.name,
                     icon: project.icon,
+                    attentionDue,
                     ...risk
                 });
             });
         }
     });
 
-    // Sort by severity
-    const severityOrder = { critical: 1, high: 2, medium: 3, low: 4 };
-    allRisks.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
-
     if (allRisks.length === 0) {
         container.innerHTML = '<div class="empty-state">✅ No risks identified</div>';
         return;
     }
 
-    container.innerHTML = allRisks.map(risk => `
+    // Sort by severity for display consistency
+    const severityOrder = { critical: 1, high: 2, medium: 3, low: 4 };
+    allRisks.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+
+    const attentionRisks = allRisks.filter(risk =>
+        (risk.severity === 'critical' || risk.severity === 'high') && risk.attentionDue <= attentionWindow
+    );
+
+    const attentionHtml = attentionRisks.length > 0
+        ? attentionRisks.map(risk => `
+            <div class="risk-item ${risk.severity}">
+                <strong>${risk.icon} ${risk.project}: ${risk.title || risk.name || risk.description}</strong>
+                <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.4rem;">
+                    Owner: ${risk.owner || 'Unassigned'} | Action by ${formatDate(risk.attentionDue)}
+                </div>
+                <div style="font-size: 0.8rem; color: #cbd5f5; margin-top: 0.2rem;">
+                    ${risk.mitigation || risk.status || 'Mitigation in progress'}
+                </div>
+            </div>
+        `).join('')
+        : '<div class="empty-state">👍 No high-severity risks expected in the next two weeks</div>';
+
+    const registerHtml = allRisks.map(risk => `
         <div class="risk-item ${risk.severity}">
-            <strong>${risk.icon} ${risk.project}: ${risk.title || risk.description}</strong>
+            <strong>${risk.icon} ${risk.project}: ${risk.title || risk.name || risk.description}</strong>
             <div style="font-size: 0.875rem; color: #94a3b8; margin-top: 0.5rem;">
-                Severity: ${risk.severity} | Mitigation: ${risk.mitigation || risk.status || 'In progress'}
+                Severity: ${risk.severity} | Owner: ${risk.owner || 'Unassigned'} | Status: ${risk.status || 'active'}
             </div>
         </div>
     `).join('');
+
+    container.innerHTML = `
+        <div style="margin-bottom: 1.5rem;">
+            <h3 style="margin-bottom: 0.5rem;">Next 14 Days</h3>
+            ${attentionHtml}
+        </div>
+        <div>
+            <h3 style="margin-bottom: 0.5rem;">Full Risk Register</h3>
+            ${registerHtml}
+        </div>
+    `;
 }
 
 // Update timeline section
@@ -518,11 +771,12 @@ function updateTimelineSection(turnaround, diversification, wellness) {
             project.data.phases.forEach(phase => {
                 if (phase.milestones) {
                     phase.milestones.forEach(m => {
+                        const milestoneTitle = m.title || m.name || 'Milestone';
                         allMilestones.push({
                             project: project.name,
                             icon: project.icon,
                             color: project.color,
-                            title: m.title,
+                            title: milestoneTitle,
                             due: new Date(m.due || m.dueDate),
                             status: m.status
                         });
@@ -602,8 +856,8 @@ function updateTeamSection(turnaround, diversification, wellness) {
             </thead>
             <tbody>
                 ${sorted.map(([name, counts]) => {
-                    const total = counts.turnaround + counts.diversification + counts.wellness;
-                    return `
+        const total = counts.turnaround + counts.diversification + counts.wellness;
+        return `
                         <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
                             <td style="padding: 0.75rem;">${name}</td>
                             <td style="text-align: center; padding: 0.75rem;">${counts.turnaround}</td>
@@ -614,7 +868,7 @@ function updateTeamSection(turnaround, diversification, wellness) {
                             </td>
                         </tr>
                     `;
-                }).join('')}
+    }).join('')}
             </tbody>
         </table>
     `;
@@ -707,5 +961,17 @@ function formatDate(date) {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     initAuth();
+    initReportsMenu();
     setTimeout(initDashboard, 500); // Wait for auth to complete
 });
+
+function handleProjectDataChange(event) {
+    const keys = ['stabilis-project-data', 'stabilis-turnaround-data', 'stabilis-wellness-data'];
+    const key = event.detail?.key || event.key;
+    if (keys.includes(key)) {
+        refreshDashboard();
+    }
+}
+
+window.addEventListener('storage', handleProjectDataChange);
+window.addEventListener('project-data-updated', handleProjectDataChange);

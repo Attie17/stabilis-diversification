@@ -8,7 +8,7 @@ const wellnessProject = {
     timeline: "19 months (Nov 2025 – Jun 2027)",
     budget: "R2,800,000",
     description: "A functioning multidisciplinary Wellness Centre offering adult and adolescent outpatient programmes, behavioural addiction tracks, individual therapy, and private-group services, positioned as a new private income stream.",
-    
+
     phases: [
         {
             id: "W1",
@@ -19,7 +19,7 @@ const wellnessProject = {
                 {
                     id: "W1-M1",
                     title: "Operational Setup",
-                    owner: "Sne Khonyane",
+                    owner: "Suzanne Gelderblom/Sne Khonyane",
                     due: "2025-11-20",
                     status: "planned",
                     description: "Set up physical and administrative infrastructure for therapy sessions, bookings, and payments",
@@ -42,7 +42,7 @@ const wellnessProject = {
                 {
                     id: "W1-M2",
                     title: "Practitioner Onboarding",
-                    owner: "Suzanne Gelderblom",
+                    owner: "Therapist Manager/Suzanne Gelderblom",
                     due: "2025-11-30",
                     status: "planned",
                     description: "Bring internal and external therapists onboard with clear contracts, expectations, and systems",
@@ -88,7 +88,7 @@ const wellnessProject = {
                 {
                     id: "W1-M4",
                     title: "Adolescent Wellness OP Launch",
-                    owner: "Suzanne Gelderblom",
+                    owner: "Youth Lead",
                     due: "2025-12-20",
                     status: "planned",
                     description: "Start private youth outpatient programme offering skills, emotional support, family guidance, and school-linked referrals",
@@ -208,7 +208,7 @@ const wellnessProject = {
                 {
                     id: "W1B-M1",
                     title: "Programme Framework & Curriculum Build",
-                    owner: "Suzanne Gelderblom",
+                    owner: "Suzanne Gelderblom/Youth Lead",
                     due: "2026-01-15",
                     status: "planned",
                     description: "Create the structure, tools, and therapeutic flow for each behavioural addiction track so clinicians can start running groups and sessions confidently",
@@ -253,7 +253,7 @@ const wellnessProject = {
                 {
                     id: "W1B-M3",
                     title: "Launch Behavioural Addictions OP Tracks",
-                    owner: "Sne Khonyane",
+                    owner: "Suzanne Gelderblom/Sne Khonyane",
                     due: "2026-02-10",
                     status: "planned",
                     description: "Start running weekly group and individual sessions for each behavioural addiction. This is the operational launch of the new service line",
@@ -276,7 +276,7 @@ const wellnessProject = {
                 {
                     id: "W1B-M4",
                     title: "Develop Teen & Parent Companion Modules",
-                    owner: "Sne Khonyane",
+                    owner: "Suzanne Gelderblom/Sne Khonyane",
                     due: "2026-02-20",
                     status: "planned",
                     description: "Build the parent support content that makes youth programmes safer, more effective, and easier for families to manage",
@@ -534,7 +534,7 @@ const wellnessProject = {
                 {
                     id: "W2-M9",
                     title: "Annual Strategy Review",
-                    owner: "Wellness Champion + Wellness Coordinator",
+                    owner: "Therapist Manager + Wellness Champion + Wellness Coordinator",
                     due: "2026-12-31",
                     status: "planned",
                     description: "Clear decisions for 2027 — what to scale, what to remove, what to strengthen",
@@ -634,7 +634,7 @@ const wellnessProject = {
                 {
                     id: "W3-M4",
                     title: "Develop Online Courses / Digital Products",
-                    owner: "Suzanne Gelderblom",
+                    owner: "Sne Khonyane",
                     due: "2027-05-31",
                     status: "planned",
                     description: "Create low-cost, high-margin digital revenue streams: teen emotional storms, boundaries, relapse prevention, stress toolkit",
@@ -657,7 +657,7 @@ const wellnessProject = {
                 {
                     id: "W3-M5",
                     title: "External Accreditation & Partner Recognition",
-                    owner: "Suzanne Gelderblom",
+                    owner: "Ceo + Suzanne Gelderblom",
                     due: "2027-06-30",
                     status: "planned",
                     description: "Obtain CPD provider status, school partner endorsements, corporate wellbeing compliance badges for market trust",
@@ -780,6 +780,11 @@ const wellnessProject = {
             responsibilities: "Clinical oversight, quality assurance, practitioner supervision"
         },
         {
+            role: "Medical Manager",
+            name: "Lydia Gittens",
+            responsibilities: "Manage multidisciplinary care plans, oversee substance testing cadence, ensure clients complete prescribed sessions and health requirements"
+        },
+        {
             role: "Finance Officer",
             name: "Nastasha Jacobs",
             responsibilities: "Billing, payments, financial tracking, medical aid claims"
@@ -795,3 +800,10 @@ const wellnessProject = {
         { metric: "Regional School Partnerships", target: "5-10", current: "0" }
     ]
 };
+
+const wellnessData = wellnessProject;
+
+if (typeof window !== 'undefined') {
+    window.wellnessProject = wellnessProject;
+    window.wellnessData = wellnessData;
+}

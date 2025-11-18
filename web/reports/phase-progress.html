@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
             margin: 2rem auto;
             padding: 2rem;
         }
+
         .report-header {
             background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
             color: white;
@@ -18,9 +20,11 @@
             border-radius: 1rem;
             margin-bottom: 2rem;
         }
+
         .report-header h1 {
             margin: 0 0 0.5rem 0;
         }
+
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -35,49 +39,59 @@
             text-decoration: none;
             transition: all 0.2s;
         }
+
         .back-btn:hover {
             background: #f3f4f6;
             transform: translateY(-1px);
         }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
+
         .stat-card {
             background: white;
             border-radius: 0.75rem;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
+
         .stat-label {
             color: #6b7280;
             font-size: 0.875rem;
             margin-bottom: 0.5rem;
         }
+
         .stat-value {
             font-size: 2rem;
             font-weight: 700;
             color: #1f2937;
         }
+
         .stat-value.success {
             color: #10b981;
         }
+
         .stat-value.warning {
             color: #f59e0b;
         }
+
         .report-section {
             background: white;
             border-radius: 0.75rem;
             padding: 2rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
+
         .report-section h2 {
             margin: 0 0 1.5rem 0;
             color: #1f2937;
         }
+
         .phase-card {
             background: #f9fafb;
             border-radius: 0.75rem;
@@ -85,42 +99,51 @@
             margin-bottom: 1.5rem;
             border-left: 4px solid #8b5cf6;
         }
+
         .phase-card.complete {
             border-left-color: #10b981;
             background: #ecfdf5;
         }
+
         .phase-card.active {
             border-left-color: #3b82f6;
             background: #eff6ff;
         }
+
         .phase-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
         }
+
         .phase-header h3 {
             margin: 0;
             color: #1f2937;
         }
+
         .phase-status {
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 600;
         }
+
         .phase-status.complete {
             background: #d1fae5;
             color: #065f46;
         }
+
         .phase-status.active {
             background: #dbeafe;
             color: #1e40af;
         }
+
         .phase-status.planned {
             background: #f3f4f6;
             color: #4b5563;
         }
+
         .progress-bar {
             width: 100%;
             height: 1.5rem;
@@ -129,6 +152,7 @@
             overflow: hidden;
             margin: 1rem 0;
         }
+
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%);
@@ -140,14 +164,17 @@
             font-size: 0.75rem;
             font-weight: 600;
         }
+
         .progress-fill.complete {
             background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
         }
+
         .milestone-list {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
         }
+
         .milestone-item {
             display: flex;
             align-items: center;
@@ -157,10 +184,12 @@
             border-radius: 0.5rem;
             border: 1px solid #e5e7eb;
         }
+
         .milestone-item.complete {
             background: #ecfdf5;
             border-color: #10b981;
         }
+
         .milestone-checkbox {
             width: 1.25rem;
             height: 1.25rem;
@@ -170,44 +199,53 @@
             align-items: center;
             justify-content: center;
         }
+
         .milestone-item.complete .milestone-checkbox {
             background: #10b981;
             border-color: #10b981;
             color: white;
         }
+
         .milestone-title {
             flex: 1;
             font-weight: 500;
             color: #1f2937;
         }
+
         .milestone-item.complete .milestone-title {
             color: #059669;
         }
+
         .milestone-owner {
             font-size: 0.875rem;
             color: #6b7280;
         }
+
         .milestone-due {
             font-size: 0.875rem;
             color: #6b7280;
         }
+
         .timeline-chart {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
             margin-top: 1.5rem;
         }
+
         .timeline-row {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
+
         .timeline-label {
             width: 150px;
             font-size: 0.875rem;
             font-weight: 500;
             color: #1f2937;
         }
+
         .timeline-bar {
             flex: 1;
             height: 2rem;
@@ -216,6 +254,7 @@
             position: relative;
             overflow: hidden;
         }
+
         .timeline-segment {
             position: absolute;
             height: 100%;
@@ -227,18 +266,21 @@
             font-size: 0.75rem;
             font-weight: 600;
         }
+
         .critical-items {
             background: #fef3c7;
             border: 2px solid #f59e0b;
             border-radius: 0.75rem;
             padding: 1.5rem;
         }
+
         .critical-items h3 {
             margin: 0 0 1rem 0;
             color: #92400e;
         }
     </style>
 </head>
+
 <body>
     <div class="report-container">
         <div class="report-header">
@@ -332,7 +374,7 @@
                 const end = new Date(phase.endDate);
                 const isActive = today >= start && today <= end;
                 const isComplete = phase.milestones.every(m => m.status === 'complete');
-                
+
                 const completeMilestones = phase.milestones.filter(m => m.status === 'complete').length;
                 const progress = Math.round((completeMilestones / phase.milestones.length) * 100);
 
@@ -383,7 +425,7 @@
                 const end = new Date(phase.endDate);
                 const daysFromStart = (start - projectStart) / (1000 * 60 * 60 * 24);
                 const duration = (end - start) / (1000 * 60 * 60 * 24);
-                
+
                 const leftPercent = (daysFromStart / totalDays) * 100;
                 const widthPercent = (duration / totalDays) * 100;
 
@@ -392,7 +434,7 @@
                         <div class="timeline-label">${phase.name.split('–')[0].trim()}</div>
                         <div class="timeline-bar">
                             <div class="timeline-segment" style="left: ${leftPercent}%; width: ${widthPercent}%">
-                                ${phase.startDate.split('-')[1]}/${phase.startDate.split('-')[2]} - ${end.getMonth()+1}/${end.getDate()}
+                                ${phase.startDate.split('-')[1]}/${phase.startDate.split('-')[2]} - ${end.getMonth() + 1}/${end.getDate()}
                             </div>
                         </div>
                     </div>
@@ -411,11 +453,11 @@
                     if (milestone.status !== 'complete') {
                         const dueDate = new Date(milestone.due);
                         const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-                        
+
                         if (daysUntil < 7 && daysUntil >= 0) {
-                            criticalItems.push({...milestone, daysUntil, phase: phase.name});
+                            criticalItems.push({ ...milestone, daysUntil, phase: phase.name });
                         } else if (daysUntil < 0) {
-                            criticalItems.push({...milestone, daysUntil, phase: phase.name, overdue: true});
+                            criticalItems.push({ ...milestone, daysUntil, phase: phase.name, overdue: true });
                         }
                     }
                 });
@@ -444,10 +486,23 @@
         document.getElementById('overall-progress').textContent = progress.percentage + '%';
         document.getElementById('milestones-complete').textContent = `${progress.complete}/${progress.total}`;
         document.getElementById('current-phase').textContent = currentPhase.name.split('–')[0].trim();
-        
+
         renderPhases();
         renderTimeline();
         renderCriticalItems();
     </script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/report-access.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof initReportPage === 'function') {
+                initReportPage({
+                    reportKey: 'phase-progress',
+                    reportTitle: 'Phase Progress Report'
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>

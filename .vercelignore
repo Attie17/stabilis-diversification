@@ -1,0 +1,11 @@
+node_modules
+.git
+.vscode
+*.ps1
+scripts/
+phases/
+reports/
+tracking/
+docs/
+*.md
+!README.md

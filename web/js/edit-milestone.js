@@ -5,11 +5,11 @@
 function canEditMilestones() {
     // Try both possible localStorage keys
     const currentUser = JSON.parse(localStorage.getItem('stabilis-current-user') || localStorage.getItem('stabilis-user') || '{}');
-    
+
     if (!currentUser.name) {
         return false;
     }
-    
+
     // Check if user is admin (CEO, Finance Manager, Operational Manager, Developer)
     const editableUsers = [
         "Developer",          // System Administrator
@@ -17,31 +17,50 @@ function canEditMilestones() {
         "Nastasha Jacobs",     // Finance Manager  
         "Karin Weideman"      // Operational Manager
     ];
-    
+
     const editableRoles = [
         "System Administrator",
         "CEO & Project Manager",
         "Finance Manager",
         "Operational Manager"
     ];
-    
+
     // Check by name OR by role
-    const hasAccess = editableUsers.includes(currentUser.name) || 
-                     editableRoles.some(role => currentUser.role && currentUser.role.includes(role.split(' ')[0]));
-    
+    const hasAccess = editableUsers.includes(currentUser.name) ||
+        editableRoles.some(role => currentUser.role && currentUser.role.includes(role.split(' ')[0]));
+
     return hasAccess;
 }
 
+function broadcastProjectDataUpdate(key, data) {
+    try {
+        const payload = JSON.stringify(data);
+        localStorage.setItem(key, payload);
+        const customEvent = new CustomEvent('project-data-updated', {
+            detail: { key, payload }
+        });
+        window.dispatchEvent(customEvent);
+        try {
+            const storageEvent = new StorageEvent('storage', { key, newValue: payload });
+            window.dispatchEvent(storageEvent);
+        } catch (err) {
+            console.warn('StorageEvent dispatch failed', err.message || err);
+        }
+    } catch (error) {
+        console.error('Failed to broadcast project update', error);
+    }
+}
+
 // Show edit milestone modal
-window.showEditMilestoneModal = function() {
+window.showEditMilestoneModal = function () {
     if (!canEditMilestones()) {
         alert('⚠️ Access Denied\n\nOnly the CEO, Finance Manager, and Operational Manager can edit milestones.\n\nCurrent authorized users:\n• Attie Nel (CEO & Project Manager)\n• Nastasha Jacobs (Finance Manager)\n• Karin Weideman (Operational Manager)');
         return;
     }
-    
+
     // Get all milestones from all projects
     const milestones = getAllMilestones();
-    
+
     const modal = document.createElement('div');
     modal.id = 'edit-milestone-modal';
     modal.className = 'modal active';
@@ -132,9 +151,9 @@ window.showEditMilestoneModal = function() {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
+
     // Close on overlay click
     modal.addEventListener('click', (e) => {
         if (e.target.id === 'edit-milestone-modal') {
@@ -146,7 +165,7 @@ window.showEditMilestoneModal = function() {
 // Get all milestones from all projects
 function getAllMilestones() {
     const milestones = [];
-    
+
     // Diversification milestones
     if (typeof projectData !== 'undefined') {
         projectData.phases.forEach(phase => {
@@ -164,7 +183,7 @@ function getAllMilestones() {
             });
         });
     }
-    
+
     // Turnaround milestones
     if (typeof turnaroundData !== 'undefined') {
         turnaroundData.phases.forEach(phase => {
@@ -182,7 +201,7 @@ function getAllMilestones() {
             });
         });
     }
-    
+
     // Wellness milestones
     if (typeof wellnessData !== 'undefined') {
         wellnessData.phases.forEach(phase => {
@@ -200,31 +219,31 @@ function getAllMilestones() {
             });
         });
     }
-    
+
     return milestones;
 }
 
 // Load selected milestone for editing
-window.loadMilestoneForEdit = function() {
+window.loadMilestoneForEdit = function () {
     const select = document.getElementById('select-milestone');
     const milestoneId = select.value;
-    
+
     if (!milestoneId) {
         document.getElementById('edit-milestone-form').style.display = 'none';
         return;
     }
-    
+
     const project = select.options[select.selectedIndex].dataset.project;
     const milestone = findMilestone(milestoneId, project);
-    
+
     if (!milestone) {
         alert('Milestone not found');
         return;
     }
-    
+
     // Show form
     document.getElementById('edit-milestone-form').style.display = 'block';
-    
+
     // Display current details
     document.getElementById('current-milestone-details').innerHTML = `
         <div class="detail-item"><strong>ID:</strong> ${milestone.id}</div>
@@ -235,7 +254,7 @@ window.loadMilestoneForEdit = function() {
         <div class="detail-item"><strong>Current Status:</strong> ${milestone.status}</div>
         <div class="detail-item"><strong>Current Priority:</strong> ${milestone.priority || 'medium'}</div>
     `;
-    
+
     // Populate form fields
     document.getElementById('edit-owner').value = milestone.owner;
     document.getElementById('edit-due-date').value = convertToInputDate(milestone.due);
@@ -247,7 +266,7 @@ window.loadMilestoneForEdit = function() {
 // Find milestone in data
 function findMilestone(milestoneId, project) {
     let milestone = null;
-    
+
     if (project === 'Diversification' && typeof projectData !== 'undefined') {
         projectData.phases.forEach(phase => {
             const found = phase.milestones.find(m => m.id === milestoneId);
@@ -264,48 +283,51 @@ function findMilestone(milestoneId, project) {
             if (found) milestone = { ...found, title: found.name || found.title, due: found.dueDate || found.due };
         });
     }
-    
+
     return milestone;
 }
 
 // Save milestone edits
-window.saveMilestoneEdits = function() {
+window.saveMilestoneEdits = function () {
     const select = document.getElementById('select-milestone');
     const milestoneId = select.value;
     const project = select.options[select.selectedIndex].dataset.project;
-    
+
     if (!milestoneId) {
         alert('Please select a milestone');
         return;
     }
-    
+
     const newOwner = document.getElementById('edit-owner').value;
     const newDueDate = document.getElementById('edit-due-date').value;
     const newStatus = document.getElementById('edit-status').value;
     const newPriority = document.getElementById('edit-priority').value;
     const notes = document.getElementById('edit-notes').value;
-    
+
     if (!newOwner || !newDueDate) {
         alert('Please fill in all required fields (Person Responsible and Due Date)');
         return;
     }
-    
+
     // Update milestone in appropriate data structure
     let updated = false;
-    
+
     if (project === 'Diversification' && typeof projectData !== 'undefined') {
         projectData.phases.forEach(phase => {
             const milestone = phase.milestones.find(m => m.id === milestoneId);
             if (milestone) {
                 milestone.owner = newOwner;
                 milestone.due = newDueDate;
+                milestone.dueDate = newDueDate;
                 milestone.status = newStatus;
                 milestone.priority = newPriority;
                 updated = true;
+                refreshPhaseTimeline(phase, 'due');
             }
         });
         if (updated) {
-            localStorage.setItem('stabilis-project-data', JSON.stringify(projectData));
+            refreshProjectTimeline(projectData);
+            broadcastProjectDataUpdate('stabilis-project-data', projectData);
         }
     } else if (project === 'Turnaround' && typeof turnaroundData !== 'undefined') {
         turnaroundData.phases.forEach(phase => {
@@ -316,10 +338,12 @@ window.saveMilestoneEdits = function() {
                 milestone.status = newStatus;
                 milestone.priority = newPriority;
                 updated = true;
+                refreshPhaseTimeline(phase, 'dueDate');
             }
         });
         if (updated) {
-            localStorage.setItem('stabilis-turnaround-data', JSON.stringify(turnaroundData));
+            refreshProjectTimeline(turnaroundData);
+            broadcastProjectDataUpdate('stabilis-turnaround-data', turnaroundData);
         }
     } else if (project === 'Wellness' && typeof wellnessData !== 'undefined') {
         wellnessData.phases.forEach(phase => {
@@ -330,13 +354,15 @@ window.saveMilestoneEdits = function() {
                 milestone.status = newStatus;
                 milestone.priority = newPriority;
                 updated = true;
+                refreshPhaseTimeline(phase, 'dueDate');
             }
         });
         if (updated) {
-            localStorage.setItem('stabilis-wellness-data', JSON.stringify(wellnessData));
+            refreshProjectTimeline(wellnessData);
+            broadcastProjectDataUpdate('stabilis-wellness-data', wellnessData);
         }
     }
-    
+
     // Save edit log
     if (updated) {
         saveEditLog(milestoneId, project, {
@@ -346,10 +372,9 @@ window.saveMilestoneEdits = function() {
             priority: newPriority,
             notes: notes
         });
-        
-        alert('✅ Milestone updated successfully!\n\nThe page will reload to show the changes.');
+
+        alert('✅ Milestone updated successfully!\n\nChanges have been saved and will appear on all project dashboards.');
         closeEditMilestoneModal();
-        window.location.reload();
     } else {
         alert('❌ Error: Could not update milestone');
     }
@@ -359,7 +384,7 @@ window.saveMilestoneEdits = function() {
 function saveEditLog(milestoneId, project, changes) {
     const logs = JSON.parse(localStorage.getItem('stabilis-edit-logs') || '[]');
     const currentUser = JSON.parse(localStorage.getItem('stabilis-current-user') || '{}');
-    
+
     logs.push({
         milestoneId: milestoneId,
         project: project,
@@ -367,12 +392,12 @@ function saveEditLog(milestoneId, project, changes) {
         editedBy: currentUser.name,
         editedAt: new Date().toISOString()
     });
-    
+
     localStorage.setItem('stabilis-edit-logs', JSON.stringify(logs));
 }
 
 // Close edit modal
-window.closeEditMilestoneModal = function() {
+window.closeEditMilestoneModal = function () {
     const modal = document.getElementById('edit-milestone-modal');
     if (modal) {
         modal.remove();
@@ -391,6 +416,48 @@ function convertToInputDate(dateString) {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+}
+
+function normalizeDateForStorage(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+    return date.toISOString().split('T')[0];
+}
+
+function refreshPhaseTimeline(phase, dateField = 'due') {
+    if (!phase || !Array.isArray(phase.milestones)) return;
+    const timestamps = phase.milestones
+        .map(m => new Date(m[dateField] || m.due || m.dueDate))
+        .filter(date => !Number.isNaN(date.getTime()));
+    if (!timestamps.length) return;
+    const minDate = new Date(Math.min(...timestamps));
+    const maxDate = new Date(Math.max(...timestamps));
+    const normalizedStart = normalizeDateForStorage(minDate);
+    const normalizedEnd = normalizeDateForStorage(maxDate);
+    if (normalizedStart) phase.startDate = normalizedStart;
+    if (normalizedEnd) phase.endDate = normalizedEnd;
+}
+
+function refreshProjectTimeline(project) {
+    if (!project || !Array.isArray(project.phases)) return;
+    const startDates = project.phases
+        .map(p => new Date(p.startDate))
+        .filter(date => !Number.isNaN(date.getTime()));
+    const endDates = project.phases
+        .map(p => new Date(p.endDate))
+        .filter(date => !Number.isNaN(date.getTime()));
+    if (startDates.length) {
+        const min = new Date(Math.min(...startDates));
+        const normalized = normalizeDateForStorage(min);
+        if (normalized) project.startDate = normalized;
+    }
+    if (endDates.length) {
+        const max = new Date(Math.max(...endDates));
+        const normalized = normalizeDateForStorage(max);
+        if (normalized) project.endDate = normalized;
+    }
 }
 
 // Add CSS for edit modal

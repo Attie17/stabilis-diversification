@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -9,6 +10,7 @@
     <title>Turnaround - Stabilis</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div id="app">
         <!-- Sidebar (reusing existing structure) -->
@@ -28,6 +30,8 @@
                         <button class="sidebar-item" data-action="home">← Back to Project Hub</button>
                         <button class="sidebar-item" data-action="switch-diversification">View Diversification</button>
                         <button class="sidebar-item" data-action="switch-wellness">View Wellness Centre</button>
+                        <button class="sidebar-item" data-action="executive-dashboard">Executive Dashboard
+                            (Steering)</button>
                     </div>
                 </div>
 
@@ -39,7 +43,8 @@
                     </button>
                     <div class="sidebar-section-content" id="help-guides">
                         <button class="sidebar-item" data-action="quick-start">Quick Start Tutorial</button>
-                        <button class="sidebar-item" data-action="mark-complete">How to Mark Milestones Complete</button>
+                        <button class="sidebar-item" data-action="mark-complete">How to Mark Milestones
+                            Complete</button>
                         <button class="sidebar-item" data-action="crisis-mode">Understanding Crisis Mode</button>
                         <button class="sidebar-item" data-action="risk-levels">Reading Risk Levels</button>
                         <button class="sidebar-item" data-action="gestures">Mobile Gestures Guide</button>
@@ -72,11 +77,27 @@
                         <button class="sidebar-item" data-action="cost-analysis">Cost Analysis Report</button>
                         <button class="sidebar-item" data-action="phase-progress">Phase Progress Report</button>
                         <button class="sidebar-item" data-action="risk-assessment">Risk Assessment Report</button>
-                        <button class="sidebar-item" data-action="resource-utilization">Resource Utilization Report</button>
+                        <button class="sidebar-item" data-action="resource-utilization">Resource Utilization
+                            Report</button>
                         <button class="sidebar-item" data-action="kpi-dashboard-report">KPI Dashboard Report</button>
                         <button class="sidebar-item" data-action="timeline-analysis">Timeline Analysis Report</button>
                         <button class="sidebar-item" data-action="budget-actual">Budget vs Actual Report</button>
-                        <button class="sidebar-item" data-action="cashflow-projection">Cashflow Projection Report</button>
+                        <button class="sidebar-item" data-action="cashflow-projection">Cashflow Projection
+                            Report</button>
+                    </div>
+                </div>
+
+                <!-- AI Copilot -->
+                <div class="sidebar-section">
+                    <button class="sidebar-section-title" data-toggle="ai-copilot">
+                        <span>🤖 AI Copilot</span>
+                        <span class="section-arrow">▼</span>
+                    </button>
+                    <div class="sidebar-section-content" id="ai-copilot">
+                        <button class="sidebar-item" data-action="copilot-guide">📖 Copilot Guide</button>
+                        <button class="sidebar-item" onclick="showGeneralHelp()">💬 Ask Me Anything</button>
+                        <button class="sidebar-item" onclick="showRevenueCalculatorModal()">💰 Revenue
+                            Calculator</button>
                     </div>
                 </div>
 
@@ -249,6 +270,8 @@
     <script src="js/turnaround-data.js"></script>
     <script src="js/turnaround-copilot.js"></script>
     <script src="js/edit-milestone.js"></script>
+    <script src="js/ai-copilot.js"></script>
     <script src="js/turnaround-app.js"></script>
 </body>
+
 </html>

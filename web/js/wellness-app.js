@@ -1,6 +1,29 @@
 // Wellness Centre App
 // App State
 let currentView = 'dashboard';
+let currentRiskFilter = 'all';
+const REPORT_TITLES = {
+    'revenue-projection': 'Revenue Projection Report',
+    'cost-analysis': 'Cost Analysis Report',
+    'phase-progress': 'Phase Progress Report',
+    'risk-assessment': 'Risk Assessment Report',
+    'resource-utilization': 'Resource Utilization Report',
+    'kpi-dashboard-report': 'KPI Dashboard',
+    'timeline-analysis': 'Timeline Analysis Report',
+    'budget-actual': 'Budget vs Actual Report',
+    'cashflow-projection': 'Cashflow Projection Report'
+};
+const PROJECT_REPORT_ACCESS = {
+    'revenue-projection': ['Attie Nel', 'Nastasha Jacobs'],
+    'cost-analysis': ['Nastasha Jacobs', 'Attie Nel'],
+    'phase-progress': ['Attie Nel', 'Berno Paul', 'Lydia Gittens'],
+    'risk-assessment': ['Attie Nel', 'Berno Paul', 'Lydia Gittens'],
+    'resource-utilization': ['Attie Nel', 'Lydia Gittens'],
+    'kpi-dashboard-report': ['Attie Nel', 'Nastasha Jacobs', 'Berno Paul', 'Lydia Gittens'],
+    'timeline-analysis': ['Attie Nel'],
+    'budget-actual': ['Nastasha Jacobs', 'Attie Nel'],
+    'cashflow-projection': ['Nastasha Jacobs', 'Attie Nel']
+};
 
 // Utility functions
 function formatCurrency(amount) {
@@ -25,13 +48,89 @@ function getDaysUntil(dateString) {
 function getMilestoneStatus() {
     let total = 0;
     let complete = 0;
-    
+
     wellnessProject.phases.forEach(phase => {
         total += phase.milestones.length;
         complete += phase.milestones.filter(m => m.status === 'complete').length;
     });
-    
+
     return { total, complete };
+}
+
+function getSteeringMembers() {
+    return window.STEERING_COMMITTEE || [];
+}
+
+function isDeveloperUser() {
+    return currentUser && currentUser.name === 'Developer';
+}
+
+function ensureUserSession(actionLabel = 'this shortcut') {
+    if (currentUser) return true;
+    showModal('Sign In Required', `
+        <p>Please sign in to use ${actionLabel}.</p>
+        <p>Only authenticated steering members can open cross-project navigation.</p>
+    `);
+    return false;
+}
+
+function hasSteeringAccess() {
+    if (!currentUser) return false;
+    const steering = getSteeringMembers();
+    return steering.includes(currentUser.name) || isDeveloperUser();
+}
+
+function showSteeringOnlyModal(actionLabel = 'this area') {
+    const steering = getSteeringMembers();
+    const listMarkup = steering.length
+        ? `<ul style="margin-top:0.5rem;">${steering.map(name => `<li>${name}</li>`).join('')}</ul>`
+        : '';
+    showModal('Navigation Restricted', `
+        <h3>${actionLabel} is locked</h3>
+        <p>Only the steering committee may access this navigation.</p>
+        ${listMarkup}
+        <p style="margin-top:0.75rem;">Use the Executive Dashboard for compiled reporting.</p>
+    `);
+}
+
+function navigateToIfSteering(url, actionLabel) {
+    if (!ensureUserSession(actionLabel)) return;
+    if (!hasSteeringAccess()) {
+        showSteeringOnlyModal(actionLabel);
+        return;
+    }
+    window.location.href = url;
+}
+
+function ensureReportAccess(reportKey) {
+    if (!currentUser) return false;
+    if (hasSteeringAccess()) return true;
+    const allowed = PROJECT_REPORT_ACCESS[reportKey] || [];
+    return allowed.includes(currentUser.name);
+}
+
+function showReportAccessDenied(reportKey) {
+    const title = REPORT_TITLES[reportKey] || 'This report';
+    const allowed = PROJECT_REPORT_ACCESS[reportKey] || getSteeringMembers();
+    const listMarkup = allowed.length
+        ? `<ul style="margin-top:0.5rem;">${allowed.map(name => `<li>${name}</li>`).join('')}</ul>`
+        : '';
+    showModal('Access Restricted', `
+        <h3>${title}</h3>
+        <p>This report stays limited to its assigned owners.</p>
+        ${listMarkup}
+        <p style="margin-top:0.75rem;">Executive summaries live on the steering-only dashboard.</p>
+    `);
+}
+
+function handleReportNavigation(reportKey, url) {
+    const label = REPORT_TITLES[reportKey] || 'This report';
+    if (!ensureUserSession(label)) return;
+    if (!ensureReportAccess(reportKey)) {
+        showReportAccessDenied(reportKey);
+        return;
+    }
+    window.location.href = url;
 }
 
 // Render copilot buttons based on user access
@@ -49,52 +148,62 @@ function renderCopilotButtons() {
 // Event Handlers will be defined later - see bindEvents() function below
 
 function switchView(viewName) {
+    console.log('🔄 Switching to view:', viewName);
     currentView = viewName;
-    
+
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    
+
     const viewElement = document.getElementById(`${viewName}-view`);
     const tabElement = document.querySelector(`[data-view="${viewName}"]`);
-    
+
+    console.log('View element found:', !!viewElement, 'Tab element found:', !!tabElement);
+
     if (viewElement) viewElement.classList.add('active');
     if (tabElement) tabElement.classList.add('active');
-    
+
     // Load view-specific content
+    if (viewName === 'phases') renderPhases();
     if (viewName === 'risks') renderRisks();
     if (viewName === 'team') renderTeam();
+
+    console.log('✅ View switched to:', viewName);
 }
 
 // Initialize
 function init() {
+    console.log('🚀 Wellness app initializing...');
+
     // Initialize authentication first
     initAuth();
-    
+
     updateDashboardStats();
     renderPhases();
     renderCopilotButtons();
     bindEvents();
+
+    console.log('✅ Wellness app initialized');
 }
 
 // Update dashboard stats
 function updateDashboardStats() {
     const { total, complete } = getMilestoneStatus();
     const progress = total > 0 ? Math.round((complete / total) * 100) : 0;
-    
+
     const progressEl = document.getElementById('progress-percent');
     const milestonesEl = document.getElementById('milestones-done');
     const riskCountEl = document.getElementById('risk-count');
-    
+
     if (progressEl) progressEl.textContent = `${progress}%`;
     if (milestonesEl) milestonesEl.textContent = `${complete}/${total}`;
     if (riskCountEl) riskCountEl.textContent = wellnessProject.risks ? wellnessProject.risks.length : '5';
-    
+
     // Update timeline
     updateTimeline();
-    
+
     // Update current phase dashboard
     updateCurrentPhaseDashboard();
-    
+
     // Update next milestones
     updateNextMilestones();
 }
@@ -104,11 +213,11 @@ function updateTimeline() {
     const projectStart = new Date('2025-11-01');
     const projectEnd = new Date('2027-06-30');
     const today = new Date();
-    
+
     const totalDays = (projectEnd - projectStart) / (1000 * 60 * 60 * 24);
     const elapsedDays = (today - projectStart) / (1000 * 60 * 60 * 24);
     const progress = Math.max(0, Math.min(100, (elapsedDays / totalDays) * 100));
-    
+
     const timelineFill = document.getElementById('timeline-fill');
     if (timelineFill) {
         timelineFill.style.width = `${progress}%`;
@@ -117,19 +226,19 @@ function updateTimeline() {
 
 // Update current phase dashboard
 function updateCurrentPhaseDashboard() {
-    const currentPhase = wellnessProject.phases.find(p => 
+    const currentPhase = wellnessProject.phases.find(p =>
         p.milestones.some(m => m.status !== 'complete')
     ) || wellnessProject.phases[0];
-    
+
     if (!currentPhase) return;
-    
+
     const completedMilestones = currentPhase.milestones.filter(m => m.status === 'complete').length;
     const totalMilestones = currentPhase.milestones.length;
     const phaseProgress = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
-    
+
     const progressFill = document.getElementById('current-phase-progress');
     const milestonesText = document.getElementById('current-phase-milestones');
-    
+
     if (progressFill) progressFill.style.width = `${phaseProgress}%`;
     if (milestonesText) milestonesText.textContent = `${completedMilestones} of ${totalMilestones} milestones complete`;
 }
@@ -138,10 +247,10 @@ function updateCurrentPhaseDashboard() {
 function updateNextMilestones() {
     const container = document.getElementById('next-milestones');
     if (!container) return;
-    
+
     const today = new Date();
     const upcomingMilestones = [];
-    
+
     wellnessProject.phases.forEach(phase => {
         phase.milestones.forEach(milestone => {
             if (milestone.status !== 'complete') {
@@ -155,18 +264,18 @@ function updateNextMilestones() {
             }
         });
     });
-    
+
     // Sort by due date
     upcomingMilestones.sort((a, b) => a.daysUntil - b.daysUntil);
-    
+
     // Show only next 5
     const nextFive = upcomingMilestones.slice(0, 5);
-    
+
     if (nextFive.length === 0) {
         container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">All milestones complete!</p>';
         return;
     }
-    
+
     container.innerHTML = nextFive.map(m => `
         <div class="milestone-item">
             <div class="milestone-checkbox">
@@ -185,49 +294,48 @@ function updateNextMilestones() {
 
 // Render risks view
 function renderRisks() {
-    const container = document.getElementById('risks-container');
+    const container = document.getElementById('risk-list');
     if (!container) return;
-    
+
     const risks = wellnessProject.risks || [];
-    
-    if (risks.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No risks identified yet.</p>';
+    const filtered = currentRiskFilter === 'all'
+        ? risks
+        : risks.filter(r => r.severity === currentRiskFilter);
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No risks found.</p>';
         return;
     }
-    
-    container.innerHTML = risks.map(risk => `
-        <div class="risk-card ${risk.severity}">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                <h3 style="margin: 0; font-size: 1rem;">${risk.title}</h3>
-                <span class="risk-badge ${risk.severity}">${risk.severity.toUpperCase()}</span>
+
+    container.innerHTML = filtered.map(risk => `
+        <div class="risk-item ${risk.severity}" data-risk="${risk.id}">
+            <div class="risk-header">
+                <div class="risk-title">${risk.title}</div>
+                <div class="risk-badge ${risk.severity}">${risk.impact}/${risk.likelihood}</div>
             </div>
-            <p style="color: #6b7280; font-size: 0.875rem; margin: 0.5rem 0;">${risk.description}</p>
-            <div style="display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.875rem;">
-                <span><strong>Impact:</strong> ${risk.impact}</span>
-                <span><strong>Likelihood:</strong> ${risk.likelihood}</span>
-                <span><strong>Owner:</strong> ${risk.owner}</span>
-            </div>
+            <div class="risk-description">${risk.description}</div>
+            <div class="risk-owner">Owner: ${risk.owner}</div>
         </div>
     `).join('');
 }
 
 // Render team view
 function renderTeam() {
-    const container = document.getElementById('team-container');
+    const container = document.getElementById('team-grid');
     if (!container) return;
-    
+
     const team = wellnessProject.team || [];
-    
+
     if (team.length === 0) {
         container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No team members defined yet.</p>';
         return;
     }
-    
+
     container.innerHTML = team.map(member => `
         <div class="team-card">
-            <h3 style="margin: 0 0 0.5rem; font-size: 1.125rem;">${member.name}</h3>
-            <p style="color: #3b82f6; font-weight: 600; margin: 0 0 0.75rem; font-size: 0.875rem;">${member.role}</p>
-            <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">${member.responsibilities}</p>
+            <div class="team-role">${member.role}</div>
+            <div class="team-name">${member.name}</div>
+            <div class="team-tasks">${member.responsibilities}</div>
         </div>
     `).join('');
 }
@@ -236,15 +344,57 @@ function renderTeam() {
 function renderPhases() {
     const container = document.getElementById('phases-container');
     if (!container) return;
-    
-    container.innerHTML = wellnessProject.phases.map(phase => renderPhase(phase)).join('');
+
+    container.innerHTML = wellnessProject.phases.map(phase => {
+        const complete = phase.milestones.filter(m => m.status === 'complete').length;
+        const total = phase.milestones.length;
+        const progress = Math.round((complete / total) * 100);
+
+        return `
+            <div class="phase-card" data-phase-id="${phase.id}">
+                <div class="phase-header">
+                    <div onclick="togglePhase('${phase.id}', event)" style="flex: 1; cursor: pointer;">
+                        <div class="phase-badge">${phase.id}</div>
+                        <div class="phase-title">${phase.name}</div>
+                        <div class="phase-dates">${phase.timeline}</div>
+                        <div class="phase-stats">
+                            <div class="phase-stat">
+                                <span>📊</span>
+                                <span><strong>${complete}/${total}</strong> milestones</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="expand-btn" onclick="togglePhase('${phase.id}', event)" data-phase="${phase.id}">▼</button>
+                </div>
+                <div class="phase-description-section" style="display: none;">
+                    <button class="close-btn" onclick="togglePhase('${phase.id}', event)" title="Close">✕</button>
+                    <div class="phase-outcome">
+                        <strong>Expected Outcome:</strong> ${phase.outcome}
+                    </div>
+                    <div class="phase-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <span>${complete}/${total} milestones • ${progress}%</span>
+                    </div>
+                </div>
+                <div class="phase-milestones" style="display: none;">
+                    ${phase.milestones.map(m => renderMilestone(m, phase.id)).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Refresh AI Copilot buttons any time the phases UI re-renders
+    renderCopilotButtons();
 }
 
 function renderPhase(phase) {
+    // This function is no longer used but kept for compatibility
     const milestones = phase.milestones || [];
     const completedCount = milestones.filter(m => m.status === 'complete').length;
     const progress = milestones.length > 0 ? Math.round((completedCount / milestones.length) * 100) : 0;
-    
+
     return `
         <section class="phase" id="phase-${phase.id}">
             <div class="phase-header" onclick="togglePhase('${phase.id}')">
@@ -277,109 +427,135 @@ function renderMilestone(milestone, phaseId) {
     const daysUntil = getDaysUntil(milestone.due);
     const isOverdue = daysUntil < 0 && milestone.status !== 'complete';
     const statusClass = milestone.status || 'planned';
-    const urgencyClass = isOverdue ? 'overdue' : (daysUntil <= 7 ? 'urgent' : '');
-    
+
     return `
-        <div class="milestone ${statusClass} ${urgencyClass}" id="milestone-${milestone.id}">
-            <div class="milestone-header">
-                <div class="milestone-left">
-                    <input 
-                        type="checkbox" 
-                        ${milestone.status === 'complete' ? 'checked' : ''} 
-                        onclick="toggleMilestoneStatus('${milestone.id}')"
-                        class="milestone-checkbox"
-                    >
-                    <div>
-                        <h3>${milestone.title}</h3>
+        <div class="milestone-card" data-milestone-id="${milestone.id}">
+            <div class="milestone-header" onclick="toggleMilestoneDetails('${milestone.id}', event)">
+                <input type="checkbox" 
+                       class="milestone-checkbox" 
+                       data-id="${milestone.id}" 
+                       data-phase="${phaseId}"
+                       ${milestone.status === 'complete' ? 'checked' : ''}>
+                <div class="milestone-info">
+                    <div class="milestone-title">
+                        <strong>${milestone.id}</strong> - ${milestone.title}
                         ${getMilestoneOwnerBadge(milestone.id)}
-                        <div class="milestone-meta">
-                            <span class="milestone-owner">👤 ${milestone.owner}</span>
-                            <span class="milestone-due">📅 ${formatDate(milestone.due)}</span>
-                            ${isOverdue ? '<span class="milestone-overdue">⚠️ Overdue</span>' : ''}
-                            ${daysUntil >= 0 && daysUntil <= 7 && milestone.status !== 'complete' ? `<span class="milestone-urgent">⏰ ${daysUntil} days</span>` : ''}
-                        </div>
+                    </div>
+                    <div class="milestone-meta">
+                        ${milestone.owner} | Due: ${formatDate(milestone.due)}
+                        ${isOverdue ? ' | <span style="color: var(--danger);">⚠️ Overdue</span>' : ''}
                     </div>
                 </div>
-                <div class="milestone-actions">
-                    <button class="milestone-btn" onclick="toggleMilestoneDetails('${milestone.id}')">Details</button>
-                    <button class="milestone-btn" onclick="toggleMilestoneNotes('${milestone.id}')">Notes</button>
-                </div>
             </div>
-            
-            <!-- Details Section -->
-            <div class="milestone-details" id="details-${milestone.id}" style="display: none;">
-                <button class="close-btn" onclick="toggleMilestoneDetails('${milestone.id}')">&times;</button>
-                <p><strong>Description:</strong> ${milestone.description}</p>
+            <div class="milestone-details" style="display: none;" data-milestone-details="${milestone.id}">
+                <button class="close-btn" onclick="toggleMilestoneDetails('${milestone.id}', event)" title="Close">✕</button>
+                <p>${milestone.description}</p>
+                
+                <!-- AI Copilot -->
                 <div id="copilot-btn-${milestone.id}"></div>
-            </div>
-            
-            <!-- Notes Section -->
-            <div class="milestone-notes" id="notes-${milestone.id}" style="display: none;">
-                <button class="close-btn" onclick="toggleMilestoneNotes('${milestone.id}')">&times;</button>
-                <h4>📝 Notes & Attachments</h4>
-                <textarea 
-                    id="notes-text-${milestone.id}" 
-                    placeholder="Add your notes, decisions, or progress updates here..."
-                    class="notes-textarea"
-                >${getMilestoneNotes(milestone.id)}</textarea>
-                <div class="notes-actions">
-                    <button class="save-btn" onclick="saveMilestoneNotes('${milestone.id}')">💾 Save Notes</button>
-                    <label class="upload-btn">
-                        📎 Upload File
-                        <input type="file" onchange="uploadFile('${milestone.id}', event)" style="display: none;">
-                    </label>
+                <div class="copilot-content" id="copilot-${milestone.id}" style="display: none;">
+                    ${typeof showWellnessCopilot !== 'undefined' ? showWellnessCopilot(milestone.id) : ''}
                 </div>
-                <div id="files-${milestone.id}" class="files-list">
-                    ${renderUploadedFiles(milestone.id)}
+                
+                <!-- Notes & Attachments Button -->
+                <button class="notes-toggle-btn" onclick="toggleMilestoneNotes('${milestone.id}', event)">
+                    📝 Notes & Attachments
+                </button>
+                
+                <!-- Notes Section -->
+                <div class="milestone-notes-section" id="notes-${milestone.id}" style="display: none;">
+                    <button class="close-btn" onclick="toggleMilestoneNotes('${milestone.id}', event)" title="Close">✕</button>
+                    <div class="notes-section">
+                        <div class="notes-header">
+                            <h4>📝 Milestone Notes</h4>
+                        </div>
+                        <textarea 
+                            class="notes-textarea milestone-notes" 
+                            placeholder="Add progress notes, decisions, blockers, or any relevant information..."
+                            data-milestone="${milestone.id}"
+                            id="note-text-${milestone.id}"
+                        >${getMilestoneNotes(milestone.id) || ''}</textarea>
+                        <button class="save-note-btn" onclick="saveMilestoneNoteAndClose('${milestone.id}')">
+                            Save Note
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     `;
 }
 
-// renderMilestoneDetails removed - content now only shows in AI Copilot modal
-
 // Toggle Functions
-function togglePhase(phaseId) {
-    const body = document.getElementById(`phase-body-${phaseId}`);
-    const icon = document.querySelector(`#phase-${phaseId} .expand-icon`);
-    
-    if (body.style.display === 'none' || body.style.display === '') {
-        body.style.display = 'block';
-        icon.textContent = '▲';
-    } else {
-        body.style.display = 'none';
-        icon.textContent = '▼';
-    }
-}
+let currentOpenMilestone = null;
+let currentOpenNotes = null;
 
-function toggleMilestoneDetails(milestoneId) {
-    const details = document.getElementById(`details-${milestoneId}`);
-    const notes = document.getElementById(`notes-${milestoneId}`);
-    
-    if (details.style.display === 'none' || details.style.display === '') {
-        details.style.display = 'block';
-        if (notes.style.display === 'block') {
-            notes.style.display = 'none';
-        }
-    } else {
-        details.style.display = 'none';
-    }
-}
+window.togglePhase = function (phaseId, event) {
+    if (event) event.stopPropagation();
 
-function toggleMilestoneNotes(milestoneId) {
-    const notes = document.getElementById(`notes-${milestoneId}`);
-    const details = document.getElementById(`details-${milestoneId}`);
-    
-    if (notes.style.display === 'none' || notes.style.display === '') {
-        notes.style.display = 'block';
-        if (details.style.display === 'block') {
-            details.style.display = 'none';
+    const phaseCard = document.querySelector(`[data-phase-id="${phaseId}"]`);
+    const description = phaseCard.querySelector('.phase-description-section');
+    const milestones = phaseCard.querySelector('.phase-milestones');
+    const arrow = phaseCard.querySelector('.expand-btn');
+
+    // Toggle display
+    const isOpen = description.style.display === 'block';
+    description.style.display = isOpen ? 'none' : 'block';
+    milestones.style.display = isOpen ? 'none' : 'block';
+    arrow.textContent = isOpen ? '▼' : '▲';
+
+    // Close all milestone details when closing phase
+    if (isOpen) {
+        milestones.querySelectorAll('.milestone-details').forEach(d => d.style.display = 'none');
+        currentOpenMilestone = null;
+        if (currentOpenNotes) {
+            document.getElementById(`notes-${currentOpenNotes}`).style.display = 'none';
+            currentOpenNotes = null;
         }
-    } else {
-        notes.style.display = 'none';
     }
-}
+};
+
+window.toggleMilestoneDetails = function (milestoneId, event) {
+    if (event) event.stopPropagation();
+
+    const milestoneCard = document.querySelector(`[data-milestone-id="${milestoneId}"]`);
+    const details = milestoneCard.querySelector('.milestone-details');
+
+    // Close previous milestone if different
+    if (currentOpenMilestone && currentOpenMilestone !== milestoneId) {
+        const prevDetails = document.querySelector(`[data-milestone-details="${currentOpenMilestone}"]`);
+        if (prevDetails) {
+            prevDetails.style.display = 'none';
+        }
+    }
+
+    // Toggle current
+    const isOpen = details.style.display === 'block';
+    details.style.display = isOpen ? 'none' : 'block';
+    currentOpenMilestone = isOpen ? null : milestoneId;
+
+    // Close notes when closing milestone
+    if (isOpen && currentOpenNotes === milestoneId) {
+        document.getElementById(`notes-${milestoneId}`).style.display = 'none';
+        currentOpenNotes = null;
+    }
+};
+
+window.toggleMilestoneNotes = function (milestoneId, event) {
+    if (event) event.stopPropagation();
+
+    const notesSection = document.getElementById(`notes-${milestoneId}`);
+    const isOpen = notesSection.style.display === 'block';
+
+    notesSection.style.display = isOpen ? 'none' : 'block';
+    currentOpenNotes = isOpen ? null : milestoneId;
+};
+
+window.saveMilestoneNoteAndClose = function (milestoneId) {
+    const textarea = document.getElementById(`note-text-${milestoneId}`);
+    saveMilestoneNote(milestoneId, textarea.value);
+    document.getElementById(`notes-${milestoneId}`).style.display = 'none';
+    currentOpenNotes = null;
+};
 
 function toggleMilestoneStatus(milestoneId) {
     wellnessProject.phases.forEach(phase => {
@@ -397,9 +573,9 @@ function toggleMilestoneStatus(milestoneId) {
 function toggleCopilot(milestoneId) {
     const details = document.getElementById(`details-${milestoneId}`);
     const copilotContainer = document.getElementById(`copilot-btn-${milestoneId}`);
-    
+
     if (!copilotContainer) return;
-    
+
     if (copilotContainer.innerHTML.includes('copilot-panel')) {
         copilotContainer.innerHTML = getCopilotButton(milestoneId, 'wellness');
     } else {
@@ -431,9 +607,9 @@ function saveMilestoneStatus(milestoneId, status) {
 function uploadFile(milestoneId, event) {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         const files = JSON.parse(localStorage.getItem(`wellness-files-${milestoneId}`) || '[]');
         files.push({
             name: file.name,
@@ -450,7 +626,7 @@ function uploadFile(milestoneId, event) {
 function renderUploadedFiles(milestoneId) {
     const files = JSON.parse(localStorage.getItem(`wellness-files-${milestoneId}`) || '[]');
     if (files.length === 0) return '<p class="no-files">No files uploaded yet</p>';
-    
+
     return files.map((file, index) => `
         <div class="file-item">
             <span class="file-name">📄 ${file.name}</span>
@@ -495,30 +671,49 @@ function closeSidebar() {
 
 // Sidebar Events
 function bindEvents() {
+    console.log('🔗 Binding events...');
+
     // Navigation tabs
     document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
             const view = e.target.getAttribute('data-view');
+            console.log('📍 Nav tab clicked:', view);
             if (view) {
                 switchView(view);
             }
         });
     });
-    
+
+    console.log('✅ Events bound, nav tabs found:', document.querySelectorAll('.nav-tab').length);
+
+    // Milestone checkbox delegation
+    const phasesContainer = document.getElementById('phases-container');
+    if (phasesContainer) {
+        phasesContainer.addEventListener('click', (event) => {
+            const checkbox = event.target.closest('.milestone-checkbox');
+            if (!checkbox) return;
+            event.stopPropagation();
+            const milestoneId = checkbox.dataset.id;
+            if (milestoneId) {
+                toggleMilestoneStatus(milestoneId);
+            }
+        });
+    }
+
     // Hamburger menu
     document.getElementById('menu-btn')?.addEventListener('click', toggleSidebar);
-    
+
     // Close sidebar
     document.getElementById('sidebar-close')?.addEventListener('click', closeSidebar);
     document.getElementById('sidebar-overlay')?.addEventListener('click', closeSidebar);
-    
+
     // Sidebar section toggles
     document.querySelectorAll('.sidebar-section-title').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const toggle = this.getAttribute('data-toggle');
             const section = this.closest('.sidebar-section');
             const arrow = this.querySelector('.section-arrow');
-            
+
             // Close all other sections
             document.querySelectorAll('.sidebar-section').forEach(s => {
                 if (s !== section) {
@@ -530,18 +725,28 @@ function bindEvents() {
                     a.textContent = '▼';
                 }
             });
-            
+
             // Toggle current section
             section.classList.toggle('expanded');
             arrow.textContent = section.classList.contains('expanded') ? '▲' : '▼';
         });
     });
-    
+
     // Sidebar actions
     document.querySelectorAll('.sidebar-item').forEach(item => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function () {
             const action = this.getAttribute('data-action');
             handleSidebarAction(action);
+        });
+    });
+
+    // Risk filters
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentRiskFilter = btn.dataset.filter;
+            renderRisks();
         });
     });
 }
@@ -549,20 +754,38 @@ function bindEvents() {
 function handleSidebarAction(action) {
     // Close sidebar
     closeSidebar();
-    
-    switch(action) {
+
+    switch (action) {
         case 'home':
-            window.location.href = '/';
+            navigateToIfSteering('/', 'Project Hub navigation');
+            break;
+        case 'quick-start':
+            showWellnessQuickStart();
+            break;
+        case 'mark-complete':
+            showWellnessMarkCompleteGuide();
+            break;
+        case 'wellness-overview':
+            showWellnessOverview();
+            break;
+        case 'practitioner-guide':
+            showPractitionerGuide();
+            break;
+        case 'gestures':
+            showWellnessGesturesGuide();
             break;
         case 'switch-diversification':
-            window.location.href = '/index.html';
+            navigateToIfSteering('/index.html', 'Diversification workspace');
             break;
         case 'switch-turnaround':
-            window.location.href = '/turnaround.html';
+            navigateToIfSteering('/turnaround.html', 'Turnaround workspace');
+            break;
+        case 'executive-dashboard':
+            navigateToIfSteering('/executive-dashboard.html', 'Executive Dashboard');
             break;
         case 'current-phase':
             // Jump to first non-complete phase
-            const currentPhase = wellnessProject.phases.find(p => 
+            const currentPhase = wellnessProject.phases.find(p =>
                 p.milestones.some(m => m.status !== 'complete')
             );
             if (currentPhase) {
@@ -612,45 +835,123 @@ function handleSidebarAction(action) {
                 location.reload();
             }
             break;
-        
+
         // Report navigation
         case 'revenue-projection':
-            window.location.href = '/reports/revenue-projection.html';
+            handleReportNavigation('revenue-projection', '/reports/revenue-projection.html');
             break;
         case 'cost-analysis':
-            window.location.href = '/reports/cost-analysis.html';
+            handleReportNavigation('cost-analysis', '/reports/cost-analysis.html');
             break;
         case 'phase-progress':
-            window.location.href = '/reports/phase-progress.html';
+            handleReportNavigation('phase-progress', '/reports/phase-progress.html');
             break;
         case 'risk-assessment':
-            window.location.href = '/reports/risk-assessment.html';
+            handleReportNavigation('risk-assessment', '/reports/risk-assessment.html');
             break;
         case 'resource-utilization':
-            window.location.href = '/reports/resource-utilization.html';
+            handleReportNavigation('resource-utilization', '/reports/resource-utilization.html');
             break;
         case 'kpi-dashboard-report':
-            window.location.href = '/reports/kpi-dashboard.html';
+            handleReportNavigation('kpi-dashboard-report', '/reports/kpi-dashboard.html');
             break;
         case 'timeline-analysis':
-            window.location.href = '/reports/timeline-analysis.html';
+            handleReportNavigation('timeline-analysis', '/reports/timeline-analysis.html');
             break;
         case 'budget-actual':
-            window.location.href = '/reports/budget-actual.html';
+            handleReportNavigation('budget-actual', '/reports/budget-actual.html');
             break;
         case 'cashflow-projection':
-            window.location.href = '/reports/cashflow-projection.html';
+            handleReportNavigation('cashflow-projection', '/reports/cashflow-projection.html');
             break;
-            
+
         default:
-            alert(`⏳ ${action}\n\nThis feature is under development and will be available in a future update.`);
+            handleUnknownWellnessAction(action);
     }
+}
+
+function showWellnessQuickStart() {
+    showModal('Quick Start Tutorial', `
+        <ol style="line-height:1.7;padding-left:1rem;">
+            <li>Use the <strong>Quick Actions</strong> panel to jump to the current phase or overdue list.</li>
+            <li>Tap any milestone card to expand checklists, upload evidence, and leave clinical notes.</li>
+            <li>Switch between <strong>Dashboard / Phases / Risks / Team</strong> using the tabs at the top.</li>
+            <li>Capture blockers with the floating <em>Add Update</em> button so the executive dashboard stays aligned.</li>
+            <li>Visit <strong>Reports</strong> in the sidebar to open revenue, risk, and timeline analytics instantly.</li>
+        </ol>
+        <p style="margin-top:1rem;font-size:0.9rem;color:#64748b;">Tip: Bookmark this page on mobile home screen for one-tap access.</p>
+    `);
+}
+
+function showWellnessMarkCompleteGuide() {
+    showModal('How to Mark Milestones Complete', `
+        <ol style="line-height:1.7;padding-left:1rem;">
+            <li>Open the <strong>Phases</strong> tab and expand the relevant phase.</li>
+            <li>Review the milestone checklist and attach any supporting documents.</li>
+            <li>Toggle the status selector to <strong>Complete</strong> once deliverables are verified.</li>
+            <li>Leave a brief note (who signed off, treatment metrics, etc.) for audit traceability.</li>
+            <li>Return to the Dashboard to confirm the progress bar updates.</li>
+        </ol>
+        <p style="margin-top:1rem;font-size:0.9rem;color:#64748b;">Only authorized leads can edit milestones. Use the Edit Milestone tool if assignments or dates need to change.</p>
+    `);
+}
+
+function showWellnessOverview() {
+    showModal('Wellness Centre Overview', `
+        <p>The Wellness Centre spans <strong>three launch phases</strong> covering setup, scale, and digital expansion.</p>
+        <ul style="padding-left:1rem;line-height:1.7;">
+            <li><strong>Phase 1:</strong> Stand up operational rooms, initial programmes, and billing readiness.</li>
+            <li><strong>Phase 2:</strong> Grow adolescent, school, and corporate partnerships with full practitioner rosters.</li>
+            <li><strong>Phase 3:</strong> Launch digital products, regional partnerships, and accreditation-driven growth.</li>
+        </ul>
+        <p><strong>18‑month revenue target:</strong> R2.8M investment unlocking >R4.2M pipeline.</p>
+        <p style="margin-top:1rem;font-size:0.9rem;color:#64748b;">Use the Team tab for owner accountability and the Risks tab to monitor medical/market dependencies.</p>
+    `);
+}
+
+function showPractitionerGuide() {
+    showModal('Practitioner Management Playbook', `
+        <ul style="padding-left:1rem;line-height:1.8;">
+            <li><strong>Scheduling:</strong> Use the Practitioner Schedule tool for weekly slot planning and utilization checks.</li>
+            <li><strong>Credentialing:</strong> Track HPCSA / medical-aid approvals for each clinician before opening new services.</li>
+            <li><strong>Performance:</strong> Monitor session volume, cancellations, and feedback; escalate issues to the Medical Manager.</li>
+            <li><strong>Compliance:</strong> Ensure substance screenings and documentation are filed under each milestone record.</li>
+            <li><strong>Well-being:</strong> Rotate high-intensity caseloads and schedule supervision touchpoints.</li>
+        </ul>
+    `);
+}
+
+function showWellnessGesturesGuide() {
+    showModal('Mobile Gestures Guide', `
+        <p><strong>Tap:</strong> Open milestone details or toggle status.</p>
+        <p><strong>Scroll:</strong> Swipe vertically through sections; the header auto-hides on scroll.</p>
+        <p><strong>Tab Navigation:</strong> Swipe left/right on the tab bar to reveal hidden tabs.</p>
+        <p><strong>Long Press:</strong> (Upcoming) Quick actions for assignments and notes.</p>
+        <p><strong>Pull to Refresh:</strong> Reloads the current section and syncs saved data.</p>
+    `);
+}
+
+function handleUnknownWellnessAction(actionName) {
+    const safeName = actionName || 'shortcut';
+    showModal('Action Helper', `
+        <p>The action <strong>${safeName}</strong> isn't mapped yet.</p>
+        <p>Choose one of the helpful shortcuts below:</p>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem;">
+            <button id="wellness-fallback-quickstart" style="flex:1;min-width:160px;padding:0.75rem;border:none;border-radius:0.75rem;background:#0ea5e9;color:white;font-weight:600;cursor:pointer;">View Quick Start</button>
+            <button id="wellness-fallback-overview" style="flex:1;min-width:160px;padding:0.75rem;border:1px solid #cbd5f5;border-radius:0.75rem;background:var(--bg-secondary);cursor:pointer;">Open Wellness Overview</button>
+        </div>
+    `);
+
+    requestAnimationFrame(() => {
+        document.getElementById('wellness-fallback-quickstart')?.addEventListener('click', showWellnessQuickStart);
+        document.getElementById('wellness-fallback-overview')?.addEventListener('click', showWellnessOverview);
+    });
 }
 
 function showThisWeek() {
     const today = new Date();
     const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-    
+
     let count = 0;
     wellnessProject.phases.forEach(phase => {
         phase.milestones.forEach(m => {
@@ -666,7 +967,7 @@ function showThisWeek() {
             }
         });
     });
-    
+
     if (count === 0) {
         alert('No milestones due this week! 🎉');
     }
@@ -675,7 +976,7 @@ function showThisWeek() {
 function showOverdue() {
     const today = new Date();
     let count = 0;
-    
+
     wellnessProject.phases.forEach(phase => {
         phase.milestones.forEach(m => {
             const due = new Date(m.due);
@@ -690,7 +991,7 @@ function showOverdue() {
             }
         });
     });
-    
+
     if (count === 0) {
         alert('No overdue milestones! ✓');
     } else {
@@ -747,12 +1048,12 @@ function showMetricsDashboard() {
 function showPractitionerSchedule() {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
     const practitioners = ['Dr. Smith (Adult)', 'Dr. Jones (Youth)', 'Therapist A', 'Therapist B', 'Counselor C', 'Counselor D'];
-    
+
     let scheduleHTML = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">';
     scheduleHTML += '<thead><tr style="background: #f3f4f6;"><th style="padding: 0.75rem; border: 1px solid #e5e7eb;">Practitioner</th>';
     days.forEach(day => scheduleHTML += `<th style="padding: 0.75rem; border: 1px solid #e5e7eb;">${day}</th>`);
     scheduleHTML += '<th style="padding: 0.75rem; border: 1px solid #e5e7eb;">Utilization</th></tr></thead><tbody>';
-    
+
     practitioners.forEach((prac, i) => {
         const util = 65 + Math.floor(Math.random() * 25);
         scheduleHTML += `<tr><td style="padding: 0.75rem; border: 1px solid #e5e7eb; font-weight: 600;">${prac}</td>`;
@@ -765,7 +1066,7 @@ function showPractitionerSchedule() {
         scheduleHTML += '</tr>';
     });
     scheduleHTML += '</tbody></table></div>';
-    
+
     showModal('📅 Practitioner Schedule (This Week)', scheduleHTML);
 }
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
             margin: 2rem auto;
             padding: 2rem;
         }
+
         .report-header {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
@@ -18,24 +20,28 @@
             border-radius: 1rem;
             margin-bottom: 2rem;
         }
+
         .report-header h1 {
             margin: 0 0 0.5rem 0;
             font-size: 2rem;
         }
+
         .report-controls {
             display: flex;
             gap: 1rem;
             margin-top: 1rem;
             flex-wrap: wrap;
         }
+
         .report-controls select {
             padding: 0.5rem 1rem;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 0.5rem;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             font-size: 0.875rem;
         }
+
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -51,76 +57,92 @@
             text-decoration: none;
             transition: all 0.2s;
         }
+
         .back-btn:hover {
             background: #f0fdf4;
             transform: translateY(-1px);
         }
+
         .stat-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
+
         .stat-card {
             background: white;
             border-radius: 0.75rem;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
+
         .stat-card.positive {
             border-left: 4px solid #10b981;
         }
+
         .stat-card.negative {
             border-left: 4px solid #ef4444;
         }
+
         .stat-label {
             color: #6b7280;
             font-size: 0.875rem;
             margin-bottom: 0.5rem;
         }
+
         .stat-value {
             font-size: 1.5rem;
             font-weight: 700;
             color: #1f2937;
         }
+
         .stat-value.positive {
             color: #10b981;
         }
+
         .stat-value.negative {
             color: #ef4444;
         }
+
         .stat-note {
             color: #9ca3af;
             font-size: 0.75rem;
             margin-top: 0.25rem;
         }
+
         .report-section {
             background: white;
             border-radius: 0.75rem;
             padding: 2rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
+
         .report-section h2 {
             margin: 0 0 1.5rem 0;
             color: #1f2937;
         }
+
         .cashflow-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.875rem;
         }
+
         .cashflow-table th,
         .cashflow-table td {
             padding: 0.75rem;
             text-align: right;
             border-bottom: 1px solid #e5e7eb;
         }
+
         .cashflow-table th:first-child,
         .cashflow-table td:first-child {
             text-align: left;
             font-weight: 600;
         }
+
         .cashflow-table th {
             background: #f9fafb;
             font-weight: 600;
@@ -129,36 +151,45 @@
             top: 0;
             z-index: 10;
         }
+
         .cashflow-table tr.section-header {
             background: #f3f4f6;
             font-weight: 700;
         }
+
         .cashflow-table tr.section-header td {
             border-top: 2px solid #d1d5db;
         }
+
         .cashflow-table tr.total-row {
             background: #eff6ff;
             font-weight: 700;
         }
+
         .cashflow-table tr.total-row td {
             border-top: 2px solid #2563eb;
             color: #2563eb;
         }
+
         .cashflow-table tr.net-cashflow {
             background: #ecfdf5;
             font-weight: 700;
             font-size: 1rem;
         }
+
         .cashflow-table tr.net-cashflow td {
             border-top: 3px solid #10b981;
             padding: 1rem 0.75rem;
         }
+
         .positive-cash {
             color: #10b981 !important;
         }
+
         .negative-cash {
             color: #ef4444 !important;
         }
+
         .notes-section {
             background: #fef3c7;
             border: 2px solid #fbbf24;
@@ -166,28 +197,34 @@
             padding: 1.5rem;
             margin-top: 2rem;
         }
+
         .notes-section h3 {
             color: #92400e;
             margin: 0 0 1rem 0;
         }
+
         .notes-section ul {
             margin: 0;
             padding-left: 1.5rem;
             color: #78350f;
         }
+
         .notes-section li {
             margin-bottom: 0.5rem;
         }
+
         .assumptions {
             background: #eff6ff;
             border-radius: 0.75rem;
             padding: 1.5rem;
             margin-top: 1.5rem;
         }
+
         .assumptions h3 {
             color: #1e40af;
             margin: 0 0 1rem 0;
         }
+
         .assumptions ul {
             margin: 0;
             padding-left: 1.5rem;
@@ -195,6 +232,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="report-container">
         <div class="report-header">
@@ -206,7 +244,8 @@
                     <option value="80">80% Success Scenario (Realistic)</option>
                     <option value="100">100% Success Scenario (Optimistic)</option>
                 </select>
-                <button class="back-btn" style="margin-left: auto;" onclick="window.history.back()">← Back to Project</button>
+                <button class="back-btn" style="margin-left: auto;" onclick="window.history.back()">← Back to
+                    Project</button>
             </div>
         </div>
 
@@ -425,14 +464,16 @@
                     </tbody>
                 </table>
             </div>
-            
-            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; margin-top: 1.5rem; border-radius: 0.5rem;">
+
+            <div
+                style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; margin-top: 1.5rem; border-radius: 0.5rem;">
                 <strong>💡 Table Highlights:</strong>
                 <ul style="margin: 0.5rem 0 0 1.5rem;">
                     <li><strong>December 2026 (🎯):</strong> First positive cashflow month (+R346K)</li>
                     <li><strong>Peak Deficit:</strong> November 2026 at -R2.28M cumulative</li>
                     <li><strong>All 2027 Months:</strong> Positive monthly cashflow averaging +R115K</li>
-                    <li><strong>Expense Breakdown:</strong> R350K existing ops + new project costs (R195K-R395K/month)</li>
+                    <li><strong>Expense Breakdown:</strong> R350K existing ops + new project costs (R195K-R395K/month)
+                    </li>
                 </ul>
             </div>
         </div>
@@ -441,12 +482,16 @@
         <div class="notes-section">
             <h3>💡 Critical Cashflow Insights</h3>
             <ul>
-                <li><strong>Negative Cashflow Period:</strong> Months 1-11 (Jan-Nov 2026) require funding or existing reserves</li>
-                <li><strong>Peak Deficit:</strong> Month 11 (Nov 2026) at -R2.28M cumulative - requires working capital bridge</li>
-                <li><strong>First Positive Month:</strong> December 2026 (+R346K) - breakthrough month when all streams mature</li>
+                <li><strong>Negative Cashflow Period:</strong> Months 1-11 (Jan-Nov 2026) require funding or existing
+                    reserves</li>
+                <li><strong>Peak Deficit:</strong> Month 11 (Nov 2026) at -R2.28M cumulative - requires working capital
+                    bridge</li>
+                <li><strong>First Positive Month:</strong> December 2026 (+R346K) - breakthrough month when all streams
+                    mature</li>
                 <li><strong>2027 Stabilization:</strong> All months positive, averaging +R115K/month net cashflow</li>
                 <li><strong>Breakeven Point:</strong> Estimated Month 24-26 (full payback of cumulative deficit)</li>
-                <li><strong>Existing Operations:</strong> R350K/month baseline covers current facility costs (before new projects)</li>
+                <li><strong>Existing Operations:</strong> R350K/month baseline covers current facility costs (before new
+                    projects)</li>
             </ul>
         </div>
 
@@ -454,8 +499,10 @@
         <div class="assumptions">
             <h3>📋 Expense Assumptions & Breakdown</h3>
             <ul>
-                <li><strong>Existing Operations (R350K/mo):</strong> Current facility rent, utilities, admin staff, maintenance</li>
-                <li><strong>Wellness Centre Costs:</strong> Scale from R120K (Month 1 startup) to R295K (Month 18 full operation)
+                <li><strong>Existing Operations (R350K/mo):</strong> Current facility rent, utilities, admin staff,
+                    maintenance</li>
+                <li><strong>Wellness Centre Costs:</strong> Scale from R120K (Month 1 startup) to R295K (Month 18 full
+                    operation)
                     <ul>
                         <li>Practitioner salaries: R75K-R180K/month (2-6 practitioners)</li>
                         <li>Facility rent: R30K-R50K/month</li>
@@ -463,10 +510,13 @@
                         <li>Technology & marketing: R0K-R30K/month</li>
                     </ul>
                 </li>
-                <li><strong>Diversification Costs (R35K-R60K/mo):</strong> Staff training, program materials, incremental marketing</li>
-                <li><strong>Turnaround Costs:</strong> Front-loaded (R15K Month 1) → minimal by Month 6 (R3K/mo ongoing)</li>
+                <li><strong>Diversification Costs (R35K-R60K/mo):</strong> Staff training, program materials,
+                    incremental marketing</li>
+                <li><strong>Turnaround Costs:</strong> Front-loaded (R15K Month 1) → minimal by Month 6 (R3K/mo ongoing)
+                </li>
                 <li><strong>Marketing & Admin:</strong> Scales with growth (R25K → R55K/mo)</li>
-                <li><strong>Cost of Revenue:</strong> ~50-60% of revenue (industry standard for therapy/wellness services)</li>
+                <li><strong>Cost of Revenue:</strong> ~50-60% of revenue (industry standard for therapy/wellness
+                    services)</li>
             </ul>
         </div>
 
@@ -474,13 +524,15 @@
         <div class="report-section">
             <h2>🏦 Financing Strategy for Negative Cashflow Period</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-                <div style="background: #f9fafb; padding: 1.5rem; border-radius: 0.75rem; border-left: 4px solid #ef4444;">
+                <div
+                    style="background: #f9fafb; padding: 1.5rem; border-radius: 0.75rem; border-left: 4px solid #ef4444;">
                     <h3 style="margin: 0 0 1rem 0;">📊 Funding Required</h3>
                     <div style="font-size: 2rem; font-weight: 700; color: #ef4444; margin-bottom: 0.5rem;">R2.28M</div>
                     <div style="color: #6b7280; font-size: 0.875rem;">Peak working capital need (Nov 2026)</div>
                 </div>
-                
-                <div style="background: #f9fafb; padding: 1.5rem; border-radius: 0.75rem; border-left: 4px solid #2563eb;">
+
+                <div
+                    style="background: #f9fafb; padding: 1.5rem; border-radius: 0.75rem; border-left: 4px solid #2563eb;">
                     <h3 style="margin: 0 0 1rem 0;">💰 Funding Options</h3>
                     <ul style="margin: 0; padding-left: 1.25rem; color: #1f2937; font-size: 0.875rem;">
                         <li>Bank loan/overdraft facility</li>
@@ -490,8 +542,9 @@
                         <li>Phased project launch (reduce upfront costs)</li>
                     </ul>
                 </div>
-                
-                <div style="background: #ecfdf5; padding: 1.5rem; border-radius: 0.75rem; border-left: 4px solid #10b981;">
+
+                <div
+                    style="background: #ecfdf5; padding: 1.5rem; border-radius: 0.75rem; border-left: 4px solid #10b981;">
                     <h3 style="margin: 0 0 1rem 0;">✅ Mitigation Strategies</h3>
                     <ul style="margin: 0; padding-left: 1.25rem; color: #1f2937; font-size: 0.875rem;">
                         <li><strong>Delay Wellness Centre:</strong> Launch in Month 3-4 (reduces deficit by ~R500K)</li>
@@ -507,14 +560,27 @@
             <a href="javascript:window.history.back()" class="back-btn">← Return to Project Dashboard</a>
         </div>
     </div>
-    
+
     <script src="../js/auth.js"></script>
     <script>
         // Initialize auth
         initAuth();
-        
+
         // Log report view
         console.log('Monthly Cashflow Projection Report viewed:', new Date().toISOString());
     </script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/report-access.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof initReportPage === 'function') {
+                initReportPage({
+                    reportKey: 'cashflow-projection',
+                    reportTitle: 'Cashflow Projection Report'
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>

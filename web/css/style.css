@@ -45,6 +45,7 @@ body {
     top: 0;
     z-index: 100;
     box-shadow: var(--shadow-lg);
+    padding-top: max(1rem, env(safe-area-inset-top));
 }
 
 .header-content {
@@ -99,6 +100,11 @@ body {
 /* Turnaround Header Styling */
 .turnaround-header {
     background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+}
+
+/* Wellness Header Styling */
+.wellness-header {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
 .header-title-section {
@@ -210,7 +216,7 @@ body {
 .app-main {
     flex: 1;
     padding: 1.25rem;
-    padding-bottom: 5rem;
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
     max-width: 1200px;
     width: 100%;
     margin: 0 auto;
@@ -635,9 +641,15 @@ body {
 /* FAB */
 .fab-container {
     position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
+    bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    right: calc(1.5rem + env(safe-area-inset-right));
     z-index: 90;
+}
+
+@supports (height: 100dvh) {
+    .fab-container {
+        bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    }
 }
 
 .fab {
@@ -669,7 +681,7 @@ body {
     z-index: 200;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
+    padding: calc(1rem + env(safe-area-inset-top)) 1rem calc(1rem + env(safe-area-inset-bottom));
 }
 
 .modal.active {
@@ -722,8 +734,8 @@ body {
 .sidebar {
     position: fixed;
     top: 0;
-    left: -320px;
-    width: 320px;
+    left: calc(-1 * min(320px, 90vw));
+    width: min(320px, 90vw);
     height: 100vh;
     background: var(--bg-primary);
     box-shadow: var(--shadow-lg);
@@ -1751,6 +1763,9 @@ body {
     justify-content: center;
     z-index: 10000;
     backdrop-filter: blur(10px);
+    padding: calc(env(safe-area-inset-top, 1.5rem)) 1.5rem 1.5rem;
+    overflow-y: auto;
+    min-height: 100vh;
 }
 
 .login-modal {
@@ -1759,14 +1774,15 @@ body {
     border-radius: 12px;
     padding: 2rem;
     max-width: 500px;
-    width: 90%;
+    width: min(500px, 100%);
+    margin: 0 auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
 }
 
 .login-header {
     text-align: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
     border-bottom: 2px solid rgba(103, 58, 183, 0.3);
 }
 
@@ -1782,32 +1798,33 @@ body {
 }
 
 .login-mission {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%) !important;
-    border: 2px solid rgba(59, 130, 246, 0.8) !important;
-    border-radius: 10px;
+    background: linear-gradient(135deg, #4f8cff 0%, #8ab6ff 100%) !important;
+    border: 2px solid rgba(255, 255, 255, 0.25) !important;
+    border-radius: 12px;
     padding: 1.25rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5) !important;
+    margin-bottom: 1.25rem;
+    text-align: center !important;
+    box-shadow: 0 15px 40px rgba(15, 23, 42, 0.6) !important;
+    position: relative;
+    z-index: 10001;
 }
 
 .login-mission p {
-    color: #ffffff !important;
-    font-size: 1.1rem !important;
-    line-height: 1.6;
-    margin: 0;
+    color: #f4f7ff !important;
+    font-size: 1.05rem !important;
+    line-height: 1.7;
+    margin: 0 auto !important;
     font-weight: 600 !important;
-    letter-spacing: 0.02em;
-}
-
-.login-mission strong {
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5) !important;
+    letter-spacing: 0.015em;
+    text-align: center !important;
+    text-shadow: 0 4px 14px rgba(15, 23, 42, 0.45) !important;
+    position: relative;
+    z-index: 10002;
+    max-width: 100%;
 }
 
 .login-body {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 }
 
 .login-body label {
@@ -1920,6 +1937,78 @@ body {
     text-align: center;
     padding-top: 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 600px) {
+    .login-overlay {
+        padding: calc(env(safe-area-inset-top, 1rem)) 1rem 1rem;
+    }
+    .login-modal {
+        padding: 1.25rem;
+        border-radius: 10px;
+        border-width: 1px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .login-header {
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+    .login-header h2 {
+        font-size: 1.35rem;
+    }
+    .login-mission {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .login-mission p {
+        font-size: 0.95rem;
+    }
+    .login-body label {
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+    }
+    .login-select,
+    .login-input {
+        padding: 0.75rem;
+        margin-bottom: 0.85rem;
+    }
+    .login-btn {
+        padding: 0.85rem 1rem;
+        font-size: 1rem;
+    }
+    .login-footer {
+        padding-top: 1rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .login-modal {
+        padding: 1rem;
+    }
+    .login-mission {
+        padding: 0.9rem;
+        border-radius: 10px;
+    }
+    .login-mission p {
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    .login-select,
+    .login-input,
+    .login-btn {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-height: 720px) {
+    .login-overlay {
+        align-items: flex-start;
+    }
+    .login-modal {
+        margin-top: env(safe-area-inset-top, 1rem);
+        margin-bottom: 1.5rem;
+    }
 }
 
 .login-footer p {

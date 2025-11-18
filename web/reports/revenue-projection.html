@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
             margin: 2rem auto;
             padding: 2rem;
         }
+
         .report-header {
             background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             color: white;
@@ -18,24 +20,29 @@
             border-radius: 1rem;
             margin-bottom: 2rem;
         }
+
         .report-header h1 {
             margin: 0 0 0.5rem 0;
             font-size: 2rem;
         }
+
         .report-controls {
             display: flex;
             gap: 1rem;
             margin-top: 1rem;
             flex-wrap: wrap;
         }
-        .report-controls select, .report-controls input {
+
+        .report-controls select,
+        .report-controls input {
             padding: 0.5rem 1rem;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 0.5rem;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             font-size: 0.875rem;
         }
+
         .under-development {
             background: #fef3c7;
             border: 2px dashed #f59e0b;
@@ -44,35 +51,42 @@
             text-align: center;
             margin: 2rem 0;
         }
+
         .under-development h2 {
             color: #92400e;
             margin-bottom: 1rem;
         }
+
         .under-development p {
             color: #78350f;
             font-size: 1.125rem;
         }
+
         .placeholder-sections {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
             margin: 2rem 0;
         }
+
         .placeholder-card {
             background: white;
             border: 1px solid #e5e7eb;
             border-radius: 0.75rem;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
+
         .placeholder-card h3 {
             color: #1f2937;
             margin-bottom: 0.5rem;
         }
+
         .placeholder-card p {
             color: #6b7280;
             font-size: 0.875rem;
         }
+
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -88,110 +102,135 @@
             text-decoration: none;
             transition: all 0.2s;
         }
+
         .back-btn:hover {
             background: #1e40af;
             transform: translateY(-1px);
         }
+
         .stat-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
+
         .stat-card {
             background: white;
             border-radius: 0.75rem;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
+
         .stat-label {
             color: #6b7280;
             font-size: 0.875rem;
             margin-bottom: 0.5rem;
         }
+
         .stat-value {
             font-size: 2rem;
             font-weight: 700;
             color: #1f2937;
         }
+
         .stat-note {
             color: #9ca3af;
             font-size: 0.75rem;
             margin-top: 0.25rem;
         }
+
         .report-section {
             background: white;
             border-radius: 0.75rem;
             padding: 2rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
+
         .report-section h2 {
             margin: 0 0 1.5rem 0;
             color: #1f2937;
         }
+
         .data-table {
             width: 100%;
             border-collapse: collapse;
         }
-        .data-table th, .data-table td {
+
+        .data-table th,
+        .data-table td {
             padding: 0.75rem;
             text-align: right;
             border-bottom: 1px solid #e5e7eb;
         }
-        .data-table th:first-child, .data-table td:first-child {
+
+        .data-table th:first-child,
+        .data-table td:first-child {
             text-align: left;
         }
+
         .data-table th {
             background: #f9fafb;
             font-weight: 600;
             color: #1f2937;
         }
+
         .data-table .total {
             font-weight: 700;
             color: #2563eb;
         }
+
         .data-table .highlight {
             background: #eff6ff;
         }
+
         .data-table tfoot tr {
             background: #f3f4f6;
             font-weight: 700;
         }
+
         .project-breakdown {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
         }
+
         .project-card {
             background: #f9fafb;
             border-radius: 0.5rem;
             padding: 1.5rem;
         }
+
         .project-card h3 {
             margin: 0 0 1rem 0;
             color: #1f2937;
         }
+
         .project-stat {
             display: flex;
             justify-content: space-between;
             padding: 0.5rem 0;
             border-bottom: 1px solid #e5e7eb;
         }
+
         .project-stat:last-of-type {
             border-bottom: none;
         }
+
         .project-note {
             margin-top: 1rem;
             font-size: 0.875rem;
             color: #6b7280;
             font-style: italic;
         }
+
         .milestone-timeline {
             display: flex;
             flex-direction: column;
             gap: 1rem;
         }
+
         .milestone-item {
             display: flex;
             justify-content: space-between;
@@ -201,61 +240,74 @@
             border-radius: 0.5rem;
             border-left: 4px solid #2563eb;
         }
+
         .milestone-item.highlight {
             background: #eff6ff;
             border-left-color: #10b981;
         }
+
         .milestone-month {
             font-weight: 600;
             color: #1f2937;
         }
+
         .milestone-revenue {
             font-size: 1.25rem;
             font-weight: 700;
             color: #2563eb;
         }
+
         .milestone-note {
             color: #6b7280;
             font-size: 0.875rem;
         }
+
         .roi-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1.5rem;
         }
+
         .roi-card {
             background: #f9fafb;
             border-radius: 0.5rem;
             padding: 1.5rem;
             text-align: center;
         }
+
         .roi-card.success {
             background: #ecfdf5;
             border: 2px solid #10b981;
         }
+
         .roi-label {
             color: #6b7280;
             font-size: 0.875rem;
             margin-bottom: 0.5rem;
         }
+
         .roi-value {
             font-size: 2rem;
             font-weight: 700;
             color: #1f2937;
         }
+
         .roi-card.success .roi-value {
             color: #10b981;
         }
+
         .roi-breakdown {
             margin-top: 0.75rem;
             font-size: 0.75rem;
             color: #6b7280;
         }
+
         .roi-note {
             margin-top: 0.5rem;
             font-size: 0.75rem;
             color: #6b7280;
         }
+
         .breakdown-btn {
             margin-top: 1rem;
             padding: 0.5rem 1rem;
@@ -267,46 +319,55 @@
             cursor: pointer;
             transition: all 0.2s;
         }
+
         .breakdown-btn:hover {
             background: #1e40af;
             transform: translateY(-1px);
         }
+
         .investment-details {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
+
         .investment-card {
             background: #f9fafb;
             border-radius: 0.75rem;
             padding: 1.5rem;
             border-left: 4px solid #2563eb;
         }
+
         .investment-card.highlight {
             background: #ecfdf5;
             border-left-color: #10b981;
         }
+
         .investment-card h3 {
             margin: 0 0 1rem 0;
             color: #1f2937;
             font-size: 1.25rem;
         }
+
         .investment-amount {
             font-size: 1.5rem;
             font-weight: 700;
             color: #2563eb;
             margin-bottom: 1rem;
         }
+
         .investment-card.highlight .investment-amount {
             color: #10b981;
         }
+
         .investment-items {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
             margin-bottom: 1rem;
         }
+
         .investment-items .item {
             display: flex;
             justify-content: space-between;
@@ -316,14 +377,17 @@
             border-radius: 0.5rem;
             border: 1px solid #e5e7eb;
         }
+
         .item-name {
             font-weight: 500;
             color: #1f2937;
         }
+
         .item-cost {
             font-weight: 700;
             color: #2563eb;
         }
+
         .investment-note {
             margin-top: 1rem;
             padding: 1rem;
@@ -333,72 +397,149 @@
             color: #1f2937;
             border: 1px solid #e5e7eb;
         }
+
         .investment-summary {
             background: #f9fafb;
             border-radius: 0.75rem;
             padding: 2rem;
             border: 2px solid #2563eb;
         }
+
         .investment-summary h3 {
             margin: 0 0 1.5rem 0;
             color: #1f2937;
         }
+
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
+
         .summary-item {
             background: white;
             padding: 1rem;
             border-radius: 0.5rem;
             text-align: center;
         }
+
         .summary-item.success {
             background: #ecfdf5;
             border: 2px solid #10b981;
         }
+
         .summary-label {
             font-size: 0.875rem;
             color: #6b7280;
             margin-bottom: 0.5rem;
         }
+
         .summary-value {
             font-size: 1.5rem;
             font-weight: 700;
             color: #1f2937;
         }
+
         .summary-item.success .summary-value {
             color: #10b981;
         }
+
         .key-insights {
             background: white;
             padding: 1.5rem;
             border-radius: 0.5rem;
         }
+
         .key-insights h4 {
             margin: 0 0 1rem 0;
             color: #1f2937;
         }
+
         .key-insights ul {
             list-style: none;
             padding: 0;
             margin: 0;
         }
+
         .key-insights li {
             padding: 0.75rem 0;
             border-bottom: 1px solid #e5e7eb;
             line-height: 1.6;
         }
+
         .key-insights li:last-child {
             border-bottom: none;
         }
+
         .key-insights strong {
             color: #2563eb;
         }
+
+        .clickable-total {
+            color: #2563eb;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .clickable-total:focus {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
+
+        .revenue-breakdown-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .revenue-breakdown-modal.active {
+            display: flex;
+        }
+
+        .revenue-breakdown-card {
+            background: white;
+            max-width: 480px;
+            width: 90%;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.25);
+            position: relative;
+        }
+
+        .revenue-breakdown-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .revenue-breakdown-card ul {
+            padding-left: 1.25rem;
+            margin: 0 0 1rem 0;
+        }
+
+        .revenue-breakdown-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            position: absolute;
+            top: 1rem;
+            right: 1.25rem;
+            cursor: pointer;
+            color: #475569;
+        }
+
+        .revenue-breakdown-card footer {
+            font-size: 0.85rem;
+            color: #475569;
+        }
     </style>
 </head>
+
 <body>
     <div class="report-container">
         <div class="report-header">
@@ -413,7 +554,8 @@
                 </select>
                 <input type="date" id="date-from" placeholder="From Date">
                 <input type="date" id="date-to" placeholder="To Date">
-                <button class="back-btn" style="margin-left: auto;" onclick="window.history.back()">← Back to Project</button>
+                <button class="back-btn" style="margin-left: auto;" onclick="window.history.back()">← Back to
+                    Project</button>
             </div>
         </div>
 
@@ -455,24 +597,114 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>Jan 2026</td><td>R61,200</td><td>R35,200</td><td class="total">R96,400</td></tr>
-                        <tr><td>Feb 2026</td><td>R61,200</td><td>R86,000</td><td class="total">R147,200</td></tr>
-                        <tr><td>Mar 2026</td><td>R61,200</td><td>R141,200</td><td class="total">R202,400</td></tr>
-                        <tr><td>Apr 2026</td><td>R61,200</td><td>R202,200</td><td class="total">R263,400</td></tr>
-                        <tr><td>May 2026</td><td>R140,775</td><td>R266,600</td><td class="total">R407,375</td></tr>
-                        <tr><td>Jun 2026</td><td>R140,775</td><td>R312,800</td><td class="total">R453,575</td></tr>
-                        <tr><td>Jul 2026</td><td>R140,775</td><td>R378,000</td><td class="total">R518,775</td></tr>
-                        <tr><td>Aug 2026</td><td>R140,775</td><td>R423,200</td><td class="total">R563,975</td></tr>
-                        <tr><td>Sep 2026</td><td>R140,775</td><td>R475,400</td><td class="total">R616,175</td></tr>
-                        <tr><td>Oct 2026</td><td>R140,775</td><td>R509,600</td><td class="total">R650,375</td></tr>
-                        <tr><td>Nov 2026</td><td>R140,775</td><td>R541,400</td><td class="total">R682,175</td></tr>
-                        <tr class="highlight"><td><strong>Dec 2026</strong></td><td><strong>R500,200</strong></td><td><strong>R574,000</strong></td><td class="total"><strong>R1,074,200</strong></td></tr>
-                        <tr><td>Jan 2027</td><td>R500,200</td><td>R580,200</td><td class="total">R1,080,400</td></tr>
-                        <tr><td>Feb 2027</td><td>R256,300</td><td>R583,200</td><td class="total">R839,500</td></tr>
-                        <tr><td>Mar 2027</td><td>R256,300</td><td>R586,200</td><td class="total">R842,500</td></tr>
-                        <tr><td>Apr 2027</td><td>R256,300</td><td>R589,200</td><td class="total">R845,500</td></tr>
-                        <tr><td>May 2027</td><td>R256,300</td><td>R589,200</td><td class="total">R845,500</td></tr>
-                        <tr><td>Jun 2027</td><td>R256,300</td><td>R589,200</td><td class="total">R845,500</td></tr>
+                        <tr>
+                            <td>Jan 2026</td>
+                            <td>R61,200</td>
+                            <td>R35,200</td>
+                            <td class="total">R96,400</td>
+                        </tr>
+                        <tr>
+                            <td>Feb 2026</td>
+                            <td>R61,200</td>
+                            <td>R86,000</td>
+                            <td class="total">R147,200</td>
+                        </tr>
+                        <tr>
+                            <td>Mar 2026</td>
+                            <td>R61,200</td>
+                            <td>R141,200</td>
+                            <td class="total">R202,400</td>
+                        </tr>
+                        <tr>
+                            <td>Apr 2026</td>
+                            <td>R61,200</td>
+                            <td>R202,200</td>
+                            <td class="total">R263,400</td>
+                        </tr>
+                        <tr>
+                            <td>May 2026</td>
+                            <td>R140,775</td>
+                            <td>R266,600</td>
+                            <td class="total">R407,375</td>
+                        </tr>
+                        <tr>
+                            <td>Jun 2026</td>
+                            <td>R140,775</td>
+                            <td>R312,800</td>
+                            <td class="total">R453,575</td>
+                        </tr>
+                        <tr>
+                            <td>Jul 2026</td>
+                            <td>R140,775</td>
+                            <td>R378,000</td>
+                            <td class="total">R518,775</td>
+                        </tr>
+                        <tr>
+                            <td>Aug 2026</td>
+                            <td>R140,775</td>
+                            <td>R423,200</td>
+                            <td class="total">R563,975</td>
+                        </tr>
+                        <tr>
+                            <td>Sep 2026</td>
+                            <td>R140,775</td>
+                            <td>R475,400</td>
+                            <td class="total">R616,175</td>
+                        </tr>
+                        <tr>
+                            <td>Oct 2026</td>
+                            <td>R140,775</td>
+                            <td>R509,600</td>
+                            <td class="total">R650,375</td>
+                        </tr>
+                        <tr>
+                            <td>Nov 2026</td>
+                            <td>R140,775</td>
+                            <td>R541,400</td>
+                            <td class="total">R682,175</td>
+                        </tr>
+                        <tr class="highlight">
+                            <td><strong>Dec 2026</strong></td>
+                            <td><strong>R500,200</strong></td>
+                            <td><strong>R574,000</strong></td>
+                            <td class="total"><strong>R1,074,200</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Jan 2027</td>
+                            <td>R500,200</td>
+                            <td>R580,200</td>
+                            <td class="total">R1,080,400</td>
+                        </tr>
+                        <tr>
+                            <td>Feb 2027</td>
+                            <td>R256,300</td>
+                            <td>R583,200</td>
+                            <td class="total">R839,500</td>
+                        </tr>
+                        <tr>
+                            <td>Mar 2027</td>
+                            <td>R256,300</td>
+                            <td>R586,200</td>
+                            <td class="total">R842,500</td>
+                        </tr>
+                        <tr>
+                            <td>Apr 2027</td>
+                            <td>R256,300</td>
+                            <td>R589,200</td>
+                            <td class="total">R845,500</td>
+                        </tr>
+                        <tr>
+                            <td>May 2027</td>
+                            <td>R256,300</td>
+                            <td>R589,200</td>
+                            <td class="total">R845,500</td>
+                        </tr>
+                        <tr>
+                            <td>Jun 2027</td>
+                            <td>R256,300</td>
+                            <td>R589,200</td>
+                            <td class="total">R845,500</td>
+                        </tr>
                     </tbody>
                     <tfoot>
                         <tr class="summary">
@@ -500,7 +732,8 @@
                         <span class="stat-label">Monthly Equivalent:</span>
                         <span class="stat-value">R61,250</span>
                     </div>
-                    <p class="project-note">Cost avoidance, not direct revenue. Improves net margin on existing operations.</p>
+                    <p class="project-note">Cost avoidance, not direct revenue. Improves net margin on existing
+                        operations.</p>
                 </div>
 
                 <div class="project-card">
@@ -624,7 +857,8 @@
                             <span class="item-cost">R50,000</span>
                         </div>
                     </div>
-                    <p class="investment-note">⚡ <strong>Quick Win:</strong> Mostly cost restructuring - no major capital required. Focus on process optimization and compliance catch-up.</p>
+                    <p class="investment-note">⚡ <strong>Quick Win:</strong> Mostly cost restructuring - no major
+                        capital required. Focus on process optimization and compliance catch-up.</p>
                 </div>
 
                 <div class="investment-card">
@@ -656,7 +890,8 @@
                             <span class="item-cost">R30,000</span>
                         </div>
                     </div>
-                    <p class="investment-note">💡 <strong>Leverages existing:</strong> Uses current facility and staff as foundation. Investment focuses on upskilling and targeted enhancements.</p>
+                    <p class="investment-note">💡 <strong>Leverages existing:</strong> Uses current facility and staff
+                        as foundation. Investment focuses on upskilling and targeted enhancements.</p>
                 </div>
 
                 <div class="investment-card highlight">
@@ -692,7 +927,8 @@
                             <span class="item-cost">R130,000</span>
                         </div>
                     </div>
-                    <p class="investment-note">🎯 <strong>New Revenue Stream:</strong> Largest investment but creates entirely new business line with R589K/month sustained revenue by 2027.</p>
+                    <p class="investment-note">🎯 <strong>New Revenue Stream:</strong> Largest investment but creates
+                        entirely new business line with R589K/month sustained revenue by 2027.</p>
                 </div>
             </div>
 
@@ -720,46 +956,144 @@
                 <div class="key-insights">
                     <h4>💡 Key Investment Insights:</h4>
                     <ul>
-                        <li><strong>Phased Deployment:</strong> Investment staged over 6-12 months, not required upfront</li>
-                        <li><strong>Risk Mitigation:</strong> Turnaround (minimal cost) must succeed before committing to Wellness Centre</li>
-                        <li><strong>Revenue Validation:</strong> Diversification revenue (Month 5+) can fund Wellness Centre setup</li>
-                        <li><strong>Quick Payback:</strong> 7-month payback period means capital recovered by August 2026</li>
-                        <li><strong>Sustainable Model:</strong> By Month 12, generating R1M+/month to fund operations and growth</li>
-                        <li><strong>Asset Creation:</strong> Investment builds long-term business infrastructure, not just operational costs</li>
+                        <li><strong>Phased Deployment:</strong> Investment staged over 6-12 months, not required upfront
+                        </li>
+                        <li><strong>Risk Mitigation:</strong> Turnaround (minimal cost) must succeed before committing
+                            to Wellness Centre</li>
+                        <li><strong>Revenue Validation:</strong> Diversification revenue (Month 5+) can fund Wellness
+                            Centre setup</li>
+                        <li><strong>Quick Payback:</strong> 7-month payback period means capital recovered by August
+                            2026</li>
+                        <li><strong>Sustainable Model:</strong> By Month 12, generating R1M+/month to fund operations
+                            and growth</li>
+                        <li><strong>Asset Creation:</strong> Investment builds long-term business infrastructure, not
+                            just operational costs</li>
                     </ul>
                 </div>
             </div>
         </div>
 
-        </div>
+    </div>
 
-        <div style="text-align: center; margin-top: 3rem;">
-            <a href="javascript:window.history.back()" class="back-btn">← Return to Project Dashboard</a>
+    <div style="text-align: center; margin-top: 3rem;">
+        <a href="javascript:window.history.back()" class="back-btn">← Return to Project Dashboard</a>
+    </div>
+    </div>
+
+    <div class="revenue-breakdown-modal" id="revenue-breakdown-modal" aria-hidden="true" role="dialog"
+        aria-labelledby="revenue-breakdown-title">
+        <div class="revenue-breakdown-card">
+            <button class="revenue-breakdown-close" type="button" id="revenue-breakdown-close"
+                aria-label="Close breakdown">✕</button>
+            <h3 id="revenue-breakdown-title">Revenue Breakdown</h3>
+            <p id="revenue-breakdown-month" style="font-weight:600; color:#2563eb;"></p>
+            <ul>
+                <li><strong>Diversification:</strong> <span id="revenue-breakdown-diversification"></span></li>
+                <li><strong>Wellness Centre:</strong> <span id="revenue-breakdown-wellness"></span></li>
+                <li><strong>Combined Total:</strong> <span id="revenue-breakdown-total"></span></li>
+            </ul>
+            <footer id="revenue-breakdown-note"></footer>
         </div>
     </div>
-    
+
     <script src="../js/auth.js"></script>
     <script>
         // Initialize auth
         initAuth();
-        
+
         // Set default dates
         const today = new Date();
         const fromDate = new Date(2026, 0, 1); // Jan 1, 2026
         const toDate = new Date(2027, 5, 30); // Jun 30, 2027
-        
+
         document.getElementById('date-from').value = fromDate.toISOString().split('T')[0];
         document.getElementById('date-to').value = toDate.toISOString().split('T')[0];
-        
+
         // Log report view
         console.log('Revenue Projection Report viewed:', new Date().toISOString());
-        
+
         // Scroll to investment breakdown
-        window.showInvestmentBreakdown = function() {
+        window.showInvestmentBreakdown = function () {
             const breakdownSection = document.querySelector('.investment-details').parentElement;
             breakdownSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             breakdownSection.style.animation = 'highlight 1s ease';
         };
     </script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/report-access.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof initReportPage === 'function') {
+                initReportPage({
+                    reportKey: 'revenue-projection',
+                    reportTitle: 'Revenue Projection Report'
+                });
+            }
+            attachRevenueBreakdownHandlers();
+        });
+
+        function attachRevenueBreakdownHandlers() {
+            const table = document.querySelector('.data-table');
+            if (!table) return;
+            const modal = document.getElementById('revenue-breakdown-modal');
+            const closeBtn = document.getElementById('revenue-breakdown-close');
+            table.querySelectorAll('tbody tr').forEach(row => decorateTotalCell(row, 'Projected monthly revenue assuming the 60% success scenario.'));
+            const summaryRow = table.querySelector('tfoot tr');
+            if (summaryRow) {
+                decorateTotalCell(summaryRow, 'Total revenue generated over the 18-month plan (Diversification + Wellness).');
+            }
+            closeBtn?.addEventListener('click', () => toggleBreakdownModal(false));
+            modal?.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    toggleBreakdownModal(false);
+                }
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    toggleBreakdownModal(false);
+                }
+            });
+        }
+
+        function decorateTotalCell(row, note) {
+            const cells = row.querySelectorAll('td');
+            if (cells.length < 4) return;
+            const [monthCell, diversificationCell, wellnessCell, totalCell] = cells;
+            totalCell.classList.add('clickable-total');
+            totalCell.setAttribute('role', 'button');
+            totalCell.setAttribute('tabindex', '0');
+            totalCell.dataset.month = monthCell.textContent.trim();
+            totalCell.dataset.diversification = diversificationCell.textContent.trim();
+            totalCell.dataset.wellness = wellnessCell.textContent.trim();
+            totalCell.dataset.total = totalCell.textContent.trim();
+            totalCell.dataset.note = note;
+            totalCell.addEventListener('click', showRevenueBreakdown);
+            totalCell.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    showRevenueBreakdown(event);
+                }
+            });
+        }
+
+        function showRevenueBreakdown(event) {
+            const cell = event.currentTarget;
+            if (!cell) return;
+            document.getElementById('revenue-breakdown-month').textContent = cell.dataset.month;
+            document.getElementById('revenue-breakdown-diversification').textContent = `${cell.dataset.diversification} — Diversification programs (adolescent OP, adult groups, aftercare)`;
+            document.getElementById('revenue-breakdown-wellness').textContent = `${cell.dataset.wellness} — Wellness Centre streams (hybrid therapy, corporate packages, groups)`;
+            document.getElementById('revenue-breakdown-total').textContent = cell.dataset.total;
+            document.getElementById('revenue-breakdown-note').textContent = cell.dataset.note || '';
+            toggleBreakdownModal(true);
+        }
+
+        function toggleBreakdownModal(show) {
+            const modal = document.getElementById('revenue-breakdown-modal');
+            if (!modal) return;
+            modal.classList.toggle('active', show);
+            modal.setAttribute('aria-hidden', show ? 'false' : 'true');
+        }
+    </script>
 </body>
+
 </html>

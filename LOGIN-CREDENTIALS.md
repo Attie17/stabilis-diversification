@@ -10,6 +10,7 @@
 |------|------|----------|
 | Attie Nel | CEO & Project Manager | `attie2025` |
 | Nastasha Jacobs | Finance Manager | `natasha2025` |
+| Lydia Gittens | Medical Manager | `lydia2025` |
 | Berno Paul | Clinical Lead | `berno2025` |
 
 ---

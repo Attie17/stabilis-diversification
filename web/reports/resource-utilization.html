@@ -1,24 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Resource Utilization - Stabilis</title>
     <link rel="stylesheet" href="../css/style.css">
     <script src="../js/data.js"></script>
     <style>
-        .report-container { max-width: 1400px; margin: 2rem auto; padding: 2rem; }
-        .report-header { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; }
-        .back-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: white; color: #8b5cf6; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; text-decoration: none; }
-        .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
-        .team-card { background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .team-card h3 { margin: 0 0 1rem; color: #1f2937; font-size: 1.125rem; }
-        .workload-bar { height: 24px; background: #f3f4f6; border-radius: 0.5rem; overflow: hidden; margin-bottom: 0.5rem; }
-        .workload-fill { height: 100%; background: linear-gradient(90deg, #10b981, #3b82f6); display: flex; align-items: center; padding: 0 0.5rem; font-size: 0.75rem; color: white; font-weight: 600; }
-        .workload-fill.high { background: linear-gradient(90deg, #ef4444, #dc2626); }
-        .assignments { margin-top: 1rem; font-size: 0.875rem; color: #6b7280; }
-        .assignments strong { display: block; color: #1f2937; margin-bottom: 0.5rem; }
+        .report-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .report-header {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: white;
+            color: #8b5cf6;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .team-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-card h3 {
+            margin: 0 0 1rem;
+            color: #1f2937;
+            font-size: 1.125rem;
+        }
+
+        .workload-bar {
+            height: 24px;
+            background: #f3f4f6;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .workload-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            display: flex;
+            align-items: center;
+            padding: 0 0.5rem;
+            font-size: 0.75rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        .workload-fill.high {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        .assignments {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .assignments strong {
+            display: block;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
+
 <body>
     <div class="report-container">
         <div class="report-header">
@@ -36,7 +108,7 @@
 
         function renderTeamWorkload() {
             const grid = document.getElementById('teamGrid');
-            
+
             const teamWorkload = [
                 { name: 'CEO (Dr. X)', role: 'Strategic Oversight', utilization: 75, assignments: 'Strategic planning, Stakeholder engagement, Board reporting' },
                 { name: 'Project Manager', role: 'Project Coordination', utilization: 85, assignments: 'Timeline management, Risk mitigation, Resource allocation' },
@@ -68,5 +140,18 @@
 
         renderTeamWorkload();
     </script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/report-access.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof initReportPage === 'function') {
+                initReportPage({
+                    reportKey: 'resource-utilization',
+                    reportTitle: 'Resource Utilization Report'
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>

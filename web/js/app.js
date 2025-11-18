@@ -1,6 +1,29 @@
 // App State
 let currentView = 'dashboard';
 let currentRiskFilter = 'all';
+const QUICK_UPDATE_STORAGE_KEY = 'stabilis-diversification-updates';
+const REPORT_TITLES = {
+    'revenue-projection': 'Revenue Projection Report',
+    'cost-analysis': 'Cost Analysis Report',
+    'phase-progress': 'Phase Progress Report',
+    'risk-assessment': 'Risk Assessment Report',
+    'resource-utilization': 'Resource Utilization Report',
+    'kpi-dashboard-report': 'KPI Dashboard',
+    'timeline-analysis': 'Timeline Analysis Report',
+    'budget-actual': 'Budget vs Actual Report',
+    'cashflow-projection': 'Cashflow Projection Report'
+};
+const PROJECT_REPORT_ACCESS = {
+    'revenue-projection': ['Attie Nel', 'Nastasha Jacobs'],
+    'cost-analysis': ['Nastasha Jacobs', 'Attie Nel'],
+    'phase-progress': ['Attie Nel', 'Berno Paul', 'Lydia Gittens'],
+    'risk-assessment': ['Attie Nel', 'Berno Paul', 'Lydia Gittens'],
+    'resource-utilization': ['Attie Nel', 'Lydia Gittens'],
+    'kpi-dashboard-report': ['Attie Nel', 'Nastasha Jacobs', 'Berno Paul', 'Lydia Gittens'],
+    'timeline-analysis': ['Attie Nel'],
+    'budget-actual': ['Nastasha Jacobs', 'Attie Nel'],
+    'cashflow-projection': ['Nastasha Jacobs', 'Attie Nel']
+};
 
 // Utility Functions
 function formatCurrency(amount) {
@@ -15,6 +38,42 @@ function formatDate(dateString) {
     return date.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+function normalizeDateString(dateInput) {
+    const date = new Date(dateInput);
+    if (Number.isNaN(date.getTime())) return null;
+    return date.toISOString().split('T')[0];
+}
+
+function recalculatePhaseTimeline(phase) {
+    if (!phase || !Array.isArray(phase.milestones)) return;
+    const timestamps = phase.milestones
+        .map(m => new Date(m.due || m.dueDate))
+        .filter(date => !Number.isNaN(date.getTime()));
+    if (!timestamps.length) return;
+    const start = normalizeDateString(new Date(Math.min(...timestamps)));
+    const end = normalizeDateString(new Date(Math.max(...timestamps)));
+    if (start) phase.startDate = start;
+    if (end) phase.endDate = end;
+}
+
+function recalculateProjectTimeline() {
+    if (!projectData || !Array.isArray(projectData.phases)) return;
+    const startDates = projectData.phases
+        .map(p => new Date(p.startDate))
+        .filter(date => !Number.isNaN(date.getTime()));
+    const endDates = projectData.phases
+        .map(p => new Date(p.endDate))
+        .filter(date => !Number.isNaN(date.getTime()));
+    if (startDates.length) {
+        const overallStart = normalizeDateString(new Date(Math.min(...startDates)));
+        if (overallStart) projectData.startDate = overallStart;
+    }
+    if (endDates.length) {
+        const overallEnd = normalizeDateString(new Date(Math.max(...endDates)));
+        if (overallEnd) projectData.endDate = overallEnd;
+    }
+}
+
 function getDaysUntil(dateString) {
     const target = new Date(dateString);
     const today = new Date();
@@ -26,10 +85,10 @@ function getProjectProgress() {
     const start = new Date(projectData.startDate);
     const end = new Date(projectData.endDate);
     const today = new Date();
-    
+
     if (today < start) return 0;
     if (today > end) return 100;
-    
+
     const total = end - start;
     const elapsed = today - start;
     return Math.round((elapsed / total) * 100);
@@ -47,19 +106,19 @@ function getCurrentPhase() {
 function getMilestoneStatus() {
     let total = 0;
     let complete = 0;
-    
+
     projectData.phases.forEach(phase => {
         total += phase.milestones.length;
         complete += phase.milestones.filter(m => m.status === 'complete').length;
     });
-    
+
     return { total, complete };
 }
 
 function getUpcomingMilestones(limit = 5) {
     const today = new Date();
     const allMilestones = [];
-    
+
     projectData.phases.forEach(phase => {
         phase.milestones.forEach(milestone => {
             if (milestone.status !== 'complete') {
@@ -71,10 +130,86 @@ function getUpcomingMilestones(limit = 5) {
             }
         });
     });
-    
+
     return allMilestones
         .sort((a, b) => new Date(a.due) - new Date(b.due))
         .slice(0, limit);
+}
+
+function getSteeringMembers() {
+    return window.STEERING_COMMITTEE || [];
+}
+
+function isDeveloperUser() {
+    return currentUser && currentUser.name === 'Developer';
+}
+
+function ensureUserSession(actionLabel = 'this shortcut') {
+    if (currentUser) return true;
+    showModal('Sign In Required', `
+        <p>Please sign in to use ${actionLabel}.</p>
+        <p>The navigation stays hidden until an authenticated steering member is active.</p>
+    `);
+    return false;
+}
+
+function hasSteeringAccess() {
+    if (!currentUser) return false;
+    const steering = getSteeringMembers();
+    return steering.includes(currentUser.name) || isDeveloperUser();
+}
+
+function showSteeringOnlyModal(actionLabel = 'this area') {
+    const steering = getSteeringMembers();
+    const listMarkup = steering.length
+        ? `<ul style="margin-top:0.5rem;">${steering.map(name => `<li>${name}</li>`).join('')}</ul>`
+        : '';
+    showModal('Navigation Restricted', `
+        <h3>${actionLabel} is locked</h3>
+        <p>Only the steering committee may open multi-project navigation.</p>
+        ${listMarkup}
+        <p style="margin-top:0.75rem;">Compiled insights remain on the Executive Dashboard for these leaders.</p>
+    `);
+}
+
+function navigateToIfSteering(url, actionLabel) {
+    if (!ensureUserSession(actionLabel)) return;
+    if (!hasSteeringAccess()) {
+        showSteeringOnlyModal(actionLabel);
+        return;
+    }
+    window.location.href = url;
+}
+
+function ensureReportAccess(reportKey) {
+    if (!currentUser) return false;
+    if (hasSteeringAccess()) return true;
+    const allowed = PROJECT_REPORT_ACCESS[reportKey] || [];
+    return allowed.includes(currentUser.name);
+}
+
+function showReportAccessDenied(reportKey) {
+    const title = REPORT_TITLES[reportKey] || 'This report';
+    const allowed = PROJECT_REPORT_ACCESS[reportKey] || getSteeringMembers();
+    const listMarkup = allowed.length
+        ? `<ul style="margin-top:0.5rem;">${allowed.map(name => `<li>${name}</li>`).join('')}</ul>`
+        : '';
+    showModal('Access Restricted', `
+        <h3>${title}</h3>
+        <p>This is limited to the assigned owners for this project.</p>
+        ${listMarkup}
+        <p style="margin-top:0.75rem;">Cross-project, compiled reporting stays on the Executive Dashboard for the steering committee.</p>
+    `);
+}
+
+function handleReportNavigation(reportKey, url) {
+    const label = REPORT_TITLES[reportKey] || 'This report';
+    if (!ensureUserSession(label)) return;
+    if (!ensureReportAccess(reportKey)) {
+        showReportAccessDenied(reportKey);
+        return;
+    }
+    window.location.href = url;
 }
 
 // Render copilot buttons based on user access
@@ -93,8 +228,7 @@ function renderCopilotButtons() {
 function init() {
     // Initialize authentication first
     initAuth();
-    
-    loadMilestoneStatus();
+
     updateCountdown();
     updateDashboard();
     renderPhases();
@@ -102,7 +236,7 @@ function init() {
     renderRisks();
     renderTeam();
     bindEvents();
-    
+
     // Update countdown every minute
     setInterval(updateCountdown, 60000);
 }
@@ -110,7 +244,7 @@ function init() {
 function updateCountdown() {
     const daysUntil = getDaysUntil(projectData.startDate);
     const countdown = document.getElementById('countdown');
-    
+
     if (daysUntil > 0) {
         countdown.textContent = `Starts in ${daysUntil} days`;
     } else if (daysUntil === 0) {
@@ -126,21 +260,25 @@ function updateDashboard() {
     const progress = getProjectProgress();
     document.getElementById('progress-percent').textContent = `${progress}%`;
     document.getElementById('timeline-fill').style.width = `${progress}%`;
-    
+    const timelineStart = document.getElementById('timeline-start');
+    const timelineEnd = document.getElementById('timeline-end');
+    if (timelineStart) timelineStart.textContent = formatDate(projectData.startDate);
+    if (timelineEnd) timelineEnd.textContent = formatDate(projectData.endDate);
+
     // Milestones
     const { total, complete } = getMilestoneStatus();
     document.getElementById('milestones-done').textContent = `${complete}/${total}`;
-    
+
     // Risks
     const activeRisks = projectData.risks.filter(r => r.status === 'open').length;
     document.getElementById('active-risks').textContent = activeRisks;
-    
+
     // Current Phase
     const currentPhase = getCurrentPhase();
     const phaseComplete = currentPhase.milestones.filter(m => m.status === 'complete').length;
     const phaseTotal = currentPhase.milestones.length;
     const phaseProgress = Math.round((phaseComplete / phaseTotal) * 100);
-    
+
     document.getElementById('current-phase').innerHTML = `
         <div class="phase-badge">${currentPhase.id}</div>
         <h3>${currentPhase.name.replace(/Phase \d+ – /, '')}</h3>
@@ -152,7 +290,7 @@ function updateDashboard() {
             <span>${phaseComplete} of ${phaseTotal} milestones complete</span>
         </div>
     `;
-    
+
     // Next Milestones
     const upcoming = getUpcomingMilestones();
     const milestonesContainer = document.getElementById('next-milestones');
@@ -176,7 +314,7 @@ function renderPhases() {
         const complete = phase.milestones.filter(m => m.status === 'complete').length;
         const total = phase.milestones.length;
         const progress = Math.round((complete / total) * 100);
-        
+
         return `
             <div class="phase-card" data-phase-id="${phase.id}">
                 <div class="phase-header">
@@ -214,7 +352,7 @@ function renderPhases() {
                                        class="milestone-checkbox" 
                                        data-id="${m.id}" 
                                        ${m.status === 'complete' ? 'checked' : ''}
-                                       onclick="event.stopPropagation(); toggleMilestone('${m.id}')">
+                                       onclick="event.stopPropagation(); toggleMilestone('${m.id}', this)">
                                 <div class="milestone-info">
                                     <div class="milestone-title">
                                         <strong>${m.id}</strong> - ${m.title}
@@ -286,10 +424,10 @@ function renderPhases() {
 
 function renderRisks() {
     const container = document.getElementById('risk-list');
-    const filtered = currentRiskFilter === 'all' 
-        ? projectData.risks 
+    const filtered = currentRiskFilter === 'all'
+        ? projectData.risks
         : projectData.risks.filter(r => r.severity === currentRiskFilter);
-    
+
     container.innerHTML = filtered.map(risk => `
         <div class="risk-item ${risk.severity}" data-risk="${risk.id}">
             <div class="risk-header">
@@ -318,20 +456,20 @@ let currentOpenMilestone = null;
 let currentOpenNotes = null;
 let unsavedNotes = {};
 
-window.togglePhase = function(phaseId, event) {
+window.togglePhase = function (phaseId, event) {
     if (event) event.stopPropagation();
-    
+
     const phaseCard = document.querySelector(`[data-phase-id="${phaseId}"]`);
     const description = phaseCard.querySelector('.phase-description-section');
     const milestones = phaseCard.querySelector('.phase-milestones');
     const arrow = phaseCard.querySelector('.expand-btn');
-    
+
     // Toggle display
     const isOpen = description.style.display === 'block';
     description.style.display = isOpen ? 'none' : 'block';
     milestones.style.display = isOpen ? 'none' : 'block';
     arrow.textContent = isOpen ? '▼' : '▲';
-    
+
     // Close all milestone details when closing phase
     if (isOpen) {
         milestones.querySelectorAll('.milestone-details').forEach(d => d.style.display = 'none');
@@ -343,12 +481,12 @@ window.togglePhase = function(phaseId, event) {
     }
 };
 
-window.toggleMilestoneDetails = function(milestoneId, event) {
+window.toggleMilestoneDetails = function (milestoneId, event) {
     if (event) event.stopPropagation();
-    
+
     const milestoneCard = document.querySelector(`[data-milestone-id="${milestoneId}"]`);
     const details = milestoneCard.querySelector('.milestone-details');
-    
+
     // Close previous milestone if different
     if (currentOpenMilestone && currentOpenMilestone !== milestoneId) {
         const prevDetails = document.querySelector(`[data-milestone-details="${currentOpenMilestone}"]`);
@@ -356,12 +494,12 @@ window.toggleMilestoneDetails = function(milestoneId, event) {
             checkUnsavedAndClose(currentOpenMilestone, prevDetails);
         }
     }
-    
+
     // Toggle current
     const isOpen = details.style.display === 'block';
     details.style.display = isOpen ? 'none' : 'block';
     currentOpenMilestone = isOpen ? null : milestoneId;
-    
+
     // Close notes when closing milestone
     if (isOpen && currentOpenNotes === milestoneId) {
         document.getElementById(`notes-${milestoneId}`).style.display = 'none';
@@ -369,26 +507,26 @@ window.toggleMilestoneDetails = function(milestoneId, event) {
     }
 };
 
-window.toggleMilestoneNotes = function(milestoneId, event) {
+window.toggleMilestoneNotes = function (milestoneId, event) {
     if (event) event.stopPropagation();
-    
+
     const notesSection = document.getElementById(`notes-${milestoneId}`);
     const isOpen = notesSection.style.display === 'block';
-    
+
     notesSection.style.display = isOpen ? 'none' : 'block';
     currentOpenNotes = isOpen ? null : milestoneId;
 };
 
-window.toggleCopilot = function(milestoneId, event) {
+window.toggleCopilot = function (milestoneId, event) {
     if (event) event.stopPropagation();
-    
+
     const copilotSection = document.getElementById(`copilot-${milestoneId}`);
     const isOpen = copilotSection.style.display === 'block';
-    
+
     copilotSection.style.display = isOpen ? 'none' : 'block';
 };
 
-window.saveMilestoneNoteAndClose = function(milestoneId) {
+window.saveMilestoneNoteAndClose = function (milestoneId) {
     const textarea = document.getElementById(`note-text-${milestoneId}`);
     saveMilestoneNote(milestoneId, textarea.value);
     delete unsavedNotes[milestoneId];
@@ -469,11 +607,11 @@ function formatFileSize(bytes) {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
-window.triggerUpload = function(milestoneId) {
+window.triggerUpload = function (milestoneId) {
     document.getElementById(`upload-${milestoneId}`).click();
 };
 
-window.handleFileUpload = function(milestoneId, files) {
+window.handleFileUpload = function (milestoneId, files) {
     Array.from(files).forEach(file => {
         saveUpload(milestoneId, file.name, file.size);
     });
@@ -483,42 +621,7 @@ window.handleFileUpload = function(milestoneId, files) {
 
 // Milestone Toggle
 function toggleMilestone(milestoneId) {
-    // Find the milestone in the data
-    let found = false;
-    projectData.phases.forEach(phase => {
-        const milestone = phase.milestones.find(m => m.id === milestoneId);
-        if (milestone) {
-            milestone.status = milestone.status === 'complete' ? 'planned' : 'complete';
-            found = true;
-        }
-    });
-    
-    if (found) {
-        saveMilestoneStatus();
-        updateDashboard();
-        renderPhases();
-    }
-}
-
-function saveMilestoneStatus() {
-    const statuses = {};
-    projectData.phases.forEach(phase => {
-        phase.milestones.forEach(m => {
-            statuses[m.id] = m.status;
-        });
-    });
-    localStorage.setItem('stabilis-project-statuses', JSON.stringify(statuses));
-}
-
-function loadMilestoneStatus() {
-    const statuses = JSON.parse(localStorage.getItem('stabilis-project-statuses') || '{}');
-    projectData.phases.forEach(phase => {
-        phase.milestones.forEach(m => {
-            if (statuses[m.id]) {
-                m.status = statuses[m.id];
-            }
-        });
-    });
+    toggleMilestoneStatus(milestoneId);
 }
 
 function bindEvents() {
@@ -529,7 +632,7 @@ function bindEvents() {
             switchView(view);
         });
     });
-    
+
     // Risk filters
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -539,15 +642,13 @@ function bindEvents() {
             renderRisks();
         });
     });
-    
+
     // FAB
-    document.getElementById('add-update').addEventListener('click', () => {
-        showModal('Add Update', `
-            <p>Quick update feature coming soon!</p>
-            <p>Use this to log progress, mark milestones complete, or add notes.</p>
-        `);
-    });
-    
+    const addUpdateBtn = document.getElementById('add-update');
+    if (addUpdateBtn) {
+        addUpdateBtn.addEventListener('click', openQuickUpdateModal);
+    }
+
     // Modal close
     document.getElementById('modal-close').addEventListener('click', closeModal);
     document.getElementById('modal').addEventListener('click', (e) => {
@@ -555,14 +656,125 @@ function bindEvents() {
     });
 }
 
+function openQuickUpdateModal() {
+    const milestoneOptions = ['<option value="">General project update</option>']
+        .concat(projectData.phases.flatMap(phase =>
+            phase.milestones.map(m => `<option value="${m.id}">${m.id} — ${m.name}</option>`)
+        ));
+
+    const updates = getQuickUpdates();
+
+    showModal('Log Project Update', `
+        <form id="quick-update-form" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
+            <label style="display:flex;flex-direction:column;font-size:0.9rem;gap:0.35rem;">
+                <span>Milestone (optional)</span>
+                <select name="milestone" style="padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border-color);">
+                    ${milestoneOptions.join('')}
+                </select>
+            </label>
+            <label style="display:flex;flex-direction:column;font-size:0.9rem;gap:0.35rem;">
+                <span>Status</span>
+                <select name="status" style="padding:0.5rem;border-radius:0.5rem;border:1px solid var(--border-color);">
+                    <option value="on-track">On Track</option>
+                    <option value="watching">Watching</option>
+                    <option value="at-risk">At Risk</option>
+                    <option value="blocked">Blocked</option>
+                </select>
+            </label>
+            <label style="display:flex;flex-direction:column;font-size:0.9rem;gap:0.35rem;">
+                <span>Update Summary</span>
+                <textarea name="summary" rows="4" placeholder="Record decisions, blockers, or progress" style="padding:0.75rem;border-radius:0.75rem;border:1px solid var(--border-color);"></textarea>
+            </label>
+            <button type="submit" style="padding:0.75rem;border:none;border-radius:0.75rem;background:var(--primary);color:white;font-size:1rem;cursor:pointer;">Save Update</button>
+        </form>
+        <div id="quick-update-feedback" style="min-height:1.25rem;font-size:0.9rem;color:var(--success);"></div>
+        <div>
+            <h3 style="margin:0.5rem 0;">Recent Updates</h3>
+            <div id="quick-update-history" style="display:flex;flex-direction:column;gap:0.5rem;max-height:240px;overflow:auto;">
+                ${renderQuickUpdateHistory(updates)}
+            </div>
+        </div>
+    `);
+
+    requestAnimationFrame(() => {
+        document.getElementById('quick-update-form')?.addEventListener('submit', handleQuickUpdateSubmit);
+    });
+}
+
+function getQuickUpdates() {
+    try {
+        return JSON.parse(localStorage.getItem(QUICK_UPDATE_STORAGE_KEY)) || [];
+    } catch (error) {
+        console.warn('Failed to read quick updates', error);
+        return [];
+    }
+}
+
+function saveQuickUpdate(update) {
+    const updates = getQuickUpdates();
+    updates.unshift(update);
+    localStorage.setItem(QUICK_UPDATE_STORAGE_KEY, JSON.stringify(updates.slice(0, 25)));
+}
+
+function renderQuickUpdateHistory(updates) {
+    if (!updates || updates.length === 0) {
+        return '<p style="color:var(--text-muted);">No updates logged yet.</p>';
+    }
+    return updates.slice(0, 6).map(update => `
+        <div style="padding:0.75rem;border-radius:0.5rem;background:var(--bg-secondary);">
+            <div style="font-size:0.85rem;color:var(--text-muted);">${formatTimestamp(update.timestamp)} • ${update.user || 'Team Member'}</div>
+            <div style="font-weight:600;margin:0.25rem 0;">${(update.status || 'update').replace(/-/g, ' ')}</div>
+            <p style="margin:0;font-size:0.95rem;">${update.summary}</p>
+            ${update.milestoneId ? `<div style="font-size:0.8rem;color:var(--text-muted);">Milestone: ${update.milestoneId}</div>` : ''}
+        </div>
+    `).join('');
+}
+
+function handleQuickUpdateSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    const summary = form.summary.value.trim();
+
+    const feedback = document.getElementById('quick-update-feedback');
+
+    if (!summary) {
+        if (feedback) {
+            feedback.style.color = 'var(--danger)';
+            feedback.textContent = 'Please enter a short summary before saving.';
+        }
+        return;
+    }
+
+    const update = {
+        id: `UP-${Date.now()}`,
+        milestoneId: form.milestone.value || null,
+        status: form.status.value,
+        summary,
+        user: (typeof currentUser !== 'undefined' && currentUser?.name) ? currentUser.name : 'Team Member',
+        timestamp: new Date().toISOString()
+    };
+
+    saveQuickUpdate(update);
+    form.reset();
+    const historyContainer = document.getElementById('quick-update-history');
+    if (historyContainer) {
+        historyContainer.innerHTML = renderQuickUpdateHistory(getQuickUpdates());
+    }
+    if (feedback) {
+        feedback.style.color = 'var(--success)';
+        feedback.textContent = 'Update saved locally. Include it in your weekly export.';
+        setTimeout(() => feedback.textContent = '', 4000);
+    }
+}
+
 function switchView(view) {
     currentView = view;
-    
+
     // Update tabs
     document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.classList.toggle('active', tab.dataset.view === view);
     });
-    
+
     // Update views
     document.querySelectorAll('.view').forEach(v => {
         v.classList.toggle('active', v.id === `${view}-view`);
@@ -570,20 +782,26 @@ function switchView(view) {
 }
 
 function toggleMilestone(milestoneId) {
-    // Find and toggle milestone
+    toggleMilestoneStatus(milestoneId, true);
+}
+
+function toggleMilestoneStatus(milestoneId, refreshUI = false) {
+    let found = false;
     projectData.phases.forEach(phase => {
         const milestone = phase.milestones.find(m => m.id === milestoneId);
         if (milestone) {
             milestone.status = milestone.status === 'complete' ? 'planned' : 'complete';
-            
-            // Update UI
-            updateDashboard();
-            renderPhases();
-            
-            // Save to localStorage
-            saveToLocalStorage();
+            found = true;
         }
     });
+    if (!found) return;
+
+    saveMilestoneStatus();
+    if (refreshUI) {
+        updateDashboard();
+        renderPhases();
+        saveToLocalStorage();
+    }
 }
 
 function showModal(title, content) {
@@ -602,17 +820,33 @@ function saveToLocalStorage() {
 
 function loadFromLocalStorage() {
     const saved = localStorage.getItem('stabilis-project-data');
-    if (saved) {
-        const savedData = JSON.parse(saved);
-        // Merge saved milestone statuses
-        projectData.phases.forEach((phase, pi) => {
-            phase.milestones.forEach((milestone, mi) => {
-                if (savedData.phases[pi]?.milestones[mi]?.status) {
-                    milestone.status = savedData.phases[pi].milestones[mi].status;
-                }
-            });
+    if (!saved) return;
+    const savedData = JSON.parse(saved);
+    if (savedData.startDate) projectData.startDate = savedData.startDate;
+    if (savedData.endDate) projectData.endDate = savedData.endDate;
+    projectData.phases.forEach(phase => {
+        const savedPhase = savedData.phases?.find(sp => sp.id === phase.id);
+        if (!savedPhase) return;
+        if (savedPhase.startDate) phase.startDate = savedPhase.startDate;
+        if (savedPhase.endDate) phase.endDate = savedPhase.endDate;
+        phase.milestones.forEach(milestone => {
+            const savedMilestone = savedPhase.milestones?.find(sm => sm.id === milestone.id);
+            if (!savedMilestone) return;
+            if (savedMilestone.title) milestone.title = savedMilestone.title;
+            if (savedMilestone.owner) milestone.owner = savedMilestone.owner;
+            if (savedMilestone.description) milestone.description = savedMilestone.description;
+            if (savedMilestone.status) milestone.status = savedMilestone.status;
+            if (savedMilestone.priority) milestone.priority = savedMilestone.priority;
+            if (savedMilestone.notes) milestone.notes = savedMilestone.notes;
+            if (savedMilestone.due || savedMilestone.dueDate) {
+                milestone.due = savedMilestone.due || savedMilestone.dueDate;
+                milestone.dueDate = milestone.due;
+            }
+            if (Array.isArray(savedMilestone.changeLog)) {
+                milestone.changeLog = savedMilestone.changeLog;
+            }
         });
-    }
+    });
 }
 
 // Sidebar Functions
@@ -630,25 +864,29 @@ function closeSidebar() {
 
 function handleSidebarAction(action) {
     closeSidebar();
-    
+
     // Close all expanded sections when navigating
     document.querySelectorAll('.sidebar-section').forEach(s => {
         s.classList.remove('expanded');
     });
-    
-    switch(action) {
+
+    switch (action) {
         case 'home':
-            window.location.href = '/';
+            navigateToIfSteering('/', 'Project Hub navigation');
             break;
-            
+
         case 'switch-turnaround':
-            window.location.href = '/turnaround.html';
+            navigateToIfSteering('/turnaround.html', 'Turnaround workspace');
             break;
-            
+
         case 'switch-wellness':
-            window.location.href = '/wellness.html';
+            navigateToIfSteering('/wellness.html', 'Wellness workspace');
             break;
-            
+
+        case 'executive-dashboard':
+            navigateToIfSteering('/executive-dashboard.html', 'Executive Dashboard');
+            break;
+
         case 'quick-start':
             showModal('Quick Start Tutorial', `
                 <h3>Welcome to Stabilis Project Manager!</h3>
@@ -662,7 +900,7 @@ function handleSidebarAction(action) {
                 <p>Your progress is automatically saved in your browser.</p>
             `);
             break;
-            
+
         case 'mark-complete':
             showModal('How to Mark Milestones Complete', `
                 <h3>Marking Milestones Complete</h3>
@@ -674,7 +912,7 @@ function handleSidebarAction(action) {
                 <p><small>Note: Your changes are saved automatically to your device</small></p>
             `);
             break;
-            
+
         case 'progress-bars':
             showModal('Understanding Progress Bars', `
                 <h3>Progress Bar Guide</h3>
@@ -689,7 +927,7 @@ function handleSidebarAction(action) {
                 <p>The percentage (e.g., "50%") shows completion rate.</p>
             `);
             break;
-            
+
         case 'risk-levels':
             showModal('Reading Risk Levels', `
                 <h3>Risk Severity Levels</h3>
@@ -701,7 +939,7 @@ function handleSidebarAction(action) {
                 <p><strong>Filtering Risks:</strong> Tap the colored buttons at the top of the Risks tab to filter by severity.</p>
             `);
             break;
-            
+
         case 'gestures':
             showModal('Mobile Gestures Guide', `
                 <h3>Touch Gestures</h3>
@@ -712,7 +950,7 @@ function handleSidebarAction(action) {
                 <p><strong>Pull to Refresh:</strong> (Future) Will reload data from server</p>
             `);
             break;
-            
+
         case 'current-phase':
             switchView('phases');
             setTimeout(() => {
@@ -724,7 +962,7 @@ function handleSidebarAction(action) {
                 }
             }, 300);
             break;
-            
+
         case 'filter-tasks':
             showModal('Filter My Tasks', `
                 <h3>Filter by Role</h3>
@@ -743,12 +981,12 @@ function handleSidebarAction(action) {
                 <button onclick="applyRoleFilter()" style="width: 100%; padding: 0.75rem; background: var(--primary); color: white; border: none; border-radius: 0.5rem; font-size: 1rem; cursor: pointer;">Apply Filter</button>
             `);
             break;
-            
+
         case 'this-week':
             const today = new Date();
             const weekEnd = new Date(today);
             weekEnd.setDate(weekEnd.getDate() + 7);
-            
+
             let thisWeekMilestones = [];
             projectData.phases.forEach(phase => {
                 phase.milestones.forEach(milestone => {
@@ -758,8 +996,8 @@ function handleSidebarAction(action) {
                     }
                 });
             });
-            
-            const weekContent = thisWeekMilestones.length > 0 
+
+            const weekContent = thisWeekMilestones.length > 0
                 ? thisWeekMilestones.map(m => `
                     <div style="padding: 0.75rem; background: var(--bg-secondary); border-radius: 0.5rem; margin-bottom: 0.5rem;">
                         <strong>${m.id}</strong> - ${m.name}<br>
@@ -767,10 +1005,10 @@ function handleSidebarAction(action) {
                     </div>
                 `).join('')
                 : '<p>No milestones due this week.</p>';
-            
+
             showModal('This Week\'s Milestones', `<h3>Next 7 Days</h3>${weekContent}`);
             break;
-            
+
         case 'overdue':
             const now = new Date();
             let overdueMilestones = [];
@@ -783,8 +1021,8 @@ function handleSidebarAction(action) {
                     }
                 });
             });
-            
-            const overdueContent = overdueMilestones.length > 0 
+
+            const overdueContent = overdueMilestones.length > 0
                 ? overdueMilestones.map(m => `
                     <div style="padding: 0.75rem; background: var(--bg-secondary); border-left: 3px solid var(--danger); border-radius: 0.5rem; margin-bottom: 0.5rem;">
                         <strong>${m.id}</strong> - ${m.name}<br>
@@ -793,35 +1031,25 @@ function handleSidebarAction(action) {
                     </div>
                 `).join('')
                 : '<p style="color: var(--success);">✅ No overdue milestones!</p>';
-            
+
             showModal('Overdue Items', `<h3>⚠️ Requires Attention</h3>${overdueContent}`);
             break;
-        
+
         case 'edit-milestone':
             showEditMilestoneModal();
             break;
-            
+
         case 'export-report':
-            showModal('Export Weekly Report', `
-                <h3>Generate Report</h3>
-                <p>This feature will export a summary of:</p>
-                <ul>
-                    <li>Completed milestones this week</li>
-                    <li>Upcoming milestones</li>
-                    <li>Active risks</li>
-                    <li>Budget status</li>
-                </ul>
-                <p><em>Coming soon: PDF and email export options</em></p>
-            `);
+            exportWeeklyReport();
             break;
-            
+
         case 'toggle-theme':
             document.body.classList.toggle('dark-theme');
             const isDark = document.body.classList.contains('dark-theme');
             document.getElementById('theme-indicator').textContent = isDark ? '🌙' : '☀️';
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             break;
-            
+
         case 'notifications':
             showModal('Notification Preferences', `
                 <h3>Notifications</h3>
@@ -840,14 +1068,14 @@ function handleSidebarAction(action) {
                 <p><em>Note: Browser notifications require permission</em></p>
             `);
             break;
-            
+
         case 'clear-data':
             if (confirm('Clear all local progress data? This cannot be undone.')) {
                 localStorage.clear();
                 location.reload();
             }
             break;
-            
+
         case 'financial':
             const totalRevenue = projectData.phases.reduce((sum, phase) => sum + phase.revenue, 0);
             showModal('Financial Dashboard', `
@@ -864,7 +1092,7 @@ function handleSidebarAction(action) {
                 </div>
             `);
             break;
-            
+
         case 'overview':
             showModal('Project Overview', `
                 <h3>Stabilis Diversification Implementation</h3>
@@ -875,7 +1103,7 @@ function handleSidebarAction(action) {
                 <p><strong>Objective:</strong> Expand clinical services to include adolescent outpatient care, group therapy, and psychiatric services.</p>
             `);
             break;
-            
+
         case 'glossary':
             showModal('Glossary of Terms', `
                 <h3>Key Terms</h3>
@@ -900,7 +1128,7 @@ function handleSidebarAction(action) {
                 </dl>
             `);
             break;
-            
+
         case 'version':
             showModal('Version & Updates', `
                 <h3>App Version</h3>
@@ -915,62 +1143,53 @@ function handleSidebarAction(action) {
                 </ul>
             `);
             break;
-            
+
         case 'support':
-            showModal('Contact Support', `
-                <h3>Need Help?</h3>
-                <p><strong>Project Manager:</strong> CEO<br>
-                <strong>Technical Support:</strong> Administrative Officer</p>
-                <p>For urgent issues, contact your phase lead or escalate to the CEO.</p>
-                <p><em>See Team tab for full contact directory</em></p>
-            `);
+            showSupportModal();
             break;
-        
+
         // Report navigation
         case 'revenue-projection':
-            window.location.href = '/reports/revenue-projection.html';
+            handleReportNavigation('revenue-projection', '/reports/revenue-projection.html');
             break;
         case 'cost-analysis':
-            window.location.href = '/reports/cost-analysis.html';
+            handleReportNavigation('cost-analysis', '/reports/cost-analysis.html');
             break;
         case 'phase-progress':
-            window.location.href = '/reports/phase-progress.html';
+            handleReportNavigation('phase-progress', '/reports/phase-progress.html');
             break;
         case 'risk-assessment':
-            window.location.href = '/reports/risk-assessment.html';
+            handleReportNavigation('risk-assessment', '/reports/risk-assessment.html');
             break;
         case 'resource-utilization':
-            window.location.href = '/reports/resource-utilization.html';
+            handleReportNavigation('resource-utilization', '/reports/resource-utilization.html');
             break;
         case 'kpi-dashboard-report':
-            window.location.href = '/reports/kpi-dashboard.html';
+            handleReportNavigation('kpi-dashboard-report', '/reports/kpi-dashboard.html');
             break;
         case 'timeline-analysis':
-            window.location.href = '/reports/timeline-analysis.html';
+            handleReportNavigation('timeline-analysis', '/reports/timeline-analysis.html');
             break;
         case 'budget-actual':
-            window.location.href = '/reports/budget-actual.html';
+            handleReportNavigation('budget-actual', '/reports/budget-actual.html');
             break;
         case 'cashflow-projection':
-            window.location.href = '/reports/cashflow-projection.html';
+            handleReportNavigation('cashflow-projection', '/reports/cashflow-projection.html');
             break;
-            
+
         default:
-            showModal('Feature Coming Soon', `
-                <h3>${action}</h3>
-                <p>This feature is under development and will be available in a future update.</p>
-            `);
+            handleUnknownSidebarAction(action);
     }
 }
 
 // Helper function for role filtering
-window.applyRoleFilter = function() {
+window.applyRoleFilter = function () {
     const role = document.getElementById('role-filter').value;
     if (!role) return;
-    
+
     closeModal();
     switchView('phases');
-    
+
     setTimeout(() => {
         document.querySelectorAll('.milestone-item').forEach(item => {
             const owner = item.querySelector('.milestone-meta')?.textContent || '';
@@ -990,17 +1209,17 @@ function showEditMilestoneModal() {
     if (!currentUser || !canEditMilestones()) {
         showModal('Access Denied', `
             <h3>⚠️ Permission Required</h3>
-            <p>Only the following users can edit milestones:</p>
+            <p>Only the steering leads below can edit milestones:</p>
             <ul>
                 <li>Attie Nel (CEO/Project Manager)</li>
-                <li>Nastasha Jacobs (Finance Manager/Admin)</li>
-                <li>Karin Weideman (Operational Manager)</li>
+                <li>Nastasha Jacobs (Finance Manager)</li>
+                <li>Lydia Gittens (Medical Manager)</li>
             </ul>
             <p>Please contact one of these administrators if you need to make changes.</p>
         `);
         return;
     }
-    
+
     // Get all milestones
     let allMilestones = [];
     projectData.phases.forEach(phase => {
@@ -1012,14 +1231,14 @@ function showEditMilestoneModal() {
             });
         });
     });
-    
+
     // Get all team members
     const teamMembers = [];
     if (typeof teamRoles !== 'undefined') {
         teamRoles.admin.forEach(user => teamMembers.push(user.name));
         teamRoles.team.forEach(user => teamMembers.push(user.name));
     }
-    
+
     showModal('✏️ Edit Milestone', `
         <div class="edit-milestone-form">
             <div class="form-group">
@@ -1138,22 +1357,136 @@ function showEditMilestoneModal() {
     `);
 }
 
-window.loadMilestoneData = function() {
+function showSupportModal() {
+    showModal('Contact Support', `
+        <h3>Need Help?</h3>
+        <p><strong>Project Manager:</strong> CEO<br>
+        <strong>Technical Support:</strong> Administrative Officer</p>
+        <p>For urgent issues, contact your phase lead or escalate to the CEO.</p>
+        <p><em>See Team tab for full contact directory</em></p>
+    `);
+}
+
+function handleUnknownSidebarAction(actionName) {
+    const safeName = actionName || 'Unmapped Shortcut';
+    showModal('Action Assistant', `
+        <p>The shortcut <strong>${safeName}</strong> isn't mapped yet.</p>
+        <p>Select one of the options below to keep moving:</p>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem;">
+            <button id="fallback-log-update" style="flex:1;min-width:180px;padding:0.75rem;border:none;border-radius:0.75rem;background:var(--primary);color:white;font-weight:600;cursor:pointer;">Log a Project Update</button>
+            <button id="fallback-open-support" style="flex:1;min-width:180px;padding:0.75rem;border:1px solid var(--border-color);border-radius:0.75rem;background:var(--bg-secondary);cursor:pointer;">Open Support Directory</button>
+        </div>
+    `);
+
+    requestAnimationFrame(() => {
+        document.getElementById('fallback-log-update')?.addEventListener('click', openQuickUpdateModal);
+        document.getElementById('fallback-open-support')?.addEventListener('click', showSupportModal);
+    });
+}
+
+function formatTimestamp(value) {
+    if (!value) return 'Just now';
+    const date = new Date(value);
+    return date.toLocaleString('en-ZA', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function exportWeeklyReport() {
+    const report = buildWeeklyReportSummary();
+    const fileName = `stabilis-diversification-weekly-${new Date().toISOString().split('T')[0]}.txt`;
+    downloadTextFile(fileName, report);
+    showModal('Weekly Report Exported', `
+        <p>The latest summary was downloaded as <strong>${fileName}</strong>.</p>
+        <p style="font-size:0.875rem;color:var(--text-muted);">Share this file via email or upload it to your project workspace.</p>
+        <pre style="max-height:220px;overflow:auto;background:var(--bg-secondary);padding:1rem;border-radius:0.75rem;">${escapeHtml(report)}</pre>
+    `);
+}
+
+function buildWeeklyReportSummary() {
+    const today = new Date();
+    const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    const completed = [];
+    const upcoming = [];
+    const overdue = [];
+
+    projectData.phases.forEach(phase => {
+        phase.milestones.forEach(m => {
+            const dueDate = new Date(m.due || m.dueDate);
+            if (isNaN(dueDate)) return;
+            if (m.status === 'complete' && dueDate >= lastWeek && dueDate <= today) {
+                completed.push(`${m.id} - ${m.name} (${phase.name})`);
+            } else if (dueDate > today && dueDate <= nextWeek && m.status !== 'complete') {
+                upcoming.push(`${m.id} - ${m.name} (${phase.name}) due ${formatDate(m.dueDate || m.due)}`);
+            } else if (dueDate < today && m.status !== 'complete') {
+                overdue.push(`${m.id} - ${m.name} (${phase.name}) overdue by ${Math.abs(getDaysUntil(m.dueDate || m.due))} days`);
+            }
+        });
+    });
+
+    const riskSummary = (projectData.risks || []).map(risk => `${risk.id || risk.title}: ${risk.severity?.toUpperCase()} • Owner ${risk.owner || 'Unassigned'}`);
+    const status = getMilestoneStatus();
+
+    return [
+        'STABILIS WEEKLY SUMMARY',
+        `Generated: ${today.toLocaleString('en-ZA')}`,
+        '',
+        `Project: ${projectData.name || 'Diversification'}`,
+        `Timeline: ${formatDate(projectData.startDate)} – ${formatDate(projectData.endDate)}`,
+        '',
+        `Progress: ${status.complete}/${status.total} milestones complete`,
+        '',
+        'Completed (last 7 days):',
+        completed.length ? completed.map(line => ` • ${line}`).join('\n') : ' • None recorded',
+        '',
+        'Upcoming (next 7 days):',
+        upcoming.length ? upcoming.map(line => ` • ${line}`).join('\n') : ' • None scheduled',
+        '',
+        'Overdue items:',
+        overdue.length ? overdue.map(line => ` • ${line}`).join('\n') : ' • None 🎉',
+        '',
+        'Active risks:',
+        riskSummary.length ? riskSummary.map(line => ` • ${line}`).join('\n') : ' • No risks captured'
+    ].join('\n');
+}
+
+function downloadTextFile(fileName, content) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+function escapeHtml(text = '') {
+    return text.replace(/[&<>]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[char]));
+}
+
+window.loadMilestoneData = function () {
     const milestoneId = document.getElementById('select-milestone').value;
     if (!milestoneId) {
         document.getElementById('edit-milestone-fields').style.display = 'none';
         return;
     }
-    
+
     // Find the milestone
     let milestone = null;
     projectData.phases.forEach(phase => {
         const found = phase.milestones.find(m => m.id === milestoneId);
         if (found) milestone = found;
     });
-    
+
     if (!milestone) return;
-    
+
     // Show fields and populate with current data
     document.getElementById('edit-milestone-fields').style.display = 'block';
     document.getElementById('edit-person').value = milestone.owner || '';
@@ -1163,29 +1496,31 @@ window.loadMilestoneData = function() {
     document.getElementById('edit-notes').value = '';
 };
 
-window.saveMilestoneChanges = function() {
+window.saveMilestoneChanges = function () {
     const milestoneId = document.getElementById('select-milestone').value;
     if (!milestoneId) return;
-    
+
     const newOwner = document.getElementById('edit-person').value;
     const newDueDate = document.getElementById('edit-due-date').value;
     const newStatus = document.getElementById('edit-status').value;
     const newPriority = document.getElementById('edit-priority').value;
     const notes = document.getElementById('edit-notes').value;
-    
+
     // Find and update the milestone
     let updated = false;
+    let affectedPhase = null;
     projectData.phases.forEach(phase => {
         const milestone = phase.milestones.find(m => m.id === milestoneId);
         if (milestone) {
             if (newOwner) milestone.owner = newOwner;
             if (newDueDate) {
-                milestone.due = newDueDate;
-                milestone.dueDate = newDueDate;
+                const normalized = normalizeDateString(newDueDate) || newDueDate;
+                milestone.due = normalized;
+                milestone.dueDate = normalized;
             }
             if (newStatus) milestone.status = newStatus;
             if (newPriority) milestone.priority = newPriority;
-            
+
             // Store change log
             if (!milestone.changeLog) milestone.changeLog = [];
             milestone.changeLog.push({
@@ -1199,19 +1534,24 @@ window.saveMilestoneChanges = function() {
                 },
                 notes: notes
             });
-            
+
             updated = true;
+            affectedPhase = phase;
         }
     });
-    
+
     if (updated) {
+        if (affectedPhase) {
+            recalculatePhaseTimeline(affectedPhase);
+        }
+        recalculateProjectTimeline();
         // Save to localStorage
         saveToLocalStorage();
-        
+
         // Update UI
         updateDashboard();
         renderPhases();
-        
+
         // Show success message
         closeModal();
         setTimeout(() => {
@@ -1226,14 +1566,31 @@ window.saveMilestoneChanges = function() {
 
 function canEditMilestones() {
     if (!currentUser) return false;
-    
+
     // Check if user is in the admin list with edit permissions
-    const allowedUsers = ['Attie Nel', 'Nastasha Jacobs', 'Karin Weideman'];
+    const allowedUsers = ['Attie Nel', 'Nastasha Jacobs', 'Lydia Gittens'];
     return allowedUsers.includes(currentUser.name);
 }
 
 // Load saved data and initialize
 loadFromLocalStorage();
+
+window.addEventListener('storage', (event) => {
+    if (event.key === 'stabilis-project-data') {
+        loadFromLocalStorage();
+        updateDashboard();
+        renderPhases();
+    }
+});
+
+window.addEventListener('project-data-updated', (event) => {
+    if (!event.detail || event.detail.key !== 'stabilis-project-data') {
+        return;
+    }
+    loadFromLocalStorage();
+    updateDashboard();
+    renderPhases();
+});
 
 // Apply saved theme
 const savedTheme = localStorage.getItem('theme');
@@ -1243,12 +1600,12 @@ if (savedTheme === 'dark') {
 
 document.addEventListener('DOMContentLoaded', () => {
     init();
-    
+
     // Sidebar event listeners
     document.getElementById('menu-btn')?.addEventListener('click', toggleSidebar);
     document.getElementById('sidebar-close')?.addEventListener('click', closeSidebar);
     document.getElementById('sidebar-overlay')?.addEventListener('click', closeSidebar);
-    
+
     // Sidebar items
     document.querySelectorAll('.sidebar-item').forEach(item => {
         item.addEventListener('click', (e) => {
@@ -1256,42 +1613,42 @@ document.addEventListener('DOMContentLoaded', () => {
             if (action) handleSidebarAction(action);
         });
     });
-    
+
     // Sidebar section toggles
     document.querySelectorAll('.sidebar-section-title').forEach(title => {
         title.addEventListener('click', (e) => {
             const section = e.currentTarget.closest('.sidebar-section');
             const wasExpanded = section.classList.contains('expanded');
-            
+
             // Close all other sections
             document.querySelectorAll('.sidebar-section').forEach(s => {
                 s.classList.remove('expanded');
             });
-            
+
             // Toggle this section
             if (!wasExpanded) {
                 section.classList.add('expanded');
             }
         });
     });
-    
+
     // Update theme indicator
     if (savedTheme === 'dark' && document.getElementById('theme-indicator')) {
         document.getElementById('theme-indicator').textContent = '🌙';
     }
-    
+
     // Swipe to close sidebar (mobile)
     let touchStartX = 0;
     const sidebar = document.getElementById('sidebar');
-    
+
     sidebar?.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;
     });
-    
+
     sidebar?.addEventListener('touchmove', (e) => {
         const touchCurrentX = e.touches[0].clientX;
         const diff = touchStartX - touchCurrentX;
-        
+
         if (diff > 50) { // Swipe left
             closeSidebar();
         }

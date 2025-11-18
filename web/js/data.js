@@ -5,7 +5,7 @@ const projectData = {
     endDate: "2027-03-30",
     targetRevenue: 6169500,
     currentRevenue: 0,
-    
+
     phases: [
         {
             id: "P1",
@@ -49,7 +49,7 @@ const projectData = {
                 {
                     id: "P1-M5",
                     title: "Compliance Check",
-                    owner: "Clinical Admin",
+                    owner: "Medical Manager",
                     due: "2025-12-08",
                     status: "planned",
                     description: "Verify registrations/licences; confirm medical-aid panel docs"
@@ -197,7 +197,7 @@ const projectData = {
                 {
                     id: "P4-M4",
                     title: "Quality Audit",
-                    owner: "Clinical Lead",
+                    owner: "Medical Manager",
                     due: "2026-10-01",
                     status: "planned"
                 },
@@ -248,7 +248,7 @@ const projectData = {
             ]
         }
     ],
-    
+
     risks: [
         {
             id: "R-001",
@@ -301,7 +301,7 @@ const projectData = {
             status: "open"
         }
     ],
-    
+
     team: [
         {
             role: "CEO & Project Manager",
@@ -312,6 +312,11 @@ const projectData = {
             role: "Adult Clinical Lead",
             name: "Berno Paul",
             responsibilities: "Adult OP design, delivery, outcomes"
+        },
+        {
+            role: "Medical Manager",
+            name: "Lydia Gittens",
+            responsibilities: "Oversee patient care plans, coordinate substance testing, ensure medication adherence and admissions compliance"
         },
         {
             role: "Youth Lead",
@@ -340,3 +345,7 @@ const projectData = {
         }
     ]
 };
+
+if (typeof window !== 'undefined') {
+    window.projectData = projectData;
+}
