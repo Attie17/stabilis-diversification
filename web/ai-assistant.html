@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Executive Assistant - Diversification Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/ai-assistant.css">
+</head>
+<body>
+    <div class="ai-dashboard-container">
+        <!-- Header -->
+        <header class="ai-header">
+            <h1>🤖 AI Executive Assistant</h1>
+            <div class="system-status">
+                <span id="status-indicator" class="status-dot"></span>
+                <span id="status-text">Checking...</span>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="ai-grid">
+            <!-- Chat Interface -->
+            <section class="ai-chat-panel">
+                <h2>💬 Ask Me Anything</h2>
+                <div id="chat-messages" class="chat-messages"></div>
+                <div class="chat-input-container">
+                    <input 
+                        type="text" 
+                        id="chat-input" 
+                        placeholder="Ask about alerts, revenue, milestones, changes..."
+                        autocomplete="off"
+                    >
+                    <button id="chat-send" class="btn-primary">Send</button>
+                </div>
+                <div class="suggested-questions">
+                    <p><strong>Try asking:</strong></p>
+                    <button class="question-chip" data-question="What are the current critical alerts?">Current alerts</button>
+                    <button class="question-chip" data-question="Show me revenue projection for realistic scenario">Revenue projection</button>
+                    <button class="question-chip" data-question="What files changed recently?">Recent changes</button>
+                    <button class="question-chip" data-question="Which milestones are overdue?">Overdue milestones</button>
+                </div>
+            </section>
+
+            <!-- Alerts Widget -->
+            <section class="ai-widget alerts-widget">
+                <h3>🔔 Active Alerts</h3>
+                <div id="alerts-summary" class="widget-content">
+                    <div class="loading">Loading alerts...</div>
+                </div>
+                <button id="refresh-alerts" class="btn-secondary">Refresh</button>
+            </section>
+
+            <!-- Revenue Widget -->
+            <section class="ai-widget revenue-widget">
+                <h3>💰 Revenue Projection</h3>
+                <div id="revenue-summary" class="widget-content">
+                    <div class="loading">Loading revenue...</div>
+                </div>
+                <select id="scenario-selector" class="scenario-select">
+                    <option value="all">All Scenarios</option>
+                    <option value="optimistic">Optimistic (100%)</option>
+                    <option value="realistic" selected>Realistic (85%)</option>
+                    <option value="conservative">Conservative (60%)</option>
+                    <option value="minimum">Minimum (40%)</option>
+                </select>
+            </section>
+
+            <!-- Changes Widget -->
+            <section class="ai-widget changes-widget">
+                <h3>📝 Recent Changes</h3>
+                <div id="changes-summary" class="widget-content">
+                    <div class="loading">Loading changes...</div>
+                </div>
+                <button id="refresh-changes" class="btn-secondary">Refresh</button>
+            </section>
+
+            <!-- Dashboard Summary -->
+            <section class="ai-widget dashboard-widget">
+                <h3>📊 Quick Summary</h3>
+                <div id="dashboard-summary" class="widget-content">
+                    <div class="loading">Loading dashboard...</div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/ai-assistant-api.js"></script>
+    <script src="js/ai-assistant-ui.js"></script>
+</body>
+</html>
