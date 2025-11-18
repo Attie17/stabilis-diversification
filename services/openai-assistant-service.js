@@ -279,10 +279,12 @@ When asked about project status, revenue, or risks, use the custom functions to 
         const AlertService = require('./alert-service');
         const RevenueService = require('./revenue-service');
         const ChangeDetectionService = require('./change-detection-service');
+        const ExternalResearchService = require('./external-research-service');
 
         const alertService = new AlertService();
         const revenueService = new RevenueService();
         const changeService = new ChangeDetectionService();
+        const researchService = new ExternalResearchService();
 
         const outputs = [];
 
@@ -329,8 +331,9 @@ When asked about project status, revenue, or risks, use the custom functions to 
                         break;
 
                     case 'search_web':
-                        // Implement Tavily search if needed
-                        result = { message: 'Web search not yet implemented' };
+                        result = await researchService.search(args.query, {
+                            max_results: args.max_results || 5
+                        });
                         break;
 
                     default:
