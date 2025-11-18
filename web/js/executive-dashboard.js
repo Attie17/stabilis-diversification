@@ -946,8 +946,104 @@ function updateProjectsSection(turnaround, diversification, wellness) {
 // Refresh dashboard
 function refreshDashboard() {
     loadAllData();
+    loadAIAlerts(); // Load AI-generated alerts
     updateTimestamp();
 }
+
+// Load AI-generated alerts
+async function loadAIAlerts() {
+    try {
+        const response = await fetch('/api/ai/alerts');
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        
+        // Update alerts banner if there are critical alerts
+        if (data.summary.critical > 0) {
+            displayAlertsBanner(data.alerts);
+        }
+        
+        // Update critical items section
+        updateCriticalItemsWithAI(data.alerts);
+        
+    } catch (error) {
+        console.error('Failed to load AI alerts:', error);
+    }
+}
+
+// Display alerts banner
+function displayAlertsBanner(alerts) {
+    const banner = document.getElementById('alerts-banner');
+    if (!banner) return;
+    
+    const criticalAlerts = alerts.filter(a => a.severity === 'critical');
+    if (criticalAlerts.length === 0) {
+        banner.style.display = 'none';
+        return;
+    }
+    
+    banner.innerHTML = `
+        <div class="alert-banner-content">
+            <span class="alert-icon">🚨</span>
+            <span class="alert-text">
+                <strong>${criticalAlerts.length} Critical Alert${criticalAlerts.length > 1 ? 's' : ''}</strong>
+                - ${criticalAlerts[0].message}
+                ${criticalAlerts.length > 1 ? ` and ${criticalAlerts.length - 1} more...` : ''}
+            </span>
+            <button onclick="showSection('overview')" class="alert-view-btn">View Details</button>
+        </div>
+    `;
+    banner.style.display = 'flex';
+}
+
+// Update critical items with AI alerts
+function updateCriticalItemsWithAI(alerts) {
+    const container = document.getElementById('critical-items');
+    if (!container) return;
+    
+    const criticalAlerts = alerts.filter(a => a.severity === 'critical' || a.severity === 'warning');
+    
+    if (criticalAlerts.length === 0) {
+        container.innerHTML = '<div class="no-critical">✅ No critical items requiring attention</div>';
+        return;
+    }
+    
+    const alertsHTML = criticalAlerts.map(alert => {
+        const icon = alert.severity === 'critical' ? '🔴' : '⚠️';
+        const className = alert.severity === 'critical' ? 'critical-alert' : 'warning-alert';
+        
+        return `
+            <div class="critical-item ${className}">
+                <span class="critical-icon">${icon}</span>
+                <div class="critical-content">
+                    <div class="critical-title">${alert.type.replace('_', ' ').toUpperCase()}</div>
+                    <div class="critical-message">${alert.message}</div>
+                    ${alert.details ? `<div class="critical-details">${alert.details}</div>` : ''}
+                </div>
+                <button onclick="acknowledgeAlert('${alert.id}')" class="acknowledge-btn">Acknowledge</button>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = alertsHTML;
+}
+
+// Acknowledge alert
+async function acknowledgeAlert(alertId) {
+    try {
+        const response = await fetch(`/api/ai/alerts/${alertId}/acknowledge`, {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            loadAIAlerts(); // Refresh alerts
+        }
+    } catch (error) {
+        console.error('Failed to acknowledge alert:', error);
+    }
+}
+
+window.acknowledgeAlert = acknowledgeAlert;
 
 window.refreshDashboard = refreshDashboard;
 

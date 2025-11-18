@@ -9,6 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Turnaround - Stabilis</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/ai-chat-component.css">
 </head>
 
 <body>
@@ -265,13 +266,24 @@
             </div>
         </div>
     </div>
+    <!-- AI Chat Widget Container -->
+    <div id="ai-chat-container"></div>
 
     <script src="js/auth.js"></script>
     <script src="js/turnaround-data.js"></script>
     <script src="js/turnaround-copilot.js"></script>
     <script src="js/edit-milestone.js"></script>
     <script src="js/ai-copilot.js"></script>
+    <script src="js/ai-chat-component.js"></script>
     <script src="js/turnaround-app.js"></script>
+    <script>
+        // Initialize AI Chat Widget for Turnaround
+        document.addEventListener('DOMContentLoaded', () => {
+            new AIChatComponent('ai-chat-container', {
+                project: 'Turnaround'
+            });
+        });
+    </script>
 </body>
 
 </html>

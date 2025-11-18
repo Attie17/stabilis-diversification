@@ -9,6 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Wellness Centre - Stabilis</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/ai-chat-component.css">
 </head>
 
 <body>
@@ -252,13 +253,25 @@
         </footer>
     </div>
 
+    <!-- AI Chat Widget Container -->
+    <div id="ai-chat-container"></div>
+
     <!-- Scripts -->
     <script src="js/auth.js"></script>
     <script src="js/wellness-data.js"></script>
     <script src="js/wellness-copilot.js"></script>
     <script src="js/edit-milestone.js"></script>
     <script src="js/ai-copilot.js"></script>
+    <script src="js/ai-chat-component.js"></script>
     <script src="js/wellness-app.js"></script>
+    <script>
+        // Initialize AI Chat Widget for Wellness Centre
+        document.addEventListener('DOMContentLoaded', () => {
+            new AIChatComponent('ai-chat-container', {
+                project: 'Wellness Centre'
+            });
+        });
+    </script>
 </body>
 
 </html>
