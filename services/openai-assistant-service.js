@@ -169,6 +169,117 @@ When asked about project status, revenue, or risks, use the custom functions to 
                                 required: ["query"]
                             }
                         }
+                    },
+                    {
+                        type: "function",
+                        function: {
+                            name: "add_milestone",
+                            description: "Add a new milestone to a specific phase in the project",
+                            parameters: {
+                                type: "object",
+                                properties: {
+                                    project: {
+                                        type: "string",
+                                        enum: ["diversification", "turnaround", "wellness"],
+                                        description: "Which project to add the milestone to"
+                                    },
+                                    phase_id: {
+                                        type: "string",
+                                        description: "Phase ID (e.g., P1, P2, T1, W1)"
+                                    },
+                                    milestone: {
+                                        type: "object",
+                                        properties: {
+                                            id: {
+                                                type: "string",
+                                                description: "Milestone ID (e.g., P1-M7, T2-M5)"
+                                            },
+                                            title: {
+                                                type: "string",
+                                                description: "Milestone title"
+                                            },
+                                            description: {
+                                                type: "string",
+                                                description: "Detailed description"
+                                            },
+                                            owner: {
+                                                type: "string",
+                                                description: "Person responsible"
+                                            },
+                                            due: {
+                                                type: "string",
+                                                description: "Due date (YYYY-MM-DD format)"
+                                            },
+                                            status: {
+                                                type: "string",
+                                                enum: ["planned", "in_progress", "complete", "blocked"],
+                                                description: "Current status (default: planned)"
+                                            }
+                                        },
+                                        required: ["id", "title", "owner", "due"]
+                                    }
+                                },
+                                required: ["project", "phase_id", "milestone"]
+                            }
+                        }
+                    },
+                    {
+                        type: "function",
+                        function: {
+                            name: "edit_milestone",
+                            description: "Edit an existing milestone's properties",
+                            parameters: {
+                                type: "object",
+                                properties: {
+                                    project: {
+                                        type: "string",
+                                        enum: ["diversification", "turnaround", "wellness"],
+                                        description: "Which project the milestone belongs to"
+                                    },
+                                    milestone_id: {
+                                        type: "string",
+                                        description: "Milestone ID to edit (e.g., P1-M3, T2-M1)"
+                                    },
+                                    updates: {
+                                        type: "object",
+                                        properties: {
+                                            title: { type: "string" },
+                                            description: { type: "string" },
+                                            owner: { type: "string" },
+                                            due: { type: "string", description: "Due date (YYYY-MM-DD)" },
+                                            status: { 
+                                                type: "string",
+                                                enum: ["planned", "in_progress", "complete", "blocked"]
+                                            }
+                                        },
+                                        description: "Fields to update (only include changed fields)"
+                                    }
+                                },
+                                required: ["project", "milestone_id", "updates"]
+                            }
+                        }
+                    },
+                    {
+                        type: "function",
+                        function: {
+                            name: "delete_milestone",
+                            description: "Remove a milestone from a project phase",
+                            parameters: {
+                                type: "object",
+                                properties: {
+                                    project: {
+                                        type: "string",
+                                        enum: ["diversification", "turnaround", "wellness"],
+                                        description: "Which project the milestone belongs to"
+                                    },
+                                    milestone_id: {
+                                        type: "string",
+                                        description: "Milestone ID to delete (e.g., P1-M3)"
+                                    }
+                                },
+                                required: ["project", "milestone_id"]
+                            }
+                        }
                     }
                 ]
             });
@@ -280,11 +391,13 @@ When asked about project status, revenue, or risks, use the custom functions to 
         const RevenueService = require('./revenue-service');
         const ChangeDetectionService = require('./change-detection-service');
         const ExternalResearchService = require('./external-research-service');
+        const MilestoneService = require('./milestone-service');
 
         const alertService = new AlertService();
         const revenueService = new RevenueService();
         const changeService = new ChangeDetectionService();
         const researchService = new ExternalResearchService();
+        const milestoneService = new MilestoneService();
 
         const outputs = [];
 
@@ -334,6 +447,29 @@ When asked about project status, revenue, or risks, use the custom functions to 
                         result = await researchService.search(args.query, {
                             max_results: args.max_results || 5
                         });
+                        break;
+
+                    case 'add_milestone':
+                        result = await milestoneService.addMilestone(
+                            args.project,
+                            args.phase_id,
+                            args.milestone
+                        );
+                        break;
+
+                    case 'edit_milestone':
+                        result = await milestoneService.editMilestone(
+                            args.project,
+                            args.milestone_id,
+                            args.updates
+                        );
+                        break;
+
+                    case 'delete_milestone':
+                        result = await milestoneService.deleteMilestone(
+                            args.project,
+                            args.milestone_id
+                        );
                         break;
 
                     default:
