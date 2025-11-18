@@ -33,11 +33,19 @@ class OpenAIAssistantService {
             }
 
             if (existingAssistant) {
-                // Verify it exists
+                // Verify it exists and update with latest functions
                 try {
                     const assistant = await this.openai.beta.assistants.retrieve(existingAssistant);
                     this.assistantId = assistant.id;
-                    console.log(`✅ Retrieved existing assistant: ${assistant.name} (${assistant.id})`);
+                    console.log(`✅ Found existing assistant: ${assistant.name} (${assistant.id})`);
+                    console.log('🔄 Updating assistant with latest functions...');
+                    
+                    // Update assistant with new tools/functions
+                    await this.openai.beta.assistants.update(existingAssistant, {
+                        tools: this.getToolDefinitions()
+                    });
+                    
+                    console.log('✅ Assistant updated with latest capabilities');
                     return assistant;
                 } catch (error) {
                     console.log('⚠️  Stored assistant not found, creating new one...');
@@ -71,217 +79,7 @@ Always provide:
 
 When asked about project status, revenue, or risks, use the custom functions to fetch real-time data.`,
                 model: "gpt-4-turbo-preview",
-                tools: [
-                    { type: "code_interpreter" },
-                    { type: "file_search" },
-                    {
-                        type: "function",
-                        function: {
-                            name: "get_active_alerts",
-                            description: "Get current active alerts (deadlines, overdue tasks, revenue variance, risks, inactivity)",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    severity: {
-                                        type: "string",
-                                        enum: ["critical", "warning", "info"],
-                                        description: "Filter by severity level (optional)"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    {
-                        type: "function",
-                        function: {
-                            name: "get_revenue_projection",
-                            description: "Get comprehensive revenue projection across all scenarios and service lines",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    scenario: {
-                                        type: "string",
-                                        enum: ["optimistic", "realistic", "conservative", "minimum", "all"],
-                                        description: "Which scenario to return (default: all)"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    {
-                        type: "function",
-                        function: {
-                            name: "get_milestone_status",
-                            description: "Get detailed status of milestones, including completion rates and phase progress",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    phase_id: {
-                                        type: "string",
-                                        description: "Filter by specific phase (optional)"
-                                    },
-                                    status: {
-                                        type: "string",
-                                        enum: ["not_started", "in_progress", "completed", "blocked"],
-                                        description: "Filter by status (optional)"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    {
-                        type: "function",
-                        function: {
-                            name: "get_recent_changes",
-                            description: "Get recent file changes, modifications, and milestone updates",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    limit: {
-                                        type: "number",
-                                        description: "Number of recent changes to return (default: 20)"
-                                    },
-                                    file_path: {
-                                        type: "string",
-                                        description: "Filter by specific file path (optional)"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    {
-                        type: "function",
-                        function: {
-                            name: "search_web",
-                            description: "Search the web for external information, competitor analysis, industry trends, or business intelligence",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    query: {
-                                        type: "string",
-                                        description: "Search query"
-                                    },
-                                    max_results: {
-                                        type: "number",
-                                        description: "Maximum number of results (default: 5)"
-                                    }
-                                },
-                                required: ["query"]
-                            }
-                        }
-                    },
-                    {
-                        type: "function",
-                        function: {
-                            name: "add_milestone",
-                            description: "Add a new milestone to a specific phase in the project",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    project: {
-                                        type: "string",
-                                        enum: ["diversification", "turnaround", "wellness"],
-                                        description: "Which project to add the milestone to"
-                                    },
-                                    phase_id: {
-                                        type: "string",
-                                        description: "Phase ID (e.g., P1, P2, T1, W1)"
-                                    },
-                                    milestone: {
-                                        type: "object",
-                                        properties: {
-                                            id: {
-                                                type: "string",
-                                                description: "Milestone ID (e.g., P1-M7, T2-M5)"
-                                            },
-                                            title: {
-                                                type: "string",
-                                                description: "Milestone title"
-                                            },
-                                            description: {
-                                                type: "string",
-                                                description: "Detailed description"
-                                            },
-                                            owner: {
-                                                type: "string",
-                                                description: "Person responsible"
-                                            },
-                                            due: {
-                                                type: "string",
-                                                description: "Due date (YYYY-MM-DD format)"
-                                            },
-                                            status: {
-                                                type: "string",
-                                                enum: ["planned", "in_progress", "complete", "blocked"],
-                                                description: "Current status (default: planned)"
-                                            }
-                                        },
-                                        required: ["id", "title", "owner", "due"]
-                                    }
-                                },
-                                required: ["project", "phase_id", "milestone"]
-                            }
-                        }
-                    },
-                    {
-                        type: "function",
-                        function: {
-                            name: "edit_milestone",
-                            description: "Edit an existing milestone's properties",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    project: {
-                                        type: "string",
-                                        enum: ["diversification", "turnaround", "wellness"],
-                                        description: "Which project the milestone belongs to"
-                                    },
-                                    milestone_id: {
-                                        type: "string",
-                                        description: "Milestone ID to edit (e.g., P1-M3, T2-M1)"
-                                    },
-                                    updates: {
-                                        type: "object",
-                                        properties: {
-                                            title: { type: "string" },
-                                            description: { type: "string" },
-                                            owner: { type: "string" },
-                                            due: { type: "string", description: "Due date (YYYY-MM-DD)" },
-                                            status: { 
-                                                type: "string",
-                                                enum: ["planned", "in_progress", "complete", "blocked"]
-                                            }
-                                        },
-                                        description: "Fields to update (only include changed fields)"
-                                    }
-                                },
-                                required: ["project", "milestone_id", "updates"]
-                            }
-                        }
-                    },
-                    {
-                        type: "function",
-                        function: {
-                            name: "delete_milestone",
-                            description: "Remove a milestone from a project phase",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    project: {
-                                        type: "string",
-                                        enum: ["diversification", "turnaround", "wellness"],
-                                        description: "Which project the milestone belongs to"
-                                    },
-                                    milestone_id: {
-                                        type: "string",
-                                        description: "Milestone ID to delete (e.g., P1-M3)"
-                                    }
-                                },
-                                required: ["project", "milestone_id"]
-                            }
-                        }
-                    }
-                ]
+                tools: this.getToolDefinitions()
             });
 
             this.assistantId = assistant.id;
@@ -299,6 +97,221 @@ When asked about project status, revenue, or risks, use the custom functions to 
             console.error('❌ Error initializing assistant:', error.message);
             throw error;
         }
+    }
+
+    // Get tool definitions (extracted for reuse in create and update)
+    getToolDefinitions() {
+        return [
+            { type: "code_interpreter" },
+            { type: "file_search" },
+            {
+                type: "function",
+                function: {
+                    name: "get_active_alerts",
+                    description: "Get current active alerts (deadlines, overdue tasks, revenue variance, risks, inactivity)",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            severity: {
+                                type: "string",
+                                enum: ["critical", "warning", "info"],
+                                description: "Filter by severity level (optional)"
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                type: "function",
+                function: {
+                    name: "get_revenue_projection",
+                    description: "Get comprehensive revenue projection across all scenarios and service lines",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            scenario: {
+                                type: "string",
+                                enum: ["optimistic", "realistic", "conservative", "minimum", "all"],
+                                description: "Which scenario to return (default: all)"
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                type: "function",
+                function: {
+                    name: "get_milestone_status",
+                    description: "Get detailed status of milestones, including completion rates and phase progress",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            phase_id: {
+                                type: "string",
+                                description: "Filter by specific phase (optional)"
+                            },
+                            status: {
+                                type: "string",
+                                enum: ["not_started", "in_progress", "completed", "blocked"],
+                                description: "Filter by status (optional)"
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                type: "function",
+                function: {
+                    name: "get_recent_changes",
+                    description: "Get recent file changes, modifications, and milestone updates",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            limit: {
+                                type: "number",
+                                description: "Number of recent changes to return (default: 20)"
+                            },
+                            file_path: {
+                                type: "string",
+                                description: "Filter by specific file path (optional)"
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                type: "function",
+                function: {
+                    name: "search_web",
+                    description: "Search the web for external information, competitor analysis, industry trends, or business intelligence",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            query: {
+                                type: "string",
+                                description: "Search query"
+                            },
+                            max_results: {
+                                type: "number",
+                                description: "Maximum number of results (default: 5)"
+                            }
+                        },
+                        required: ["query"]
+                    }
+                }
+            },
+            {
+                type: "function",
+                function: {
+                    name: "add_milestone",
+                    description: "Add a new milestone to a specific phase in the project",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            project: {
+                                type: "string",
+                                enum: ["diversification", "turnaround", "wellness"],
+                                description: "Which project to add the milestone to"
+                            },
+                            phase_id: {
+                                type: "string",
+                                description: "Phase ID (e.g., P1, P2, T1, W1)"
+                            },
+                            milestone: {
+                                type: "object",
+                                properties: {
+                                    id: {
+                                        type: "string",
+                                        description: "Milestone ID (e.g., P1-M7, T2-M5)"
+                                    },
+                                    title: {
+                                        type: "string",
+                                        description: "Milestone title"
+                                    },
+                                    description: {
+                                        type: "string",
+                                        description: "Detailed description"
+                                    },
+                                    owner: {
+                                        type: "string",
+                                        description: "Person responsible"
+                                    },
+                                    due: {
+                                        type: "string",
+                                        description: "Due date (YYYY-MM-DD format)"
+                                    },
+                                    status: {
+                                        type: "string",
+                                        enum: ["planned", "in_progress", "complete", "blocked"],
+                                        description: "Current status (default: planned)"
+                                    }
+                                },
+                                required: ["id", "title", "owner", "due"]
+                            }
+                        },
+                        required: ["project", "phase_id", "milestone"]
+                    }
+                }
+            },
+            {
+                type: "function",
+                function: {
+                    name: "edit_milestone",
+                    description: "Edit an existing milestone's properties",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            project: {
+                                type: "string",
+                                enum: ["diversification", "turnaround", "wellness"],
+                                description: "Which project the milestone belongs to"
+                            },
+                            milestone_id: {
+                                type: "string",
+                                description: "Milestone ID to edit (e.g., P1-M3, T2-M1)"
+                            },
+                            updates: {
+                                type: "object",
+                                properties: {
+                                    title: { type: "string" },
+                                    description: { type: "string" },
+                                    owner: { type: "string" },
+                                    due: { type: "string", description: "Due date (YYYY-MM-DD)" },
+                                    status: { 
+                                        type: "string",
+                                        enum: ["planned", "in_progress", "complete", "blocked"]
+                                    }
+                                },
+                                description: "Fields to update (only include changed fields)"
+                            }
+                        },
+                        required: ["project", "milestone_id", "updates"]
+                    }
+                }
+            },
+            {
+                type: "function",
+                function: {
+                    name: "delete_milestone",
+                    description: "Remove a milestone from a project phase",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            project: {
+                                type: "string",
+                                enum: ["diversification", "turnaround", "wellness"],
+                                description: "Which project the milestone belongs to"
+                            },
+                            milestone_id: {
+                                type: "string",
+                                description: "Milestone ID to delete (e.g., P1-M3)"
+                            }
+                        },
+                        required: ["project", "milestone_id"]
+                    }
+                }
+            }
+        ];
     }
 
     // Create conversation thread
