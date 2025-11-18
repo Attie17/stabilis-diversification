@@ -1,55 +1,38 @@
 {
   "version": 2,
-  "builds": [
+  "outputDirectory": "web",
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "web"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/health",
-      "dest": "/api/health.js"
+      "source": "/api/health",
+      "destination": "/api/health"
     },
     {
-      "src": "/api/chat",
-      "dest": "/api/chat.js",
-      "methods": ["POST"]
+      "source": "/api/chat",
+      "destination": "/api/chat"
     },
     {
-      "src": "/api/dashboard",
-      "dest": "/api/dashboard.js"
+      "source": "/api/dashboard",
+      "destination": "/api/dashboard"
     },
     {
-      "src": "/api/ai/(.*)",
-      "dest": "/api/$1.js"
+      "source": "/",
+      "destination": "/web/landing.html"
     },
     {
-      "src": "/",
-      "dest": "/web/landing.html"
+      "source": "/executive",
+      "destination": "/web/executive-dashboard.html"
     },
     {
-      "src": "/executive",
-      "dest": "/web/executive-dashboard.html"
+      "source": "/diversification",
+      "destination": "/web/index.html"
     },
     {
-      "src": "/diversification",
-      "dest": "/web/index.html"
+      "source": "/turnaround",
+      "destination": "/web/turnaround.html"
     },
     {
-      "src": "/turnaround",
-      "dest": "/web/turnaround.html"
-    },
-    {
-      "src": "/wellness",
-      "dest": "/web/wellness.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/web/$1"
+      "source": "/wellness",
+      "destination": "/web/wellness.html"
     }
   ],
   "functions": {
@@ -57,8 +40,5 @@
       "memory": 1024,
       "maxDuration": 10
     }
-  },
-  "env": {
-    "NODE_ENV": "production"
   }
 }
