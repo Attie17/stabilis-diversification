@@ -1,5 +1,5 @@
 // Vercel Serverless Function - AI Chat Endpoint
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai');
 
 module.exports = async (req, res) => {
     // Only allow POST requests
@@ -18,17 +18,16 @@ module.exports = async (req, res) => {
         if (!process.env.OPENAI_API_KEY) {
             return res.status(500).json({ 
                 error: 'OpenAI API key not configured',
-                message: 'Please add OPENAI_API_KEY to Vercel environment variables'
+                response: '⚠️ AI features are not configured. Please add OPENAI_API_KEY to environment variables in Vercel dashboard.'
             });
         }
 
-        const configuration = new Configuration({
+        const openai = new OpenAI({
             apiKey: process.env.OPENAI_API_KEY,
         });
-        const openai = new OpenAIApi(configuration);
 
         // Simple chat completion (non-streaming)
-        const completion = await openai.createChatCompletion({
+        const completion = await openai.chat.completions.create({
             model: 'gpt-4-turbo-preview',
             messages: [
                 {
@@ -44,7 +43,7 @@ Provide helpful, concise answers about:
 - Risk management
 - Revenue projections
 
-Always be professional, data-driven, and actionable.`
+Always be professional, data-driven, and actionable. Format responses with markdown for better readability.`
                 },
                 {
                     role: 'user',
@@ -55,11 +54,12 @@ Always be professional, data-driven, and actionable.`
             max_tokens: 1000
         });
 
-        const reply = completion.data.choices[0].message.content;
+        const reply = completion.choices[0].message.content;
 
         res.status(200).json({
             success: true,
-            message: reply,
+            response: reply,
+            message: reply,  // Backward compatibility
             context: context,
             timestamp: new Date().toISOString()
         });
@@ -68,6 +68,7 @@ Always be professional, data-driven, and actionable.`
         console.error('OpenAI Error:', error.message);
         res.status(500).json({
             error: 'Failed to get AI response',
+            response: `❌ Error: ${error.message}. Please check your OpenAI API configuration.`,
             details: error.message
         });
     }

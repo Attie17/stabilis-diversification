@@ -124,33 +124,48 @@ class AIChatComponent {
                 contextualMessage = `[Context: ${this.context.project} project] ${message}`;
             }
             
+            // Determine API endpoint (Vercel uses /api/chat, local uses /api/ai/chat)
+            const apiEndpoint = window.location.hostname.includes('vercel.app') || 
+                               window.location.hostname.includes('stabiliswellness.pro') || 
+                               window.location.hostname.includes('stabilisstrategy.app')
+                ? '/api/chat'  // Vercel serverless function
+                : '/api/ai/chat';  // Local server
+            
             // Send to AI
-            const response = await fetch('/api/ai/chat', {
+            const response = await fetch(apiEndpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     message: contextualMessage,
-                    thread_id: this.threadId
+                    thread_id: this.threadId,
+                    context: this.context.project || 'General'
                 })
             });
             
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status}`);
+            }
+            
             const data = await response.json();
             
-            // Store thread ID for conversation continuity
-            this.threadId = data.thread_id;
+            // Store thread ID for conversation continuity (local server only)
+            if (data.thread_id) {
+                this.threadId = data.thread_id;
+            }
             
             // Remove typing indicator
             this.hideTyping();
             
             // Add AI response to UI
-            this.addMessage('assistant', data.response);
+            const aiResponse = data.response || data.message || 'No response received';
+            this.addMessage('assistant', aiResponse);
             
         } catch (error) {
             console.error('AI Chat error:', error);
             this.hideTyping();
-            this.addMessage('assistant', '❌ Sorry, I encountered an error. Please try again.');
+            this.addMessage('assistant', '❌ Sorry, I encountered an error. Please try again. Make sure the server is running and OpenAI API key is configured.');
         }
         
         this.isTyping = false;
