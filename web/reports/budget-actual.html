@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Budget vs Actual - Stabilis</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/ai-chat-component.css">
     <style>
         .report-container {
             max-width: 1400px;
@@ -368,6 +369,15 @@
             modal.classList.remove('active');
             modal.setAttribute('aria-hidden', 'true');
         }
+    </script>
+    <script src="../js/ai-chat-component.js"></script>
+    <script>
+        // Initialize AI Chat Widget
+        document.addEventListener('DOMContentLoaded', () => {
+            new AIChatComponent('ai-chat-container', {
+                project: 'Budget vs Actual Report'
+            });
+        });
     </script>
 </body>
 

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Cost Analysis - Stabilis</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/ai-chat-component.css">
     <style>
         .report-container {
             max-width: 1400px;
@@ -160,6 +161,15 @@
                     reportTitle: 'Cost Analysis Report'
                 });
             }
+        });
+    </script>
+    <script src="../js/ai-chat-component.js"></script>
+    <script>
+        // Initialize AI Chat Widget
+        document.addEventListener('DOMContentLoaded', () => {
+            new AIChatComponent('ai-chat-container', {
+                project: 'Cost Analysis Report'
+            });
         });
     </script>
 </body>

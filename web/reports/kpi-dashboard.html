@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>KPI Dashboard - Stabilis</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/ai-chat-component.css">
     <script src="../js/data.js"></script>
     <style>
         .report-container {
@@ -185,6 +186,15 @@
                     reportTitle: 'KPI Dashboard'
                 });
             }
+        });
+    </script>
+    <script src="../js/ai-chat-component.js"></script>
+    <script>
+        // Initialize AI Chat Widget
+        document.addEventListener('DOMContentLoaded', () => {
+            new AIChatComponent('ai-chat-container', {
+                project: 'KPI Dashboard Report'
+            });
         });
     </script>
 </body>

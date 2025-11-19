@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timeline Analysis - Stabilis</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/ai-chat-component.css">
     <style>
         .report-container {
             max-width: 1600px;
@@ -330,6 +331,15 @@
                     reportTitle: 'Timeline Analysis Report'
                 });
             }
+        });
+    </script>
+    <script src="../js/ai-chat-component.js"></script>
+    <script>
+        // Initialize AI Chat Widget
+        document.addEventListener('DOMContentLoaded', () => {
+            new AIChatComponent('ai-chat-container', {
+                project: 'Timeline Analysis Report'
+            });
         });
     </script>
 </body>
