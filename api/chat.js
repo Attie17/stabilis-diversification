@@ -24,11 +24,12 @@ module.exports = async (req, res) => {
 
         const openai = new OpenAI({
             apiKey: process.env.OPENAI_API_KEY,
+            timeout: 8000, // 8 second timeout (Vercel has 10s limit)
         });
 
-        // Simple chat completion (non-streaming)
+        // Simple chat completion with faster model
         const completion = await openai.chat.completions.create({
-            model: 'gpt-4-turbo-preview',
+            model: 'gpt-3.5-turbo', // Faster than gpt-4-turbo
             messages: [
                 {
                     role: 'system',
@@ -51,7 +52,7 @@ Always be professional, data-driven, and actionable. Format responses with markd
                 }
             ],
             temperature: 0.7,
-            max_tokens: 1000
+            max_tokens: 500 // Reduced for faster response
         });
 
         const reply = completion.choices[0].message.content;
