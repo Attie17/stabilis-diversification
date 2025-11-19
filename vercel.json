@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "buildCommand": "echo 'No build needed'",
   "outputDirectory": "web",
   "rewrites": [
     {
@@ -16,23 +17,23 @@
     },
     {
       "source": "/",
-      "destination": "/web/landing.html"
+      "destination": "/landing.html"
     },
     {
       "source": "/executive",
-      "destination": "/web/executive-dashboard.html"
+      "destination": "/executive-dashboard.html"
     },
     {
       "source": "/diversification",
-      "destination": "/web/index.html"
+      "destination": "/index.html"
     },
     {
       "source": "/turnaround",
-      "destination": "/web/turnaround.html"
+      "destination": "/turnaround.html"
     },
     {
       "source": "/wellness",
-      "destination": "/web/wellness.html"
+      "destination": "/wellness.html"
     }
   ],
   "functions": {
