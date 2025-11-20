@@ -226,6 +226,7 @@ function renderCopilotButtons() {
             const container = document.getElementById(`copilot-btn-${m.id}`);
             if (container) {
                 container.innerHTML = getCopilotButton(m.id, 'diversification');
+                console.log(`Rendered copilot button for ${m.id}`);
             } else {
                 console.warn(`Copilot container not found for ${m.id}`);
             }
