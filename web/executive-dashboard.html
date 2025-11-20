@@ -24,8 +24,7 @@
                 <a href="landing.html?stay=1" class="view-project-btn" title="Return to Landing">🏠 Project Hub</a>
                 <button class="reports-menu-trigger" onclick="openReportsMenu()"
                     title="Reports &amp; Analytics quick menu">📑 Reports &amp; Analytics</button>
-                <button onclick="openExcelFile()" class="excel-edit-btn" title="Edit project data in Excel">📊 Edit Data
-                    in Excel</button>
+                <button onclick="openExcelFile()" class="excel-edit-btn" title="Download Excel data file">📊 Download Excel Data</button>
                 <button onclick="showEditMilestoneModal()" class="edit-milestone-btn"
                     title="Edit any project milestone">✏️ Edit Milestone</button>
                 <button onclick="refreshDashboard()" class="refresh-btn" title="Refresh Data">🔄</button>
@@ -239,22 +238,25 @@
     <script src="js/ai-chat-component.js"></script>
     <script src="js/executive-dashboard.js"></script>
     <script>
-        // Open Excel file for editing
+        // Download Excel file for editing
         async function openExcelFile() {
             try {
-                // Call server endpoint to open Excel file
-                const response = await fetch('/api/open-excel');
-                const result = await response.json();
+                // Create download link for Excel file
+                const link = document.createElement('a');
+                link.href = '/data/stabilis-data.xlsx';
+                link.download = 'stabilis-data.xlsx';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
 
-                if (result.success) {
-                    // Show instruction modal after Excel opens
+                // Show instructions after download starts
+                setTimeout(() => {
                     showExcelInstructions();
-                } else {
-                    alert('Could not open Excel file. Please open manually from:\nC:\\Diversification\\data\\stabilis-data.xlsx');
-                }
+                }, 500);
             } catch (error) {
-                console.error('Error opening Excel:', error);
-                alert('Could not open Excel file. Please open manually from:\nC:\\Diversification\\data\\stabilis-data.xlsx');
+                console.error('Error downloading Excel:', error);
+                alert('Could not download Excel file. Please download manually from: /data/stabilis-data.xlsx');
             }
         }
 
