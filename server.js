@@ -231,6 +231,31 @@ app.get('/api/ai/dashboard', async (req, res) => {
     }
 });
 
+// ===== UTILITY API ROUTES =====
+
+// Open Excel file endpoint (for local development)
+app.get('/api/open-excel', (req, res) => {
+    const { exec } = require('child_process');
+    const excelPath = path.join(__dirname, 'data', 'stabilis-data.xlsx');
+    const command = `powershell -Command "Start-Process '${excelPath}'"`;
+
+    exec(command, (error) => {
+        if (error) {
+            console.error('Error opening Excel:', error);
+            return res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Excel file opened successfully',
+            path: excelPath
+        });
+    });
+});
+
 // ===== FRONTEND ROUTES =====
 
 // Landing page as root (BEFORE static middleware)

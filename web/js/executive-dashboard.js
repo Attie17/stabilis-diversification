@@ -10,7 +10,9 @@ const REPORT_DEFINITIONS = [
     { key: 'kpi-dashboard-report', title: 'KPI Dashboard', description: 'Executive KPIs with trajectory deltas.', icon: '📊', path: '/reports/kpi-dashboard.html' },
     { key: 'timeline-analysis', title: 'Timeline Analysis', description: 'Cross-project schedule performance.', icon: '⏱️', path: '/reports/timeline-analysis.html' },
     { key: 'budget-actual', title: 'Budget vs Actual', description: 'Variance tracker and burn-rate outlook.', icon: '🧾', path: '/reports/budget-actual.html' },
-    { key: 'cashflow-projection', title: 'Cashflow Projection', description: 'Liquidity and runway forecast.', icon: '💵', path: '/reports/cashflow-projection.html' }
+    { key: 'cashflow-projection', title: 'Cashflow Projection', description: 'Liquidity and runway forecast.', icon: '💵', path: '/reports/cashflow-projection.html' },
+    { key: 'budget-q1-2026', title: 'Budget Q1 2026', description: 'Dec 2025 - Mar 2026 crisis turnaround & launch budget.', icon: '📊', path: '/reports/budget-q1-2026.html' },
+    { key: 'budget-fy-2026-27', title: 'Budget FY 2026-27', description: 'Apr 2026 - Mar 2027 full-year growth budget.', icon: '📊', path: '/reports/budget-fy-2026-27.html' }
 ];
 
 let reportsOverlayListenersBound = false;
@@ -955,17 +957,17 @@ async function loadAIAlerts() {
     try {
         const response = await fetch('/api/ai/alerts');
         if (!response.ok) return;
-        
+
         const data = await response.json();
-        
+
         // Update alerts banner if there are critical alerts
         if (data.summary.critical > 0) {
             displayAlertsBanner(data.alerts);
         }
-        
+
         // Update critical items section
         updateCriticalItemsWithAI(data.alerts);
-        
+
     } catch (error) {
         console.error('Failed to load AI alerts:', error);
     }
@@ -975,13 +977,13 @@ async function loadAIAlerts() {
 function displayAlertsBanner(alerts) {
     const banner = document.getElementById('alerts-banner');
     if (!banner) return;
-    
+
     const criticalAlerts = alerts.filter(a => a.severity === 'critical');
     if (criticalAlerts.length === 0) {
         banner.style.display = 'none';
         return;
     }
-    
+
     banner.innerHTML = `
         <div class="alert-banner-content">
             <span class="alert-icon">🚨</span>
@@ -1000,18 +1002,18 @@ function displayAlertsBanner(alerts) {
 function updateCriticalItemsWithAI(alerts) {
     const container = document.getElementById('critical-items');
     if (!container) return;
-    
+
     const criticalAlerts = alerts.filter(a => a.severity === 'critical' || a.severity === 'warning');
-    
+
     if (criticalAlerts.length === 0) {
         container.innerHTML = '<div class="no-critical">✅ No critical items requiring attention</div>';
         return;
     }
-    
+
     const alertsHTML = criticalAlerts.map(alert => {
         const icon = alert.severity === 'critical' ? '🔴' : '⚠️';
         const className = alert.severity === 'critical' ? 'critical-alert' : 'warning-alert';
-        
+
         return `
             <div class="critical-item ${className}">
                 <span class="critical-icon">${icon}</span>
@@ -1024,7 +1026,7 @@ function updateCriticalItemsWithAI(alerts) {
             </div>
         `;
     }).join('');
-    
+
     container.innerHTML = alertsHTML;
 }
 
@@ -1034,7 +1036,7 @@ async function acknowledgeAlert(alertId) {
         const response = await fetch(`/api/ai/alerts/${alertId}/acknowledge`, {
             method: 'POST'
         });
-        
+
         if (response.ok) {
             loadAIAlerts(); // Refresh alerts
         }

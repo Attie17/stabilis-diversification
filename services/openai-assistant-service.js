@@ -39,12 +39,12 @@ class OpenAIAssistantService {
                     this.assistantId = assistant.id;
                     console.log(`✅ Found existing assistant: ${assistant.name} (${assistant.id})`);
                     console.log('🔄 Updating assistant with latest functions...');
-                    
+
                     // Update assistant with new tools/functions
                     await this.openai.beta.assistants.update(existingAssistant, {
                         tools: this.getToolDefinitions()
                     });
-                    
+
                     console.log('✅ Assistant updated with latest capabilities');
                     return assistant;
                 } catch (error) {
@@ -277,7 +277,7 @@ When asked about project status, revenue, or risks, use the custom functions to 
                                     description: { type: "string" },
                                     owner: { type: "string" },
                                     due: { type: "string", description: "Due date (YYYY-MM-DD)" },
-                                    status: { 
+                                    status: {
                                         type: "string",
                                         enum: ["planned", "in_progress", "complete", "blocked"]
                                     }

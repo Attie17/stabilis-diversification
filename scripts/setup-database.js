@@ -20,15 +20,15 @@ function loadProjectData() {
 
 async function syncMilestones() {
     console.log('🔄 Syncing milestones to Supabase...\n');
-    
+
     try {
         // Load all three project data sources
         const diversificationData = require('../web/js/data.js');
         const turnaroundData = require('../web/js/turnaround-data.js');
         const wellnessData = require('../web/js/wellness-data.js');
-        
+
         const allMilestones = [];
-        
+
         // Extract Diversification milestones
         if (diversificationData && diversificationData.phases) {
             diversificationData.phases.forEach(phase => {
@@ -47,7 +47,7 @@ async function syncMilestones() {
                 });
             });
         }
-        
+
         // Extract Turnaround milestones
         if (turnaroundData && turnaroundData.phases) {
             turnaroundData.phases.forEach(phase => {
@@ -66,7 +66,7 @@ async function syncMilestones() {
                 });
             });
         }
-        
+
         // Extract Wellness milestones
         if (wellnessData && wellnessData.phases) {
             wellnessData.phases.forEach(phase => {
@@ -85,22 +85,22 @@ async function syncMilestones() {
                 });
             });
         }
-        
+
         console.log(`📦 Loaded ${allMilestones.length} milestones from static files`);
-        
+
         // Upsert to Supabase
         const { data, error } = await supabase
             .from('milestones')
             .upsert(allMilestones, { onConflict: 'id' });
-        
+
         if (error) {
             console.error('❌ Error syncing milestones:', error);
             throw error;
         }
-        
+
         console.log(`✅ Successfully synced ${allMilestones.length} milestones to Supabase\n`);
         return allMilestones.length;
-        
+
     } catch (error) {
         console.error('❌ Sync failed:', error.message);
         throw error;
@@ -109,7 +109,7 @@ async function syncMilestones() {
 
 async function syncLocalStorageNotes() {
     console.log('📝 Checking for localStorage notes to sync...\n');
-    
+
     // This will be implemented when we have a way to read localStorage from Node
     // For now, notes will be synced when user interacts with the web app
     console.log('ℹ️  LocalStorage sync will happen on first web app load\n');
@@ -117,9 +117,9 @@ async function syncLocalStorageNotes() {
 
 async function runInitialSetup() {
     console.log('🚀 Starting Stabilis AI Assistant Database Setup\n');
-    console.log('=' .repeat(60));
+    console.log('='.repeat(60));
     console.log('\n');
-    
+
     try {
         // Test connection
         console.log('🔌 Testing Supabase connection...');
@@ -127,29 +127,29 @@ async function runInitialSetup() {
             .from('milestones')
             .select('count')
             .limit(1);
-        
+
         if (error && !error.message.includes('does not exist')) {
             throw new Error(`Connection failed: ${error.message}`);
         }
-        
+
         console.log('✅ Supabase connection successful\n');
-        
+
         // Sync milestones
         const milestonesCount = await syncMilestones();
-        
+
         // Check localStorage
         await syncLocalStorageNotes();
-        
+
         // Summary
-        console.log('=' .repeat(60));
+        console.log('='.repeat(60));
         console.log('\n✨ Database setup complete!\n');
         console.log(`📊 Stats:`);
         console.log(`   - Milestones synced: ${milestonesCount}`);
         console.log(`   - Database: ${process.env.SUPABASE_URL}`);
         console.log('\n🎯 Next: Run OpenAI Assistant setup\n');
-        
+
         return { success: true, milestonesCount };
-        
+
     } catch (error) {
         console.error('\n❌ Setup failed:', error.message);
         console.error('\nPlease check:');

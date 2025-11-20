@@ -15,13 +15,13 @@ async function executeSQL(sql) {
         },
         body: JSON.stringify({ query: sql })
     });
-    
+
     return response;
 }
 
 async function createAllTables() {
     console.log('🔨 Creating tables directly via API...\n');
-    
+
     // Since we can't use RPC without it being set up, let's use HTTP REST API
     const createMilestones = await fetch(`${SUPABASE_URL}/rest/v1/milestones`, {
         method: 'POST',
@@ -38,7 +38,7 @@ async function createAllTables() {
             status: 'planned'
         })
     });
-    
+
     if (createMilestones.status === 404) {
         console.log('❌ Tables do not exist\n');
         console.log('📋 Please create tables manually:');
@@ -49,7 +49,7 @@ async function createAllTables() {
         console.log('\n   Then rerun: node scripts/setup-database.js\n');
         return false;
     }
-    
+
     // Delete test record
     await fetch(`${SUPABASE_URL}/rest/v1/milestones?id=eq.__test__`, {
         method: 'DELETE',
@@ -58,7 +58,7 @@ async function createAllTables() {
             'Authorization': `Bearer ${SERVICE_KEY}`
         }
     });
-    
+
     console.log('✅ Tables exist!\n');
     return true;
 }

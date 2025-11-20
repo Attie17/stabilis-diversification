@@ -37,22 +37,9 @@
     gap: 1rem;
 }
 
-.reports-menu-trigger {
-    background: linear-gradient(135deg, rgba(248, 250, 252, 0.15), rgba(148, 163, 184, 0.15));
-    border: 1px solid rgba(148, 163, 184, 0.6);
-    color: #e2e8f0;
-    padding: 0.6rem 1.25rem;
-    border-radius: 999px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.reports-menu-trigger:hover {
-    background: rgba(59, 130, 246, 0.35);
-    border-color: rgba(59, 130, 246, 0.8);
-}
-
+.reports-menu-trigger,
+.excel-edit-btn,
+.view-project-btn,
 .edit-milestone-btn {
     background: rgba(255, 255, 255, 0.12);
     border: 1px dashed rgba(255, 255, 255, 0.4);
@@ -64,6 +51,9 @@
     transition: background 0.2s ease, transform 0.2s ease;
 }
 
+.reports-menu-trigger:hover,
+.excel-edit-btn:hover,
+.view-project-btn:hover,
 .edit-milestone-btn:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-1px);
@@ -558,30 +548,7 @@ body.reports-menu-open {
     color: #94a3b8;
 }
 
-/* View Project Button */
-.view-project-btn {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    border: none;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    width: 100%;
-    transition: all 0.2s;
-}
-
-.header-right .view-project-btn {
-    width: auto;
-    margin-bottom: 0;
-    white-space: nowrap;
-}
-
-.view-project-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-}
+/* View Project Button - styles now unified above with other header buttons */
 
 /* Progress Bars */
 .progress-bar {

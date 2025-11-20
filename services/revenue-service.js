@@ -58,8 +58,8 @@ class RevenueService {
 
             // Service line categorization
             const serviceLine = project.name === 'Turnaround' ? 'Turnaround' :
-                                project.name === 'Wellness' ? 'Wellness' :
-                                'Diversification';
+                project.name === 'Wellness' ? 'Wellness' :
+                    'Diversification';
 
             if (!breakdown[serviceLine]) {
                 breakdown[serviceLine] = {

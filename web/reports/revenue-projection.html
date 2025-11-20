@@ -1065,14 +1065,14 @@
                     parseInt(document.querySelectorAll('.investment-card:nth-child(1) .item-cost')[1]?.textContent.replace(/[^0-9]/g, '') || 0) +
                     parseInt(document.querySelectorAll('.investment-card:nth-child(1) .item-cost')[2]?.textContent.replace(/[^0-9]/g, '') || 0) +
                     parseInt(document.querySelectorAll('.investment-card:nth-child(1) .item-cost')[3]?.textContent.replace(/[^0-9]/g, '') || 0);
-                
+
                 const diversificationTotal = parseInt(document.querySelectorAll('.investment-card:nth-child(2) .item-cost')[0]?.textContent.replace(/[^0-9]/g, '') || 0) +
                     parseInt(document.querySelectorAll('.investment-card:nth-child(2) .item-cost')[1]?.textContent.replace(/[^0-9]/g, '') || 0) +
                     parseInt(document.querySelectorAll('.investment-card:nth-child(2) .item-cost')[2]?.textContent.replace(/[^0-9]/g, '') || 0) +
                     parseInt(document.querySelectorAll('.investment-card:nth-child(2) .item-cost')[3]?.textContent.replace(/[^0-9]/g, '') || 0) +
                     parseInt(document.querySelectorAll('.investment-card:nth-child(2) .item-cost')[4]?.textContent.replace(/[^0-9]/g, '') || 0) +
                     parseInt(document.querySelectorAll('.investment-card:nth-child(2) .item-cost')[5]?.textContent.replace(/[^0-9]/g, '') || 0);
-                
+
                 const wellnessTotal = parseInt(document.querySelectorAll('.investment-card:nth-child(3) .item-cost')[0]?.textContent.replace(/[^0-9]/g, '') || 0) +
                     parseInt(document.querySelectorAll('.investment-card:nth-child(3) .item-cost')[1]?.textContent.replace(/[^0-9]/g, '') || 0) +
                     parseInt(document.querySelectorAll('.investment-card:nth-child(3) .item-cost')[2]?.textContent.replace(/[^0-9]/g, '') || 0) +
@@ -1143,7 +1143,7 @@
                 });
             }
             attachRevenueBreakdownHandlers();
-            
+
             // Initialize AI Chat Widget
             new AIChatComponent('ai-chat-container', {
                 project: 'Revenue Projection Report'

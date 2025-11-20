@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Q1 2026 (Dec 2025 - Mar 2026) - Stabilis</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .report-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #1e40af;
+        }
+
+        .report-header h1 {
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-header p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .executive-summary {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .executive-summary h2 {
+            margin: 0 0 1rem 0;
+            font-size: 1.5rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .summary-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .summary-item .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-item .value {
+            font-size: 1.75rem;
+            font-weight: bold;
+        }
+
+        .summary-item.negative .value {
+            color: #fca5a5;
+        }
+
+        .summary-item.positive .value {
+            color: #86efac;
+        }
+
+        .report-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .report-section h2 {
+            color: #1e40af;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .budget-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .budget-table th,
+        .budget-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .budget-table th {
+            background: #f8fafc;
+            color: #1e40af;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .budget-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .budget-table .number {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .budget-table .total-row {
+            background: #eff6ff;
+            font-weight: 600;
+            border-top: 2px solid #1e40af;
+        }
+
+        .budget-table .negative {
+            color: #dc2626;
+        }
+
+        .budget-table .positive {
+            color: #16a34a;
+        }
+
+        .alert-box {
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-box.critical {
+            background: #fef2f2;
+            border-color: #dc2626;
+        }
+
+        .alert-box.warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+
+        .alert-box.info {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        .alert-box.success {
+            background: #f0fdf4;
+            border-color: #16a34a;
+        }
+
+        .alert-box h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .kpi-card {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-card .kpi-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        .kpi-card .kpi-target {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        .chart-placeholder {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            color: #64748b;
+            border: 2px dashed #cbd5e1;
+            margin: 1rem 0;
+        }
+
+        @media print {
+            .report-container {
+                padding: 0;
+            }
+
+            .budget-table {
+                page-break-inside: avoid;
+            }
+
+            .report-section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <h1>💰 Budget: December 2025 - March 2026</h1>
+            <p>4-Month Period: Crisis Turnaround & Launch Phase</p>
+            <p><strong>Planning Date:</strong> 20 November 2025 | <strong>Status:</strong> Setup & Stabilization</p>
+        </div>
+
+        <div class="executive-summary">
+            <h2>📊 Executive Summary</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="label">Total Budget</div>
+                    <div class="value">R2.46M</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Expected Revenue</div>
+                    <div class="value">R470k</div>
+                </div>
+                <div class="summary-item negative">
+                    <div class="label">Net Deficit</div>
+                    <div class="value">-R1.99M</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Funding Required</div>
+                    <div class="value">R1.99M</div>
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 0.5rem;">
+                <strong>Critical Period:</strong> This is a survival and setup period where turnaround project stabilizes operations, Diversification Phase 2 launches, and Wellness Centre completes infrastructure. Heavy investment in infrastructure (R675k) with revenue building gradually. Must execute turnaround to reduce ongoing costs by 30% for Q2 2026 sustainability.
+            </div>
+        </div>
+
+        <div class="alert-box critical">
+            <h3>🚨 Critical Success Factor</h3>
+            <p><strong>December 2025</strong> is the heaviest investment month (R895k). Cash flow management is critical. Requires R2M working capital facility or reserve draw-down to cover cumulative deficit of -R1.99M by end March 2026.</p>
+        </div>
+
+        <!-- Monthly Cash Flow -->
+        <div class="report-section">
+            <h2>📈 Monthly Cash Flow Projection</h2>
+            <table class="budget-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th class="number">Revenue</th>
+                        <th class="number">Expenditure</th>
+                        <th class="number">Net Cash Flow</th>
+                        <th class="number">Cumulative</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Dec 2025</strong></td>
+                        <td class="number">R0</td>
+                        <td class="number">R895,000</td>
+                        <td class="number negative">-R895,000</td>
+                        <td class="number negative">-R895,000</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Jan 2026</strong></td>
+                        <td class="number">R96,400</td>
+                        <td class="number">R505,000</td>
+                        <td class="number negative">-R408,600</td>
+                        <td class="number negative">-R1,303,600</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Feb 2026</strong></td>
+                        <td class="number">R147,200</td>
+                        <td class="number">R527,000</td>
+                        <td class="number negative">-R379,800</td>
+                        <td class="number negative">-R1,683,400</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mar 2026</strong></td>
+                        <td class="number">R226,200</td>
+                        <td class="number">R530,000</td>
+                        <td class="number negative">-R303,800</td>
+                        <td class="number negative">-R1,987,200</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>TOTAL</strong></td>
+                        <td class="number"><strong>R469,800</strong></td>
+                        <td class="number"><strong>R2,457,000</strong></td>
+                        <td class="number negative"><strong>-R1,987,200</strong></td>
+                        <td class="number negative"><strong>-R1,987,200</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert-box info">
+                <strong>💡 Cash Flow Notes:</strong>
+                <ul style="margin: 0.5rem 0 0 1.5rem;">
+                    <li>Monthly deficit decreases as revenue builds (Dec -R895k → Mar -R304k)</li>
+                    <li>Cumulative deficit peaks at -R1.99M by end March</li>
+                    <li>Improvement trend: -45% operating margin in Dec → -15% target by Mar</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Expenditure Breakdown -->
+        <div class="report-section">
+            <h2>💸 Expenditure Breakdown</h2>
+            <table class="budget-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th class="number">Amount (R)</th>
+                        <th class="number">% of Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Existing Operations</td>
+                        <td class="number">R1,400,000</td>
+                        <td class="number">57.0%</td>
+                    </tr>
+                    <tr>
+                        <td>Wellness Centre Setup</td>
+                        <td class="number">R675,000</td>
+                        <td class="number">27.5%</td>
+                    </tr>
+                    <tr>
+                        <td>Diversification</td>
+                        <td class="number">R180,000</td>
+                        <td class="number">7.3%</td>
+                    </tr>
+                    <tr>
+                        <td>Turnaround Project</td>
+                        <td class="number">R85,000</td>
+                        <td class="number">3.5%</td>
+                    </tr>
+                    <tr>
+                        <td>Contingency & Professional Services</td>
+                        <td class="number">R117,000</td>
+                        <td class="number">4.8%</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>TOTAL EXPENDITURE</strong></td>
+                        <td class="number"><strong>R2,457,000</strong></td>
+                        <td class="number"><strong>100.0%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Revenue by Project -->
+        <div class="report-section">
+            <h2>📊 Revenue by Project</h2>
+            <table class="budget-table">
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th class="number">Total Revenue</th>
+                        <th class="number">Monthly Average</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Diversification (Phase 2)</td>
+                        <td class="number">R183,600</td>
+                        <td class="number">R61,200</td>
+                        <td>Adult outpatient pilot, clinical protocols</td>
+                    </tr>
+                    <tr>
+                        <td>Wellness Centre</td>
+                        <td class="number">R262,400</td>
+                        <td class="number">R87,467</td>
+                        <td>Soft launch Jan, building to 24 clients by Mar</td>
+                    </tr>
+                    <tr>
+                        <td>Turnaround (Cost Avoidance)</td>
+                        <td class="number">R245,000</td>
+                        <td class="number">R61,250</td>
+                        <td>Not revenue - cost savings from turnaround</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>TOTAL NEW REVENUE</strong></td>
+                        <td class="number"><strong>R469,800</strong></td>
+                        <td class="number"><strong>R117,450</strong></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Wellness Centre Costs Detail -->
+        <div class="report-section">
+            <h2>🏥 Wellness Centre Investment Detail</h2>
+            <p><strong>Total Q1 Investment:</strong> R675,000 (28% of total budget)</p>
+            <table class="budget-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th class="number">Dec 2025</th>
+                        <th class="number">Jan 2026</th>
+                        <th class="number">Feb 2026</th>
+                        <th class="number">Mar 2026</th>
+                        <th class="number">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Facility Lease Deposit (3 months)</td>
+                        <td class="number">R150,000</td>
+                        <td class="number">-</td>
+                        <td class="number">-</td>
+                        <td class="number">-</td>
+                        <td class="number">R150,000</td>
+                    </tr>
+                    <tr>
+                        <td>Renovations & Fit-Out</td>
+                        <td class="number">R180,000</td>
+                        <td class="number">-</td>
+                        <td class="number">-</td>
+                        <td class="number">-</td>
+                        <td class="number">R180,000</td>
+                    </tr>
+                    <tr>
+                        <td>Furniture & Equipment</td>
+                        <td class="number">R80,000</td>
+                        <td class="number">-</td>
+                        <td class="number">-</td>
+                        <td class="number">-</td>
+                        <td class="number">R80,000</td>
+                    </tr>
+                    <tr>
+                        <td>IT Infrastructure</td>
+                        <td class="number">R35,000</td>
+                        <td class="number">-</td>
+                        <td class="number">-</td>
+                        <td class="number">-</td>
+                        <td class="number">R35,000</td>
+                    </tr>
+                    <tr>
+                        <td>Facility Rent</td>
+                        <td class="number">-</td>
+                        <td class="number">R50,000</td>
+                        <td class="number">R50,000</td>
+                        <td class="number">R50,000</td>
+                        <td class="number">R150,000</td>
+                    </tr>
+                    <tr>
+                        <td>Staff Salaries</td>
+                        <td class="number">-</td>
+                        <td class="number">R75,000</td>
+                        <td class="number">R100,000</td>
+                        <td class="number">R125,000</td>
+                        <td class="number">R300,000</td>
+                    </tr>
+                    <tr>
+                        <td>Operations & Marketing</td>
+                        <td class="number">R50,000</td>
+                        <td class="number">R45,000</td>
+                        <td class="number">R50,000</td>
+                        <td class="number">R70,000</td>
+                        <td class="number">R215,000</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>MONTHLY TOTAL</strong></td>
+                        <td class="number"><strong>R495,000</strong></td>
+                        <td class="number"><strong>R170,000</strong></td>
+                        <td class="number"><strong>R200,000</strong></td>
+                        <td class="number"><strong>R245,000</strong></td>
+                        <td class="number"><strong>R1,110,000</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert-box warning">
+                <strong>⚠️ December is Critical:</strong> R495k capex in December for facility setup. This is the single largest expense month. Delays in renovations could push costs into Jan/Feb and impact launch timeline.
+            </div>
+        </div>
+
+        <!-- Key Performance Indicators -->
+        <div class="report-section">
+            <h2>🎯 Key Performance Indicators</h2>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Operating Margin</div>
+                    <div class="kpi-value">-45% → -15%</div>
+                    <div class="kpi-target">Improving trend</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Days Sales Outstanding</div>
+                    <div class="kpi-value">≤30 days</div>
+                    <div class="kpi-target">Cash collection</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Cost per Patient</div>
+                    <div class="kpi-value">Decrease 20%</div>
+                    <div class="kpi-target">Efficiency gains</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Revenue per Staff Hour</div>
+                    <div class="kpi-value">Increase 25%</div>
+                    <div class="kpi-target">Productivity</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Cash Runway</div>
+                    <div class="kpi-value">Maintain 6+ months</div>
+                    <div class="kpi-target">Survival buffer</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">SARS Payment Plan</div>
+                    <div class="kpi-value">Signed</div>
+                    <div class="kpi-target">Due: Dec 10, 2025</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Maintenance Cost</div>
+                    <div class="kpi-value">-65% Reduction</div>
+                    <div class="kpi-target">R84k → R30k/month</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">AR Collections</div>
+                    <div class="kpi-value">R478k Target</div>
+                    <div class="kpi-target">50% of R956k</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Funding Strategy -->
+        <div class="report-section">
+            <h2>💰 Funding Strategy</h2>
+            <table class="budget-table">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th class="number">Amount (R)</th>
+                        <th class="number">% of Total</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Investment Reserve Draw-down</td>
+                        <td class="number">R1,400,000</td>
+                        <td class="number">70.5%</td>
+                        <td>From R3.4M reserves (41% utilization)</td>
+                    </tr>
+                    <tr>
+                        <td>Working Capital Facility/Loan</td>
+                        <td class="number">R350,000</td>
+                        <td class="number">17.6%</td>
+                        <td>Bridge financing if needed</td>
+                    </tr>
+                    <tr>
+                        <td>Grant Funding (Lotto - Capex Only)</td>
+                        <td class="number">R200,000</td>
+                        <td class="number">10.1%</td>
+                        <td>For Wellness facility fit-out</td>
+                    </tr>
+                    <tr>
+                        <td>Operational Cash Flow (Turnaround)</td>
+                        <td class="number">R37,200</td>
+                        <td class="number">1.9%</td>
+                        <td>Surplus from cost savings</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>TOTAL AVAILABLE FUNDING</strong></td>
+                        <td class="number"><strong>R1,987,200</strong></td>
+                        <td class="number"><strong>100.0%</strong></td>
+                        <td>Covers projected deficit</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert-box success">
+                <h3>✅ Reserve Protection Strategy</h3>
+                <ul style="margin: 0.5rem 0 0 1.5rem;">
+                    <li><strong>Opening Reserves (Dec 1):</strong> R3,400,000</li>
+                    <li><strong>Maximum Draw-down:</strong> R1,400,000 (41% of reserves)</li>
+                    <li><strong>Minimum Maintained:</strong> R2,000,000 (59% protected)</li>
+                    <li><strong>Rebuild Begins:</strong> May 2026 (when positive cash flow starts)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Risk Factors -->
+        <div class="report-section">
+            <h2>⚠️ High-Priority Risk Factors</h2>
+            
+            <div class="alert-box critical">
+                <h3>🚨 1. Cash Flow Crisis (CRITICAL)</h3>
+                <p><strong>Risk:</strong> Insufficient reserves to cover R1.99M deficit</p>
+                <p><strong>Mitigation:</strong></p>
+                <ul>
+                    <li>Secure R350k credit facility before Dec 1</li>
+                    <li>Daily cash monitoring (13-week rolling forecast)</li>
+                    <li>Accelerated AR collections (targeting R478k)</li>
+                    <li>Defer non-essential capex to Q2 2026</li>
+                </ul>
+            </div>
+
+            <div class="alert-box warning">
+                <h3>⚠️ 2. Wellness Centre Delayed Launch</h3>
+                <p><strong>Risk:</strong> Renovations take longer than 4 weeks (R262k revenue at risk)</p>
+                <p><strong>Mitigation:</strong></p>
+                <ul>
+                    <li>Fixed-price contract with penalty clauses</li>
+                    <li>Weekly progress reviews with contractor</li>
+                    <li>Backup temporary space identified</li>
+                    <li>Phased launch option (start with existing rooms)</li>
+                </ul>
+            </div>
+
+            <div class="alert-box warning">
+                <h3>⚠️ 3. Staff Turnover During Crisis</h3>
+                <p><strong>Risk:</strong> Key clinical staff leave during turnaround</p>
+                <p><strong>Mitigation:</strong></p>
+                <ul>
+                    <li>Transparent communication about recovery plan</li>
+                    <li>Retention bonuses for critical staff</li>
+                    <li>Flexible working arrangements</li>
+                    <li>Monthly staff feedback sessions</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Success Criteria -->
+        <div class="report-section">
+            <h2>✅ Success Criteria (31 March 2026)</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div class="alert-box success">
+                    <h3>💰 Financial</h3>
+                    <ul>
+                        <li>Operating margin improved from -15.5% to -5%</li>
+                        <li>Cash reserves remain above R2.0M</li>
+                        <li>Zero SARS or compliance penalties</li>
+                        <li>R470k+ new revenue generated</li>
+                    </ul>
+                </div>
+
+                <div class="alert-box success">
+                    <h3>🏥 Operational</h3>
+                    <ul>
+                        <li>Wellness Centre open, serving 50+ clients/month</li>
+                        <li>Phase 2 completed (180 patients treated)</li>
+                        <li>All staff trained and certified</li>
+                        <li>Zero safety or quality incidents</li>
+                    </ul>
+                </div>
+
+                <div class="alert-box success">
+                    <h3>📈 Strategic</h3>
+                    <ul>
+                        <li>Turnaround 75% complete (Phase 1 & 2 done)</li>
+                        <li>Board confidence restored</li>
+                        <li>Creditor relationships normalized</li>
+                        <li>Ready for Phase 3 scale-up (Apr 2026)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 2px solid #e5e7eb; text-align: center; color: #64748b;">
+            <p><strong>Document Version:</strong> 1.0 | <strong>Created:</strong> 20 November 2025 | <strong>Owner:</strong> Finance Officer (Nastasha Jacobs)</p>
+            <p><strong>Review Date:</strong> 1 March 2026 | <strong>Classification:</strong> Confidential - Board & Steering Committee Only</p>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">For questions or clarifications, contact: finance@stabilis.co.za | CEO: attie@stabilis.co.za</p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize report access control
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof window.initializeReportAccess === 'function') {
+                window.initializeReportAccess({
+                    reportKey: 'budget-q1-2026',
+                    reportTitle: 'Budget Q1 2026 (Dec 2025 - Mar 2026)',
+                    allowedRoles: ['Attie Nel', 'Nastasha Jacobs', 'Board Member']
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

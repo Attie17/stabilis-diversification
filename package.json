@@ -7,6 +7,8 @@
     "vercel-build": "echo 'Vercel build complete'",
     "start": "node server.js",
     "dev": "node server.js",
+    "excel-sync": "node scripts/excel-sync.js",
+    "excel-create": "node scripts/create-excel-template.js",
     "status": "powershell -ExecutionPolicy Bypass -File ./scripts/project-status.ps1",
     "dashboard": "powershell -Command \"Get-Content .\\PROJECT-DASHBOARD.md\"",
     "phase1": "powershell -Command \"Get-Content .\\phases\\PHASE1-MOBILISATION.md\"",
@@ -40,7 +42,8 @@
     "marked": "^17.0.0",
     "node-cron": "^4.2.1",
     "node-fetch": "^2.7.0",
-    "openai": "^6.9.1"
+    "openai": "^6.9.1",
+    "xlsx": "^0.18.5"
   },
   "engines": {
     "node": "22.x"

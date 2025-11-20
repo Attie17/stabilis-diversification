@@ -89,7 +89,7 @@ class ExternalResearchService {
     // Competitor analysis
     async analyzeCompetitor(companyName) {
         const query = `${companyName} business model revenue products services market position analysis`;
-        
+
         const results = await this.search(query, {
             max_results: 10,
             search_depth: 'advanced',
@@ -107,7 +107,7 @@ class ExternalResearchService {
     // Industry trends
     async getIndustryTrends(industry) {
         const query = `${industry} industry trends 2024 2025 market analysis future outlook`;
-        
+
         const results = await this.search(query, {
             max_results: 10,
             search_depth: 'advanced',
@@ -125,7 +125,7 @@ class ExternalResearchService {
     // Business intelligence
     async getBusinessIntelligence(topic) {
         const query = `${topic} business intelligence market data statistics report`;
-        
+
         const results = await this.search(query, {
             max_results: 7,
             search_depth: 'basic',
@@ -156,7 +156,7 @@ class ExternalResearchService {
             }
 
             // Cache expired
-            await fs.unlink(filename).catch(() => {});
+            await fs.unlink(filename).catch(() => { });
             return null;
         } catch (error) {
             return null;

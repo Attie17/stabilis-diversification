@@ -11,7 +11,9 @@ const REPORT_TITLES = {
     'kpi-dashboard-report': 'KPI Dashboard',
     'timeline-analysis': 'Timeline Analysis Report',
     'budget-actual': 'Budget vs Actual Report',
-    'cashflow-projection': 'Cashflow Projection Report'
+    'cashflow-projection': 'Cashflow Projection Report',
+    'budget-q1-2026': 'Budget Q1 2026 (Dec 2025 - Mar 2026)',
+    'budget-fy-2026-27': 'Budget FY 2026-27 (Apr 2026 - Mar 2027)'
 };
 const PROJECT_REPORT_ACCESS = {
     'revenue-projection': ['Attie Nel', 'Nastasha Jacobs'],
@@ -22,7 +24,9 @@ const PROJECT_REPORT_ACCESS = {
     'kpi-dashboard-report': ['Attie Nel', 'Nastasha Jacobs', 'Berno Paul', 'Lydia Gittens'],
     'timeline-analysis': ['Attie Nel'],
     'budget-actual': ['Nastasha Jacobs', 'Attie Nel'],
-    'cashflow-projection': ['Nastasha Jacobs', 'Attie Nel']
+    'cashflow-projection': ['Nastasha Jacobs', 'Attie Nel'],
+    'budget-q1-2026': ['Nastasha Jacobs', 'Attie Nel'],
+    'budget-fy-2026-27': ['Nastasha Jacobs', 'Attie Nel']
 };
 
 // Utility Functions
@@ -220,7 +224,7 @@ function renderCopilotButtons() {
         setTimeout(renderCopilotButtons, 100);
         return;
     }
-    
+
     projectData.phases.forEach(phase => {
         phase.milestones.forEach(m => {
             const container = document.getElementById(`copilot-btn-${m.id}`);

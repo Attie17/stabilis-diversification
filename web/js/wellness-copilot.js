@@ -808,21 +808,21 @@ const wellnessCopilotData = {
     // General project guidance
     generalHelp: {
         "What is the Wellness Centre?": "A new multidisciplinary private practice offering therapy, outpatient programmes, and wellbeing services separate from addiction treatment. It runs across three phases over 19 months.",
-        
+
         "Why three phases?": "Phase 1 (4 months) launches core services. Phase 2 (9 months) scales capacity and partnerships. Phase 3 (6 months) consolidates as a revenue engine with digital products and regional reach.",
-        
+
         "Why are we launching this?": "To diversify income, reach more clients, and offer broader mental health support beyond substance abuse treatment. This creates sustainable private revenue streams.",
-        
+
         "Who can use the Wellness Centre?": "Anyone seeking therapy, emotional support, or wellbeing skills — adults, teens, families, schools, or employers. We serve both clinical and preventative needs.",
-        
+
         "How is this different from the addiction programmes?": "Wellness Centre focuses on general mental health, stress, trauma, relationships, and skills — not just addiction recovery. It's broader and more accessible.",
-        
+
         "Can Stabilis clients transition here?": "Yes — this is perfect for aftercare or clients who complete addiction treatment. We also offer post-discharge family alignment packages.",
-        
+
         "What's the total investment?": "R2.5 million over 19 months. Phase 1 is R850k, with phases 2 & 3 scaling based on proven demand.",
-        
+
         "What if Phase 1 doesn't work?": "The 90-day review (W1-M8) evaluates performance. We adjust, pivot, or pause before committing to Phase 2 investment.",
-        
+
         "What if I need help?": "Contact the Wellness Coordinator or use this AI helper for guidance on any milestone. Each phase has detailed support built in."
     }
 };
@@ -830,7 +830,7 @@ const wellnessCopilotData = {
 // Wellness Copilot Functions
 function showWellnessCopilot(milestoneId) {
     const guidance = wellnessCopilotData.milestones[milestoneId];
-    
+
     if (!guidance) {
         return `
             <div class="copilot-panel">
@@ -843,7 +843,7 @@ function showWellnessCopilot(milestoneId) {
             </div>
         `;
     }
-    
+
     return `
         <div class="copilot-panel">
             <div class="copilot-header">
@@ -887,7 +887,7 @@ function showWellnessCopilot(milestoneId) {
 
 function showWellnessGeneralHelp() {
     const helpEntries = Object.entries(wellnessCopilotData.generalHelp);
-    
+
     return `
         <div class="copilot-panel">
             <div class="copilot-header">

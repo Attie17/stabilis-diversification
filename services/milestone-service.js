@@ -21,7 +21,7 @@ class MilestoneService {
         }
 
         const content = await fs.readFile(filePath, 'utf-8');
-        
+
         // Extract the data object using regex (since it's a JS file, not JSON)
         const dataMatch = content.match(/const\s+\w+Data\s*=\s*({[\s\S]+?});?\s*$/m);
         if (!dataMatch) {
@@ -36,22 +36,22 @@ class MilestoneService {
     // Write project data file
     async writeProjectData(project, data, originalContent) {
         const filePath = this.dataFiles[project];
-        
+
         // Convert data back to JavaScript format
         const dataString = JSON.stringify(data, null, 4)
             .replace(/"(\w+)":/g, '$1:') // Remove quotes from keys
             .replace(/"/g, "'"); // Use single quotes
-        
+
         // Replace the data in the original content
         const varName = project === 'diversification' ? 'projectData' :
-                       project === 'turnaround' ? 'turnaroundData' :
-                       'wellnessProject';
-        
+            project === 'turnaround' ? 'turnaroundData' :
+                'wellnessProject';
+
         const newContent = originalContent.replace(
             /const\s+\w+Data\s*=\s*{[\s\S]+?};?\s*$/m,
             `const ${varName} = ${dataString};`
         );
-        
+
         await fs.writeFile(filePath, newContent, 'utf-8');
         console.log(`✅ Updated ${project} project data`);
     }
@@ -60,7 +60,7 @@ class MilestoneService {
     async addMilestone(project, phaseId, milestone) {
         try {
             const { data, originalContent } = await this.readProjectData(project);
-            
+
             // Find the phase
             const phase = data.phases.find(p => p.id === phaseId);
             if (!phase) {
@@ -113,7 +113,7 @@ class MilestoneService {
     async editMilestone(project, milestoneId, updates) {
         try {
             const { data, originalContent } = await this.readProjectData(project);
-            
+
             // Find the milestone across all phases
             let foundMilestone = null;
             let foundPhase = null;
@@ -167,7 +167,7 @@ class MilestoneService {
     async deleteMilestone(project, milestoneId) {
         try {
             const { data, originalContent } = await this.readProjectData(project);
-            
+
             // Find and remove the milestone
             let removed = false;
             let removedMilestone = null;
@@ -213,14 +213,14 @@ class MilestoneService {
     async getMilestones(project, phaseId = null) {
         try {
             const { data } = await this.readProjectData(project);
-            
+
             if (phaseId) {
                 const phase = data.phases.find(p => p.id === phaseId);
                 return phase ? phase.milestones : [];
             }
 
             // Return all milestones from all phases
-            return data.phases.flatMap(phase => 
+            return data.phases.flatMap(phase =>
                 phase.milestones.map(m => ({ ...m, phase_id: phase.id }))
             );
         } catch (error) {

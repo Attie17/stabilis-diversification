@@ -24,6 +24,8 @@
                 <a href="landing.html?stay=1" class="view-project-btn" title="Return to Landing">🏠 Project Hub</a>
                 <button class="reports-menu-trigger" onclick="openReportsMenu()"
                     title="Reports &amp; Analytics quick menu">📑 Reports &amp; Analytics</button>
+                <button onclick="openExcelFile()" class="excel-edit-btn" title="Edit project data in Excel">📊 Edit Data
+                    in Excel</button>
                 <button onclick="showEditMilestoneModal()" class="edit-milestone-btn"
                     title="Edit any project milestone">✏️ Edit Milestone</button>
                 <button onclick="refreshDashboard()" class="refresh-btn" title="Refresh Data">🔄</button>
@@ -237,6 +239,65 @@
     <script src="js/ai-chat-component.js"></script>
     <script src="js/executive-dashboard.js"></script>
     <script>
+        // Open Excel file for editing
+        async function openExcelFile() {
+            try {
+                // Call server endpoint to open Excel file
+                const response = await fetch('/api/open-excel');
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show instruction modal after Excel opens
+                    showExcelInstructions();
+                } else {
+                    alert('Could not open Excel file. Please open manually from:\nC:\\Diversification\\data\\stabilis-data.xlsx');
+                }
+            } catch (error) {
+                console.error('Error opening Excel:', error);
+                alert('Could not open Excel file. Please open manually from:\nC:\\Diversification\\data\\stabilis-data.xlsx');
+            }
+        }
+
+        function showExcelInstructions() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                z-index: 10000;
+                max-width: 500px;
+            `;
+            modal.innerHTML = `
+                <h2 style="margin-top: 0;">📊 Edit Project Data in Excel</h2>
+                <p><strong>The Excel file will open shortly.</strong></p>
+                <ol style="text-align: left;">
+                    <li>Edit any values in the Excel sheets</li>
+                    <li>Save the file (Ctrl+S)</li>
+                    <li>Close Excel</li>
+                    <li>Click "Sync Data" below to update the dashboard</li>
+                </ol>
+                <div style="margin-top: 20px;">
+                    <button onclick="syncExcelData()" style="padding: 10px 20px; margin-right: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        🔄 Sync Data Now
+                    </button>
+                    <button onclick="this.parentElement.parentElement.remove()" style="padding: 10px 20px; background: #ddd; border: none; border-radius: 5px; cursor: pointer;">
+                        Close
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function syncExcelData() {
+            alert('Data sync feature requires running: node scripts/excel-sync.js in terminal.\n\nThe sync script will automatically update the dashboard when you save Excel.');
+            location.reload();
+        }
+
         // Initialize AI Chat Widget
         document.addEventListener('DOMContentLoaded', () => {
             new AIChatComponent('ai-chat-container', {

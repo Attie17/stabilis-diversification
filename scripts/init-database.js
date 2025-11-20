@@ -15,7 +15,7 @@ const supabase = createClient(
 
 async function createTables() {
     console.log('🔨 Creating database tables...\n');
-    
+
     const queries = [
         // Milestones table
         `CREATE TABLE IF NOT EXISTS milestones (
@@ -31,7 +31,7 @@ async function createTables() {
             created_at TIMESTAMPTZ DEFAULT NOW(),
             updated_at TIMESTAMPTZ DEFAULT NOW()
         )`,
-        
+
         // Milestone updates
         `CREATE TABLE IF NOT EXISTS milestone_updates (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -42,7 +42,7 @@ async function createTables() {
             notes TEXT,
             timestamp TIMESTAMPTZ DEFAULT NOW()
         )`,
-        
+
         // Alerts
         `CREATE TABLE IF NOT EXISTS alerts (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -55,7 +55,7 @@ async function createTables() {
             acknowledged BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMPTZ DEFAULT NOW()
         )`,
-        
+
         // Conversations
         `CREATE TABLE IF NOT EXISTS conversations (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -67,7 +67,7 @@ async function createTables() {
             response_time_ms INTEGER,
             timestamp TIMESTAMPTZ DEFAULT NOW()
         )`,
-        
+
         // Change log
         `CREATE TABLE IF NOT EXISTS change_log (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -79,7 +79,7 @@ async function createTables() {
             full_diff TEXT,
             timestamp TIMESTAMPTZ DEFAULT NOW()
         )`,
-        
+
         // Research cache
         `CREATE TABLE IF NOT EXISTS research_cache (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -90,18 +90,18 @@ async function createTables() {
             created_at TIMESTAMPTZ DEFAULT NOW()
         )`
     ];
-    
+
     for (const query of queries) {
         const { error } = await supabase.rpc('exec_sql', { sql: query }).catch(e => {
             // If RPC doesn't exist, that's ok - tables might already be created via SQL editor
             return { error: null };
         });
-        
+
         if (error) {
             console.log(`   Note: ${error.message}`);
         }
     }
-    
+
     console.log('✅ Table creation attempted (check Supabase dashboard for confirmation)\n');
 }
 
@@ -110,13 +110,13 @@ async function testConnection() {
         const { count, error } = await supabase
             .from('milestones')
             .select('*', { count: 'exact', head: true });
-        
+
         if (error) {
             console.log('ℹ️  Tables may not exist yet. Please apply schema.sql in Supabase SQL Editor:');
             console.log(`   ${process.env.SUPABASE_URL}/project/_/sql\n`);
             return false;
         }
-        
+
         console.log(`✅ Database ready (${count || 0} milestones found)\n`);
         return true;
     } catch (e) {
@@ -127,10 +127,10 @@ async function testConnection() {
 
 async function main() {
     console.log('🗄️  Stabilis AI - Database Setup\n');
-    console.log('=' .repeat(60), '\n');
-    
+    console.log('='.repeat(60), '\n');
+
     const isReady = await testConnection();
-    
+
     if (!isReady) {
         console.log('📋 Copy the content of database/schema.sql');
         console.log('📍 Paste it into Supabase SQL Editor');
@@ -138,7 +138,7 @@ async function main() {
         console.log('\n   Then rerun this script.\n');
         process.exit(0);
     }
-    
+
     console.log('🎉 Database is ready for data sync!\n');
 }
 

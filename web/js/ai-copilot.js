@@ -773,23 +773,23 @@ const copilotData = {
     // General project guidance
     generalHelp: {
         "What is this project about?": "Stabilis is growing by adding new services (adult outpatients, youth programs, aftercare). This will bring in R6.2 million in new revenue over 16 months.",
-        
+
         "Why are we doing this?": "To help more patients, create more jobs, and make the organization financially stronger. Growth = stability.",
-        
+
         "What's my role?": "Check the Team tab to see your specific responsibilities. Ask your manager if anything is unclear.",
-        
+
         "What if I need help?": "Talk to your phase lead or project manager. Also use this AI helper - ask any question!",
-        
+
         "What if something goes wrong?": "Check the Risks tab to see common problems and solutions. Report issues immediately to your lead.",
-        
+
         "How do I mark a milestone complete?": "Click the checkbox next to the milestone when all tasks are done. Your manager will verify.",
-        
+
         "Can I add notes to tasks?": "Yes! Click any milestone, then click 'Notes & Attachments' to add progress updates, decisions, or upload documents.",
-        
+
         "What does 'progressive disclosure' mean?": "It's how this app works - click to open details, click X to close. Only see what you need, when you need it.",
-        
+
         "How do I use this on my phone?": "This app works on any device. Just open the web address in your phone's browser. Bookmark it for quick access.",
-        
+
         "What language can I use?": "The app is in English, but your notes can be in any language. The AI understands context even if English isn't perfect."
     }
 };
@@ -797,7 +797,7 @@ const copilotData = {
 // AI Copilot Functions
 function showCopilot(milestoneId) {
     const guidance = copilotData.milestones[milestoneId];
-    
+
     if (!guidance) {
         return `
             <div class="copilot-panel">
@@ -810,7 +810,7 @@ function showCopilot(milestoneId) {
             </div>
         `;
     }
-    
+
     return `
         <div class="copilot-panel">
             <div class="copilot-header">
@@ -903,7 +903,7 @@ function calculateCustomRevenue() {
     const percent = parseFloat(document.getElementById('custom-percent').value) || 0;
     const targetRevenue = 6169500;
     const customAmount = Math.round((percent / 100) * targetRevenue);
-    
+
     document.getElementById('custom-result').innerHTML = `
         <strong>${percent}% of target =</strong> R${customAmount.toLocaleString()}
     `;
@@ -917,7 +917,7 @@ function showGeneralHelp() {
                 <p class="copilot-answer"><strong>A:</strong> ${answer}</p>
             </div>
         `).join('');
-    
+
     showModal('Ask Me Anything - AI Copilot', `
         <div class="copilot-panel">
             <div class="copilot-header">
@@ -958,20 +958,20 @@ window.calculateCustomRevenue = calculateCustomRevenue;
 // Generate Copilot button (role-based access)
 function getCopilotButton(milestoneId, projectType = 'diversification') {
     const user = window.currentUser || JSON.parse(localStorage.getItem('stabilis-user') || 'null');
-    
+
     if (!user) {
         return ''; // No button for non-logged-in users
     }
-    
+
     // Check if user has access: admin users or milestone owners
     const hasAdminAccess = user.access === "all";
     const owners = window.milestoneOwners && window.milestoneOwners[milestoneId] || [];
     const isMilestoneOwner = owners.includes(user.name);
-    
+
     if (!hasAdminAccess && !isMilestoneOwner) {
         return ''; // No access
     }
-    
+
     // Check if guidance exists for this milestone
     let copilotData;
     if (projectType === 'turnaround') {
@@ -981,11 +981,11 @@ function getCopilotButton(milestoneId, projectType = 'diversification') {
     } else {
         copilotData = window.copilotData;
     }
-    
+
     const hasGuidance = copilotData && copilotData.milestones && copilotData.milestones[milestoneId];
     const buttonClass = hasGuidance ? 'copilot-btn-available' : 'copilot-btn-unavailable';
     const buttonText = hasGuidance ? '🤖 AI Copilot Help' : '🤖 AI Copilot (Coming Soon)';
-    
+
     return `
         <button class="copilot-toggle-btn ${buttonClass}" 
                 onclick="toggleCopilot('${milestoneId}')" 
@@ -1001,7 +1001,7 @@ function toggleCopilot(milestoneId) {
     if (copilotContent) {
         const isVisible = copilotContent.style.display !== 'none';
         copilotContent.style.display = isVisible ? 'none' : 'block';
-        
+
         // Update button text
         const button = event.target;
         if (button) {

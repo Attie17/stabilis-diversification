@@ -8,7 +8,7 @@ class AIChatComponent {
         this.threadId = null;
         this.messages = [];
         this.isTyping = false;
-        
+
         this.render();
         this.setupEventListeners();
     }
@@ -78,10 +78,10 @@ class AIChatComponent {
     setupEventListeners() {
         const input = document.getElementById(`ai-input-${this.container.id}`);
         const sendBtn = document.getElementById(`ai-send-${this.container.id}`);
-        
+
         // Send on button click
         sendBtn.addEventListener('click', () => this.sendMessage());
-        
+
         // Send on Enter (Shift+Enter for new line)
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -89,7 +89,7 @@ class AIChatComponent {
                 this.sendMessage();
             }
         });
-        
+
         // Suggested questions
         const suggestions = this.container.querySelectorAll('.ai-suggestion-chip');
         suggestions.forEach(chip => {
@@ -104,33 +104,33 @@ class AIChatComponent {
     async sendMessage() {
         const input = document.getElementById(`ai-input-${this.container.id}`);
         const message = input.value.trim();
-        
+
         if (!message || this.isTyping) return;
-        
+
         // Clear input
         input.value = '';
-        
+
         // Add user message to UI
         this.addMessage('user', message);
-        
+
         // Show typing indicator
         this.showTyping();
         this.isTyping = true;
-        
+
         try {
             // Add context to message if available
             let contextualMessage = message;
             if (this.context.project) {
                 contextualMessage = `[Context: ${this.context.project} project] ${message}`;
             }
-            
+
             // Determine API endpoint (Vercel uses /api/chat, local uses /api/ai/chat)
-            const apiEndpoint = window.location.hostname.includes('vercel.app') || 
-                               window.location.hostname.includes('stabiliswellness.pro') || 
-                               window.location.hostname.includes('stabilisstrategy.app')
+            const apiEndpoint = window.location.hostname.includes('vercel.app') ||
+                window.location.hostname.includes('stabiliswellness.pro') ||
+                window.location.hostname.includes('stabilisstrategy.app')
                 ? '/api/chat'  // Vercel serverless function
                 : '/api/ai/chat';  // Local server
-            
+
             // Send to AI
             const response = await fetch(apiEndpoint, {
                 method: 'POST',
@@ -143,40 +143,40 @@ class AIChatComponent {
                     context: this.context.project || 'General'
                 })
             });
-            
+
             if (!response.ok) {
                 throw new Error(`API error: ${response.status}`);
             }
-            
+
             const data = await response.json();
-            
+
             // Store thread ID for conversation continuity (local server only)
             if (data.thread_id) {
                 this.threadId = data.thread_id;
             }
-            
+
             // Remove typing indicator
             this.hideTyping();
-            
+
             // Add AI response to UI
             const aiResponse = data.response || data.message || 'No response received';
             this.addMessage('assistant', aiResponse);
-            
+
         } catch (error) {
             console.error('AI Chat error:', error);
             this.hideTyping();
             this.addMessage('assistant', '❌ Sorry, I encountered an error. Please try again. Make sure the server is running and OpenAI API key is configured.');
         }
-        
+
         this.isTyping = false;
     }
 
     addMessage(role, content) {
         const messagesContainer = document.getElementById(`ai-messages-${this.container.id}`);
-        
+
         const messageDiv = document.createElement('div');
         messageDiv.className = `ai-chat-message ai-${role}-message`;
-        
+
         if (role === 'assistant') {
             messageDiv.innerHTML = `
                 <div class="ai-avatar">🤖</div>
@@ -188,16 +188,16 @@ class AIChatComponent {
                 <div class="user-avatar">👤</div>
             `;
         }
-        
+
         messagesContainer.appendChild(messageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        
+
         this.messages.push({ role, content });
     }
 
     showTyping() {
         const messagesContainer = document.getElementById(`ai-messages-${this.container.id}`);
-        
+
         const typingDiv = document.createElement('div');
         typingDiv.className = 'ai-chat-message ai-assistant-message ai-typing-indicator';
         typingDiv.id = 'ai-typing';
@@ -209,7 +209,7 @@ class AIChatComponent {
                 <span class="typing-dot"></span>
             </div>
         `;
-        
+
         messagesContainer.appendChild(typingDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
@@ -224,17 +224,17 @@ class AIChatComponent {
     formatMessage(content) {
         // Convert markdown-like formatting to HTML
         let formatted = this.escapeHtml(content);
-        
+
         // Bold
         formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        
+
         // Lists
         formatted = formatted.replace(/^- (.+)$/gm, '<li>$1</li>');
         formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-        
+
         // Line breaks
         formatted = formatted.replace(/\n/g, '<br>');
-        
+
         return formatted;
     }
 

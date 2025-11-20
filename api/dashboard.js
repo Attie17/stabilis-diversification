@@ -10,16 +10,16 @@ module.exports = async (req, res) => {
         const wellnessPath = path.join(process.cwd(), 'web', 'js', 'wellness-data.js');
 
         // Simple data extraction (for static data)
-        const diversificationData = fs.existsSync(dataPath) 
-            ? extractDataFromFile(dataPath) 
+        const diversificationData = fs.existsSync(dataPath)
+            ? extractDataFromFile(dataPath)
             : null;
-        
-        const turnaroundData = fs.existsSync(turnaroundPath) 
-            ? extractDataFromFile(turnaroundPath) 
+
+        const turnaroundData = fs.existsSync(turnaroundPath)
+            ? extractDataFromFile(turnaroundPath)
             : null;
-        
-        const wellnessData = fs.existsSync(wellnessPath) 
-            ? extractDataFromFile(wellnessPath) 
+
+        const wellnessData = fs.existsSync(wellnessPath)
+            ? extractDataFromFile(wellnessPath)
             : null;
 
         // Calculate summary statistics
@@ -49,14 +49,14 @@ module.exports = async (req, res) => {
 function extractDataFromFile(filePath) {
     try {
         const content = fs.readFileSync(filePath, 'utf-8');
-        
+
         // Basic parsing - extract phases
         const phasesMatch = content.match(/phases:\s*\[([\s\S]*?)\],?\s*current/);
         if (phasesMatch) {
             // Return indicator that data exists
             return { exists: true, source: filePath };
         }
-        
+
         return null;
     } catch (error) {
         return null;

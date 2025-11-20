@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     try {
         // Check for OpenAI API key
         if (!process.env.OPENAI_API_KEY) {
-            return res.status(500).json({ 
+            return res.status(500).json({
                 error: 'OpenAI API key not configured',
                 response: '⚠️ AI features are not configured. Please add OPENAI_API_KEY to environment variables in Vercel dashboard.'
             });

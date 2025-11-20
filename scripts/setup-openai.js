@@ -12,7 +12,7 @@ const openai = new OpenAI({
 
 async function createAssistant() {
     console.log('🤖 Creating OpenAI Assistant...\n');
-    
+
     try {
         const assistant = await openai.beta.assistants.create({
             name: "Stabilis Executive Assistant",
@@ -195,18 +195,18 @@ Always use functions when you need live data. Never guess or make up numbers.`,
                 }
             ]
         });
-        
+
         console.log(`✅ Assistant created: ${assistant.id}\n`);
         console.log(`   Name: ${assistant.name}`);
         console.log(`   Model: ${assistant.model}`);
         console.log(`   Tools: ${assistant.tools.length} functions\n`);
-        
+
         // Save assistant ID to .env
         await fs.appendFile('.env', `\n# OpenAI Assistant\nASSISTANT_ID=${assistant.id}\n`);
         console.log('💾 Saved ASSISTANT_ID to .env\n');
-        
+
         return assistant;
-        
+
     } catch (error) {
         console.error('❌ Failed to create assistant:', error.message);
         throw error;
@@ -215,19 +215,19 @@ Always use functions when you need live data. Never guess or make up numbers.`,
 
 async function uploadDocuments(assistantId) {
     console.log('📚 Uploading project documentation...\n');
-    
+
     try {
         // Create vector store
         const vectorStore = await openai.beta.vectorStores.create({
             name: "Stabilis Project Documentation"
         });
-        
+
         console.log(`✅ Vector store created: ${vectorStore.id}\n`);
-        
+
         // Collect all markdown files
         const docFiles = [];
         const folders = ['phases', 'tracking', 'docs'];
-        
+
         for (const folder of folders) {
             try {
                 const files = await fs.readdir(folder);
@@ -239,7 +239,7 @@ async function uploadDocuments(assistantId) {
                 console.log(`   Skipping ${folder}/ (not found)`);
             }
         }
-        
+
         // Add root docs
         const rootDocs = [
             'README.md',
@@ -249,7 +249,7 @@ async function uploadDocuments(assistantId) {
             'AI-IMPLEMENTATION-PLAN.md',
             'DEPLOYMENT-READY.md'
         ];
-        
+
         for (const doc of rootDocs) {
             try {
                 await fs.access(doc);
@@ -258,9 +258,9 @@ async function uploadDocuments(assistantId) {
                 // Skip if doesn't exist
             }
         }
-        
+
         console.log(`   Found ${docFiles.length} documents to upload\n`);
-        
+
         // Upload files in batches
         const fileStreams = await Promise.all(
             docFiles.map(async (filePath) => {
@@ -270,14 +270,14 @@ async function uploadDocuments(assistantId) {
                 });
             })
         );
-        
+
         console.log(`✅ Uploaded ${fileStreams.length} files\n`);
-        
+
         // Attach to vector store
         await openai.beta.vectorStores.fileBatches.create(vectorStore.id, {
             file_ids: fileStreams.map(f => f.id)
         });
-        
+
         // Update assistant with vector store
         await openai.beta.assistants.update(assistantId, {
             tool_resources: {
@@ -286,14 +286,14 @@ async function uploadDocuments(assistantId) {
                 }
             }
         });
-        
+
         console.log('✅ Documents attached to assistant\n');
-        
+
         // Save vector store ID
         await fs.appendFile('.env', `VECTOR_STORE_ID=${vectorStore.id}\n`);
-        
+
         return { vectorStoreId: vectorStore.id, fileCount: fileStreams.length };
-        
+
     } catch (error) {
         console.error('❌ Failed to upload documents:', error.message);
         throw error;
@@ -302,35 +302,35 @@ async function uploadDocuments(assistantId) {
 
 async function testAssistant(assistantId) {
     console.log('🧪 Testing assistant with sample query...\n');
-    
+
     try {
         const thread = await openai.beta.threads.create();
-        
+
         await openai.beta.threads.messages.create(thread.id, {
             role: "user",
             content: "Hi! What is this project about? Give me a brief overview."
         });
-        
+
         const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
             assistant_id: assistantId
         });
-        
+
         if (run.status === 'completed') {
             const messages = await openai.beta.threads.messages.list(thread.id);
             const response = messages.data[0].content[0].text.value;
-            
+
             console.log('✅ Test successful! Assistant responded:\n');
             console.log('─'.repeat(60));
             console.log(response);
             console.log('─'.repeat(60));
             console.log('\n');
-            
+
             return true;
         } else {
             console.log(`⚠️  Test run status: ${run.status}\n`);
             return false;
         }
-        
+
     } catch (error) {
         console.error('❌ Test failed:', error.message);
         return false;
@@ -340,12 +340,12 @@ async function testAssistant(assistantId) {
 async function setupOpenAIAssistant() {
     console.log('🚀 OpenAI Assistant Setup\n');
     console.log('='.repeat(60), '\n');
-    
+
     try {
         const assistant = await createAssistant();
         const { vectorStoreId, fileCount } = await uploadDocuments(assistant.id);
         const testPassed = await testAssistant(assistant.id);
-        
+
         console.log('='.repeat(60));
         console.log('\n✨ OpenAI Assistant Setup Complete!\n');
         console.log(`📊 Summary:`);
@@ -354,9 +354,9 @@ async function setupOpenAIAssistant() {
         console.log(`   - Documents: ${fileCount} files`);
         console.log(`   - Test: ${testPassed ? 'PASSED ✅' : 'FAILED ❌'}`);
         console.log('\n🎯 Next: Set up services and API endpoints\n');
-        
+
         return { assistantId: assistant.id, vectorStoreId, testPassed };
-        
+
     } catch (error) {
         console.error('\n❌ Setup failed:', error.message);
         process.exit(1);
