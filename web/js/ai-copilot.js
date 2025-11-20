@@ -959,17 +959,17 @@ window.calculateCustomRevenue = calculateCustomRevenue;
 function getCopilotButton(milestoneId, projectType = 'diversification') {
     const user = window.currentUser || JSON.parse(localStorage.getItem('stabilis-user') || 'null');
     
-    // Check if user has access to copilot
-    const hasAccess = user && (
-        user.name === 'Developer' ||
-        user.role === 'Project Manager' ||
-        user.role === 'Team Lead' ||
-        user.role === 'Clinical Lead' ||
-        user.role === 'Finance Officer'
-    );
+    if (!user) {
+        return ''; // No button for non-logged-in users
+    }
     
-    if (!hasAccess) {
-        return ''; // No button for non-privileged users
+    // Check if user has access: admin users or milestone owners
+    const hasAdminAccess = user.access === "all";
+    const owners = window.milestoneOwners && window.milestoneOwners[milestoneId] || [];
+    const isMilestoneOwner = owners.includes(user.name);
+    
+    if (!hasAdminAccess && !isMilestoneOwner) {
+        return ''; // No access
     }
     
     // Check if guidance exists for this milestone
