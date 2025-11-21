@@ -271,17 +271,28 @@
                 const link = document.createElement('a');
                 link.href = '/data/stabilis-data.xlsx';
                 link.download = 'stabilis-data.xlsx';
-                link.style.display = 'none';
+                link.target = '_blank';
                 document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
                 
-                // Show instructions
-                setTimeout(() => showExcelInstructions(), 500);
+                // Add click event listener to detect if download started
+                let downloaded = false;
+                link.addEventListener('click', () => {
+                    downloaded = true;
+                });
+                
+                link.click();
+                
+                // Small delay to ensure click is processed
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    if (downloaded || !isLocal) {
+                        showExcelInstructions();
+                    }
+                }, 300);
                 
             } catch (error) {
                 console.error('Error opening Excel:', error);
-                alert('Error accessing workbook. Please contact support.');
+                alert('Error accessing workbook. Please try again or contact support.');
             }
         }
 
