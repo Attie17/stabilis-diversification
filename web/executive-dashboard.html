@@ -238,7 +238,7 @@
     <script src="js/ai-chat-component.js"></script>
     <script src="js/executive-dashboard.js"></script>
     <script>
-        // Open Excel file for editing with hybrid deployment support
+        // Open Excel file for editing - now using OneDrive
         async function openExcelFile() {
             // Check authorization (CEO and FM only)
             const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
@@ -249,6 +249,34 @@
                 return;
             }
             
+            // Open OneDrive Excel file in new tab
+            const oneDriveUrl = 'https://1drv.ms/x/c/1fb6106c0dfb653b/IQAwiTAPo1EPRalRZsBRuE6iAVKUgGCC1a1qi5Xaw7KrPEg?e=wvqemv';
+            window.open(oneDriveUrl, '_blank');
+            
+            // Show simple instructions
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;';
+            modal.innerHTML = `
+                <div style="background:white;padding:30px;border-radius:8px;max-width:500px;text-align:center;">
+                    <h3 style="margin-top:0;color:#2c5282;">Excel Workbook Opened</h3>
+                    <p style="color:#4a5568;line-height:1.6;">
+                        The Excel workbook has been opened in OneDrive.<br><br>
+                        <strong>Simply edit and save</strong> - changes sync automatically!<br><br>
+                        <em style="color:#718096;font-size:0.9em;">
+                            No download or upload needed. Edit from any device with OneDrive access.
+                        </em>
+                    </p>
+                    <button onclick="this.closest('div[style*=fixed]').remove()" 
+                            style="background:#3182ce;color:white;border:none;padding:10px 30px;border-radius:5px;cursor:pointer;font-size:16px;margin-top:10px;">
+                        Got it
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            return;
+            
+            // OLD CODE BELOW (kept for reference, never reached)
             try {
                 console.log('Requesting Excel file access...');
                 
