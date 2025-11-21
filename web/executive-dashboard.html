@@ -250,21 +250,38 @@
             }
             
             try {
-                // Call server endpoint to open Excel file
-                const response = await fetch('/api/open-excel');
-                const result = await response.json();
-
-                if (result.success) {
-                    // Show instruction modal after Excel opens
-                    showExcelInstructions();
-                } else {
-                    // Fallback: try to open local file
-                    window.location.href = 'file:///C:/Diversification/data/stabilis-data.xlsx';
+                // Check if running locally (can use API) or on web (download file)
+                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                
+                if (isLocal) {
+                    // Try to open via API endpoint (local only)
+                    try {
+                        const response = await fetch('/api/open-excel');
+                        const result = await response.json();
+                        if (result.success) {
+                            showExcelInstructions();
+                            return;
+                        }
+                    } catch (e) {
+                        console.log('API not available, downloading file instead');
+                    }
                 }
+                
+                // Download the Excel file for editing
+                const link = document.createElement('a');
+                link.href = '/data/stabilis-data.xlsx';
+                link.download = 'stabilis-data.xlsx';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Show instructions
+                setTimeout(() => showExcelInstructions(), 500);
+                
             } catch (error) {
                 console.error('Error opening Excel:', error);
-                // Fallback: try to open local file
-                window.location.href = 'file:///C:/Diversification/data/stabilis-data.xlsx';
+                alert('Error accessing workbook. Please contact support.');
             }
         }
 
@@ -283,26 +300,29 @@
                 max-width: 500px;
             `;
             modal.innerHTML = `
-                <h2 style="margin-top: 0;">📊 Excel Workbook Opened</h2>
-                <p><strong>Edit with Live Sync Enabled</strong></p>
+                <h2 style="margin-top: 0;">📊 Excel Workbook Download</h2>
+                <p><strong>Download started - Edit and Re-upload</strong></p>
                 <ol style="text-align: left;">
-                    <li>Edit any values in the Excel sheets</li>
-                    <li>Formulas will auto-calculate</li>
+                    <li>Open the downloaded Excel file</li>
+                    <li>Edit values (formulas auto-calculate)</li>
                     <li>Save the file (Ctrl+S)</li>
-                    <li>Changes sync automatically to dashboard</li>
-                    <li>Refresh browser to see updates</li>
+                    <li>For web: Email updated file to admin</li>
+                    <li>For local: Changes auto-sync when saved</li>
                 </ol>
-                <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 15px 0;">
-                    <strong>💡 Auto-Sync Active</strong><br>
-                    The Excel sync service watches for changes.<br>
-                    Your edits will appear on the dashboard immediately after saving.
+                <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #ffc107;">
+                    <strong>⚠️ Web Deployment Note</strong><br>
+                    On the web, download and edit the file locally.<br>
+                    Send the updated file to the administrator to sync changes.<br>
+                    <br>
+                    <strong>💡 Running locally?</strong><br>
+                    Changes sync automatically when you save the file.
                 </div>
                 <div style="margin-top: 20px;">
-                    <button onclick="location.reload()" style="padding: 10px 20px; margin-right: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                        🔄 Refresh Dashboard
+                    <button onclick="window.location.href='/data/stabilis-data.xlsx'" style="padding: 10px 20px; margin-right: 10px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        📥 Download Again
                     </button>
                     <button onclick="this.parentElement.parentElement.remove()" style="padding: 10px 20px; background: #ddd; border: none; border-radius: 5px; cursor: pointer;">
-                        Continue Working
+                        Close
                     </button>
                 </div>
             `;
