@@ -239,9 +239,11 @@ app.get('/api/open-excel', (req, res) => {
     const fs = require('fs');
     const excelPath = path.join(__dirname, 'data', 'stabilis-data.xlsx');
     
+    console.log('📊 Excel open request received');
+    
     // First verify file exists
     if (!fs.existsSync(excelPath)) {
-        console.error('Excel file not found at:', excelPath);
+        console.error('❌ Excel file not found at:', excelPath);
         return res.status(404).json({
             success: false,
             error: 'Excel file not found',
@@ -249,19 +251,19 @@ app.get('/api/open-excel', (req, res) => {
         });
     }
     
-    // Use Start-Process with -PassThru to detect if it worked
-    const command = `powershell -Command "try { Start-Process '${excelPath}' -PassThru | Out-Null; exit 0 } catch { exit 1 }"`;
+    console.log('✅ File exists, attempting to open:', excelPath);
     
-    console.log('Opening Excel file:', excelPath);
+    // Use simpler command without complex PowerShell syntax
+    const command = `start "" "${excelPath}"`;
     
     exec(command, (error, stdout, stderr) => {
         if (error) {
-            console.error('Error opening Excel:', error);
-            console.error('stderr:', stderr);
+            console.error('❌ Error opening Excel:', error.message);
+            if (stderr) console.error('stderr:', stderr);
             return res.status(500).json({
                 success: false,
                 error: error.message,
-                details: stderr
+                details: 'Failed to open Excel file'
             });
         }
 
