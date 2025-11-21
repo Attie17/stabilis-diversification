@@ -250,19 +250,31 @@
             }
             
             try {
+                console.log('Requesting Excel file to open...');
+                
                 // Call server endpoint to open Excel file
-                const response = await fetch('/api/open-excel');
+                const response = await fetch('/api/open-excel', {
+                    method: 'GET',
+                    cache: 'no-cache', // Prevent caching issues
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
                 const result = await response.json();
+                console.log('Response data:', result);
 
                 if (result.success) {
                     // Show instruction modal after Excel opens
                     showExcelInstructions();
                 } else {
-                    alert('Unable to open Excel file. Please ensure the server is running locally.\n\nNote: This feature only works on local deployment, not on web (stabilisstratregy.app).');
+                    console.error('Server returned failure:', result);
+                    alert(`Unable to open Excel file: ${result.error || 'Unknown error'}\n\nPlease ensure:\n1. The server is running (npm start)\n2. Excel is installed on your computer\n3. You are running on localhost`);
                 }
             } catch (error) {
                 console.error('Error opening Excel:', error);
-                alert('Unable to open Excel file. Please ensure the server is running locally.\n\nNote: This feature only works on local deployment, not on web (stabilisstratregy.app).');
+                alert(`Unable to open Excel file: ${error.message}\n\nPlease ensure:\n1. The server is running (npm start)\n2. You are accessing via localhost:3000\n\nNote: This feature only works on local deployment.`);
             }
         }
 

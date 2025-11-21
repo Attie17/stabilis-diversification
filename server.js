@@ -236,18 +236,36 @@ app.get('/api/ai/dashboard', async (req, res) => {
 // Open Excel file endpoint (for local development)
 app.get('/api/open-excel', (req, res) => {
     const { exec } = require('child_process');
+    const fs = require('fs');
     const excelPath = path.join(__dirname, 'data', 'stabilis-data.xlsx');
-    const command = `powershell -Command "Start-Process '${excelPath}'"`;
-
-    exec(command, (error) => {
+    
+    // First verify file exists
+    if (!fs.existsSync(excelPath)) {
+        console.error('Excel file not found at:', excelPath);
+        return res.status(404).json({
+            success: false,
+            error: 'Excel file not found',
+            path: excelPath
+        });
+    }
+    
+    // Use Start-Process with -PassThru to detect if it worked
+    const command = `powershell -Command "try { Start-Process '${excelPath}' -PassThru | Out-Null; exit 0 } catch { exit 1 }"`;
+    
+    console.log('Opening Excel file:', excelPath);
+    
+    exec(command, (error, stdout, stderr) => {
         if (error) {
             console.error('Error opening Excel:', error);
+            console.error('stderr:', stderr);
             return res.status(500).json({
                 success: false,
-                error: error.message
+                error: error.message,
+                details: stderr
             });
         }
 
+        console.log('✅ Excel file opened successfully');
         res.json({
             success: true,
             message: 'Excel file opened successfully',
