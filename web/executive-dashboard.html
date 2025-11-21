@@ -249,6 +249,12 @@
                 return;
             }
             
+            // Check if we're on localhost - Excel opening only works locally
+            if (!window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
+                alert('⚠️ Excel Editing Not Available\n\nThe "Edit Workbook" feature requires direct file system access and only works when running locally.\n\nTo edit the Excel file:\n1. Run the server locally: npm start\n2. Access the dashboard at: http://localhost:3000/executive-dashboard.html\n3. Click "Edit Workbook" there\n\nNote: This is a security limitation of web browsers - they cannot open local applications from remote websites.');
+                return;
+            }
+            
             try {
                 console.log('Requesting Excel file to open...');
                 
