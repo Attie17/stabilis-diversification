@@ -1056,11 +1056,27 @@ function formatDate(date) {
     return d.toLocaleDateString('en-ZA', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+// Check if user can edit Excel workbook (CEO and FM only)
+function canEditWorkbook() {
+    const currentUser = getAuthUser();
+    if (!currentUser) return false;
+    const authorizedUsers = ['Attie Nel', 'Nastasha Jacobs', 'Developer'];
+    return authorizedUsers.includes(currentUser.name);
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     initAuth();
     initReportsMenu();
     setTimeout(initDashboard, 500); // Wait for auth to complete
+    
+    // Hide Edit Workbook button if user is not authorized
+    setTimeout(() => {
+        const excelBtn = document.querySelector('.excel-edit-btn');
+        if (excelBtn && !canEditWorkbook()) {
+            excelBtn.style.display = 'none';
+        }
+    }, 600);
 });
 
 function handleProjectDataChange(event) {

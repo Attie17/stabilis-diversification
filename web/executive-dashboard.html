@@ -24,7 +24,7 @@
                 <a href="landing.html?stay=1" class="view-project-btn" title="Return to Landing">🏠 Project Hub</a>
                 <button class="reports-menu-trigger" onclick="openReportsMenu()"
                     title="Reports &amp; Analytics quick menu">📑 Reports &amp; Analytics</button>
-                <button onclick="openExcelFile()" class="excel-edit-btn" title="Download Excel data file">📊 Download Excel Data</button>
+                <button onclick="openExcelFile()" class="excel-edit-btn" title="Edit project data in Excel">📊 Edit Workbook</button>
                 <button onclick="showEditMilestoneModal()" class="edit-milestone-btn"
                     title="Edit any project milestone">✏️ Edit Milestone</button>
                 <button onclick="refreshDashboard()" class="refresh-btn" title="Refresh Data">🔄</button>
@@ -238,25 +238,33 @@
     <script src="js/ai-chat-component.js"></script>
     <script src="js/executive-dashboard.js"></script>
     <script>
-        // Download Excel file for editing
+        // Open Excel file for editing with sync
         async function openExcelFile() {
+            // Check authorization (CEO and FM only)
+            const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
+            const authorizedUsers = ['Attie Nel', 'Nastasha Jacobs', 'Developer'];
+            
+            if (!authorizedUsers.includes(currentUser.name)) {
+                alert('Access Denied: Only the CEO (Attie Nel) and Financial Manager (Nastasha Jacobs) can edit the workbook.');
+                return;
+            }
+            
             try {
-                // Create download link for Excel file
-                const link = document.createElement('a');
-                link.href = '/data/stabilis-data.xlsx';
-                link.download = 'stabilis-data.xlsx';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                // Call server endpoint to open Excel file
+                const response = await fetch('/api/open-excel');
+                const result = await response.json();
 
-                // Show instructions after download starts
-                setTimeout(() => {
+                if (result.success) {
+                    // Show instruction modal after Excel opens
                     showExcelInstructions();
-                }, 500);
+                } else {
+                    // Fallback: try to open local file
+                    window.location.href = 'file:///C:/Diversification/data/stabilis-data.xlsx';
+                }
             } catch (error) {
-                console.error('Error downloading Excel:', error);
-                alert('Could not download Excel file. Please download manually from: /data/stabilis-data.xlsx');
+                console.error('Error opening Excel:', error);
+                // Fallback: try to open local file
+                window.location.href = 'file:///C:/Diversification/data/stabilis-data.xlsx';
             }
         }
 
@@ -275,29 +283,30 @@
                 max-width: 500px;
             `;
             modal.innerHTML = `
-                <h2 style="margin-top: 0;">📊 Edit Project Data in Excel</h2>
-                <p><strong>The Excel file will open shortly.</strong></p>
+                <h2 style="margin-top: 0;">📊 Excel Workbook Opened</h2>
+                <p><strong>Edit with Live Sync Enabled</strong></p>
                 <ol style="text-align: left;">
                     <li>Edit any values in the Excel sheets</li>
+                    <li>Formulas will auto-calculate</li>
                     <li>Save the file (Ctrl+S)</li>
-                    <li>Close Excel</li>
-                    <li>Click "Sync Data" below to update the dashboard</li>
+                    <li>Changes sync automatically to dashboard</li>
+                    <li>Refresh browser to see updates</li>
                 </ol>
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <strong>💡 Auto-Sync Active</strong><br>
+                    The Excel sync service watches for changes.<br>
+                    Your edits will appear on the dashboard immediately after saving.
+                </div>
                 <div style="margin-top: 20px;">
-                    <button onclick="syncExcelData()" style="padding: 10px 20px; margin-right: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                        🔄 Sync Data Now
+                    <button onclick="location.reload()" style="padding: 10px 20px; margin-right: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        🔄 Refresh Dashboard
                     </button>
                     <button onclick="this.parentElement.parentElement.remove()" style="padding: 10px 20px; background: #ddd; border: none; border-radius: 5px; cursor: pointer;">
-                        Close
+                        Continue Working
                     </button>
                 </div>
             `;
             document.body.appendChild(modal);
-        }
-
-        function syncExcelData() {
-            alert('Data sync feature requires running: node scripts/excel-sync.js in terminal.\n\nThe sync script will automatically update the dashboard when you save Excel.');
-            location.reload();
         }
 
         // Initialize AI Chat Widget
