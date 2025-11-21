@@ -240,12 +240,17 @@
     <script>
         // Open Excel file for editing - now using OneDrive
         async function openExcelFile() {
-            // Check authorization (CEO and FM only)
+            // Check authorization (CEO and FM only - not board members with view-only access)
             const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
             const authorizedUsers = ['Attie Nel', 'Nastasha Jacobs', 'Developer'];
+            const boardMembers = window.BOARD_MEMBERS || ['Ds. Danie van Rensburg', 'Ds. Wynand van Niekerk'];
             
             if (!authorizedUsers.includes(currentUser.name)) {
-                alert('Access Denied: Only the CEO (Attie Nel) and Financial Manager (Nastasha Jacobs) can edit the workbook.');
+                if (boardMembers.includes(currentUser.name)) {
+                    alert('View-Only Access: Board members can view the Executive Command dashboard but cannot edit the workbook. Contact the CEO or Finance Manager for edits.');
+                } else {
+                    alert('Access Denied: Only the CEO (Attie Nel) and Financial Manager (Nastasha Jacobs) can edit the workbook.');
+                }
                 return;
             }
             

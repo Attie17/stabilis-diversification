@@ -15,6 +15,12 @@ const teamRoles = {
         { name: "Berno Paul", role: "Clinical Manager", access: "all", password: null }
     ],
 
+    // Board members with view-only access
+    board: [
+        { name: "Ds. Danie van Rensburg", role: "Chairperson", access: "view-only", password: null },
+        { name: "Ds. Wynand van Niekerk", role: "SKDBM", access: "view-only", password: null }
+    ],
+
     // Team members with specific milestone access
     team: [
         { name: "Lizette Botha", role: "Case Manager", milestones: [], password: null },
@@ -131,6 +137,11 @@ function buildUserOptions() {
         `<option value="${user.name}">${user.name} (${user.role})</option>`
     ).join('')}
         </optgroup>
+        <optgroup label="Board Members">
+            ${teamRoles.board.map(user =>
+        `<option value="${user.name}">${user.name} (${user.role})</option>`
+    ).join('')}
+        </optgroup>
         <optgroup label="Project Team">
             ${teamRoles.team.map(user =>
         `<option value="${user.name}">${user.name} (${user.role})</option>`
@@ -140,9 +151,11 @@ function buildUserOptions() {
 }
 
 const STEERING_COMMITTEE = ['Attie Nel', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
-const EXECUTIVE_USERS = ['Developer', ...STEERING_COMMITTEE];
+const BOARD_MEMBERS = ['Ds. Danie van Rensburg', 'Ds. Wynand van Niekerk'];
+const EXECUTIVE_USERS = ['Developer', ...STEERING_COMMITTEE, ...BOARD_MEMBERS];
 window.EXECUTIVE_USERS = EXECUTIVE_USERS;
 window.STEERING_COMMITTEE = STEERING_COMMITTEE;
+window.BOARD_MEMBERS = BOARD_MEMBERS;
 const DEV_AUTO_LOGIN_KEY = 'stabilis-dev-auto-login';
 const DEV_AUTO_LOGIN_DEFAULT_USER = 'Attie Nel';
 const DEV_AUTO_LOGIN_PASSWORD = 'stabilis-dev';
@@ -176,6 +189,7 @@ function persistLoggedInUser(userObj) {
     currentUser = { ...userObj };
     delete currentUser.password;
     localStorage.setItem('stabilis-user', JSON.stringify(currentUser));
+    sessionStorage.setItem('stabilis-session-active', 'true'); // Mark session as active
     if (typeof window !== 'undefined') {
         window.currentUser = currentUser;
     }
@@ -200,15 +214,24 @@ function navigateAfterLogin(fromAutoLogin = false) {
     if (!currentUser) return;
     const onExecutivePage = window.location.pathname.includes('executive-dashboard.html');
     const onProjectPage = window.location.pathname.match(/\/(wellness|turnaround|index)\.html/);
+    const onLandingPage = window.location.pathname === '/' || window.location.pathname.includes('landing');
 
-    // Only redirect executives to dashboard if coming from landing/login page, not from project pages
-    if (isExecutiveUser(currentUser.name) && !onExecutivePage && !onProjectPage && !fromAutoLogin) {
-        window.location.href = 'executive-dashboard.html';
-        return;
+    // After login, immediately redirect to appropriate dashboard
+    if (!fromAutoLogin) {
+        if (isExecutiveUser(currentUser.name) && !onExecutivePage) {
+            // Executive users go to Executive Command
+            window.location.href = 'executive-dashboard.html';
+            return;
+        } else if (!isExecutiveUser(currentUser.name) && (onLandingPage || onExecutivePage)) {
+            // Non-executive users go to Project Hub
+            window.location.href = 'index.html';
+            return;
+        }
     }
 
-    if (!fromAutoLogin && onExecutivePage && !isExecutiveUser(currentUser.name)) {
-        window.location.href = '/';
+    // Auto-login: stay on current page unless access denied
+    if (fromAutoLogin && onExecutivePage && !isExecutiveUser(currentUser.name)) {
+        window.location.href = 'index.html';
     }
 }
 
@@ -251,19 +274,37 @@ window.disableDevAutoLogin = function () {
 
 // Initialize - check if user is already logged in
 function initAuth() {
+    // Check if this is a fresh session (page reload/refresh)
+    const sessionActive = sessionStorage.getItem('stabilis-session-active');
+    
+    // If no active session marker, this is a reload - sign out and require fresh login
+    if (!sessionActive) {
+        localStorage.removeItem('stabilis-user');
+        currentUser = null;
+        if (typeof window !== 'undefined') {
+            window.currentUser = null;
+        }
+    }
+    
+    // Now check for saved user (will be null if we just cleared it above)
     const savedUser = localStorage.getItem('stabilis-user');
     if (savedUser) {
         currentUser = JSON.parse(savedUser);
         if (typeof window !== 'undefined') {
             window.currentUser = currentUser;
         }
+        sessionStorage.setItem('stabilis-session-active', 'true'); // Mark session as active
         updateUIForUser();
         initInactivityTracking(); // Start tracking inactivity
         return;
     }
+    
+    // Try auto-login for dev environment
     if (autoLoginForDev()) {
+        sessionStorage.setItem('stabilis-session-active', 'true');
         return;
     }
+    
     showLoginScreen();
 }
 
