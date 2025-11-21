@@ -1,12 +1,27 @@
 services:
   - type: web
-    name: stabilis-project-hub
+    name: stabilis-backend
     env: node
     plan: free
-    branch: main
+    branch: master
     rootDir: .
     buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_VERSION
         value: 18
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        value: https://stabilisstrategy.app
+    # Persistent disk for Excel file
+    disk:
+      name: excel-data
+      mountPath: /opt/render/project/data
+      sizeGB: 1

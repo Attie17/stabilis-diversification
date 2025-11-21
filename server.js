@@ -233,13 +233,86 @@ app.get('/api/ai/dashboard', async (req, res) => {
 
 // ===== UTILITY API ROUTES =====
 
-// Open Excel file endpoint (for local development)
+// Excel file management endpoints
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+
+// Download Excel file (for web deployment)
+app.get('/api/excel/download', (req, res) => {
+    const fs = require('fs');
+    const excelPath = path.join(__dirname, 'data', 'stabilis-data.xlsx');
+    
+    console.log('📥 Excel download request received');
+    
+    if (!fs.existsSync(excelPath)) {
+        console.error('❌ Excel file not found at:', excelPath);
+        return res.status(404).json({
+            success: false,
+            error: 'Excel file not found'
+        });
+    }
+    
+    console.log('✅ Sending Excel file for download');
+    res.download(excelPath, 'stabilis-data.xlsx', (err) => {
+        if (err) {
+            console.error('❌ Download error:', err);
+            res.status(500).json({ success: false, error: 'Download failed' });
+        } else {
+            console.log('✅ Excel file downloaded successfully');
+        }
+    });
+});
+
+// Upload Excel file (for web deployment)
+app.post('/api/excel/upload', upload.single('excel'), (req, res) => {
+    const fs = require('fs');
+    const excelPath = path.join(__dirname, 'data', 'stabilis-data.xlsx');
+    
+    console.log('📤 Excel upload request received');
+    
+    if (!req.file) {
+        return res.status(400).json({
+            success: false,
+            error: 'No file uploaded'
+        });
+    }
+    
+    try {
+        // Move uploaded file to data directory
+        fs.renameSync(req.file.path, excelPath);
+        console.log('✅ Excel file uploaded successfully');
+        
+        res.json({
+            success: true,
+            message: 'Excel file updated successfully'
+        });
+    } catch (error) {
+        console.error('❌ Upload error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// Open Excel file endpoint (for local development only)
 app.get('/api/open-excel', (req, res) => {
     const { exec } = require('child_process');
     const fs = require('fs');
     const excelPath = path.join(__dirname, 'data', 'stabilis-data.xlsx');
     
     console.log('📊 Excel open request received');
+    
+    // Check if running on cloud (Render/Heroku) - don't try to open Excel
+    if (process.env.RENDER || process.env.HEROKU || process.env.NODE_ENV === 'production') {
+        console.log('🌐 Running on cloud - redirecting to download/upload flow');
+        return res.json({
+            success: true,
+            cloudDeployment: true,
+            message: 'Excel file management available via download/upload',
+            downloadUrl: '/api/excel/download'
+        });
+    }
     
     // First verify file exists
     if (!fs.existsSync(excelPath)) {
@@ -253,8 +326,10 @@ app.get('/api/open-excel', (req, res) => {
     
     console.log('✅ File exists, attempting to open:', excelPath);
     
-    // Use simpler command without complex PowerShell syntax
-    const command = `start "" "${excelPath}"`;
+    // Use simpler command without complex PowerShell syntax (Windows only)
+    const command = process.platform === 'win32' 
+        ? `start "" "${excelPath}"`
+        : `open "${excelPath}"`; // Mac
     
     exec(command, (error, stdout, stderr) => {
         if (error) {

@@ -238,7 +238,7 @@
     <script src="js/ai-chat-component.js"></script>
     <script src="js/executive-dashboard.js"></script>
     <script>
-        // Open Excel file for editing with live sync
+        // Open Excel file for editing with hybrid deployment support
         async function openExcelFile() {
             // Check authorization (CEO and FM only)
             const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
@@ -249,19 +249,18 @@
                 return;
             }
             
-            // Check if we're on localhost - Excel opening only works locally
-            if (!window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
-                alert('⚠️ Excel Editing Not Available\n\nThe "Edit Workbook" feature requires direct file system access and only works when running locally.\n\nTo edit the Excel file:\n1. Run the server locally: npm start\n2. Access the dashboard at: http://localhost:3000/executive-dashboard.html\n3. Click "Edit Workbook" there\n\nNote: This is a security limitation of web browsers - they cannot open local applications from remote websites.');
-                return;
-            }
-            
             try {
-                console.log('Requesting Excel file to open...');
+                console.log('Requesting Excel file access...');
                 
-                // Call server endpoint to open Excel file
-                const response = await fetch('/api/open-excel', {
+                // Determine backend URL based on environment
+                const backendUrl = window.location.hostname.includes('localhost') 
+                    ? 'http://localhost:3000'
+                    : 'https://stabilis-backend.onrender.com'; // Your Render backend URL
+                
+                // Call server endpoint
+                const response = await fetch(`${backendUrl}/api/open-excel`, {
                     method: 'GET',
-                    cache: 'no-cache', // Prevent caching issues
+                    cache: 'no-cache',
                     headers: {
                         'Cache-Control': 'no-cache'
                     }
@@ -272,15 +271,149 @@
                 console.log('Response data:', result);
 
                 if (result.success) {
-                    // Show instruction modal after Excel opens
-                    showExcelInstructions();
+                    // Check if running on cloud deployment
+                    if (result.cloudDeployment) {
+                        showCloudExcelInstructions(backendUrl);
+                    } else {
+                        // Local deployment - Excel opened directly
+                        showExcelInstructions();
+                    }
                 } else {
                     console.error('Server returned failure:', result);
-                    alert(`Unable to open Excel file: ${result.error || 'Unknown error'}\n\nPlease ensure:\n1. The server is running (npm start)\n2. Excel is installed on your computer\n3. You are running on localhost`);
+                    alert(`Unable to access Excel file: ${result.error || 'Unknown error'}`);
                 }
             } catch (error) {
-                console.error('Error opening Excel:', error);
-                alert(`Unable to open Excel file: ${error.message}\n\nPlease ensure:\n1. The server is running (npm start)\n2. You are accessing via localhost:3000\n\nNote: This feature only works on local deployment.`);
+                console.error('Error accessing Excel:', error);
+                alert(`Unable to access Excel file: ${error.message}\n\nPlease check your connection and try again.`);
+            }
+        }
+
+        function showCloudExcelInstructions(backendUrl) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                z-index: 10000;
+                max-width: 600px;
+            `;
+            modal.innerHTML = `
+                <h3 style="margin-top: 0; color: #2563eb;">📊 Edit Excel Workbook</h3>
+                <p style="line-height: 1.6; color: #374151;">
+                    You're accessing from a web deployment. To edit the Excel file:
+                </p>
+                <ol style="line-height: 1.8; color: #374151;">
+                    <li><strong>Download</strong> the current file</li>
+                    <li><strong>Edit</strong> in Excel on your computer</li>
+                    <li><strong>Upload</strong> the updated file</li>
+                    <li><strong>Refresh</strong> the dashboard to see changes</li>
+                </ol>
+                <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+                    <a href="${backendUrl}/api/excel/download" 
+                       download="stabilis-data.xlsx"
+                       style="background: #2563eb; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500;">
+                        📥 Download Excel
+                    </a>
+                    <button onclick="showUploadDialog('${backendUrl}')" 
+                            style="background: #059669; color: white; padding: 12px 24px; border-radius: 6px; border: none; cursor: pointer; font-weight: 500;">
+                        📤 Upload Excel
+                    </button>
+                </div>
+                <button onclick="this.parentElement.remove()" 
+                        style="margin-top: 15px; background: #6b7280; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; width: 100%;">
+                    Close
+                </button>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function showUploadDialog(backendUrl) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                z-index: 10001;
+                max-width: 500px;
+            `;
+            modal.innerHTML = `
+                <h3 style="margin-top: 0; color: #059669;">📤 Upload Excel File</h3>
+                <p style="line-height: 1.6; color: #374151;">
+                    Select the updated Excel file to upload:
+                </p>
+                <input type="file" id="excelFileInput" accept=".xlsx,.xls" 
+                       style="margin: 15px 0; padding: 10px; border: 2px dashed #d1d5db; border-radius: 6px; width: 100%;">
+                <div id="uploadStatus" style="margin: 10px 0; padding: 10px; border-radius: 6px; display: none;"></div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button onclick="uploadExcelFile('${backendUrl}')" 
+                            style="flex: 1; background: #059669; color: white; padding: 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 500;">
+                        Upload
+                    </button>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            style="flex: 1; background: #6b7280; color: white; padding: 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 500;">
+                        Cancel
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function uploadExcelFile(backendUrl) {
+            const fileInput = document.getElementById('excelFileInput');
+            const statusDiv = document.getElementById('uploadStatus');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = '#fee2e2';
+                statusDiv.style.color = '#991b1b';
+                statusDiv.textContent = '⚠️ Please select a file first';
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('excel', file);
+            
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#dbeafe';
+            statusDiv.style.color = '#1e40af';
+            statusDiv.textContent = '⏳ Uploading...';
+            
+            try {
+                const response = await fetch(`${backendUrl}/api/excel/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.style.background = '#d1fae5';
+                    statusDiv.style.color = '#065f46';
+                    statusDiv.textContent = '✅ File uploaded successfully! Refreshing dashboard...';
+                    
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    statusDiv.style.background = '#fee2e2';
+                    statusDiv.style.color = '#991b1b';
+                    statusDiv.textContent = `❌ Upload failed: ${result.error}`;
+                }
+            } catch (error) {
+                statusDiv.style.background = '#fee2e2';
+                statusDiv.style.color = '#991b1b';
+                statusDiv.textContent = `❌ Upload error: ${error.message}`;
             }
         }
 
