@@ -124,12 +124,9 @@ class AIChatComponent {
                 contextualMessage = `[Context: ${this.context.project} project] ${message}`;
             }
 
-            // Determine API endpoint (Vercel uses /api/chat, local uses /api/ai/chat)
-            const apiEndpoint = window.location.hostname.includes('vercel.app') ||
-                window.location.hostname.includes('stabiliswellness.pro') ||
-                window.location.hostname.includes('stabilisstrategy.app')
-                ? '/api/chat'  // Vercel serverless function
-                : '/api/ai/chat';  // Local server
+            // Always use full backend URL for API calls
+            const backendUrl = 'https://stabilis-diversification.onrender.com';
+            const apiEndpoint = `${backendUrl}/api/ai/chat`;
 
             // Send to AI
             const response = await fetch(apiEndpoint, {
@@ -139,8 +136,7 @@ class AIChatComponent {
                 },
                 body: JSON.stringify({
                     message: contextualMessage,
-                    thread_id: this.threadId,
-                    context: this.context.project || 'General'
+                    thread_id: this.threadId
                 })
             });
 
@@ -149,23 +145,9 @@ class AIChatComponent {
             }
 
             const data = await response.json();
-
-            // Store thread ID for conversation continuity (local server only)
-            if (data.thread_id) {
-                this.threadId = data.thread_id;
-            }
-
-            // Remove typing indicator
-            this.hideTyping();
-
-            // Add AI response to UI
-            const aiResponse = data.response || data.message || 'No response received';
-            this.addMessage('assistant', aiResponse);
-
+            this.handleAIResponse(data);
         } catch (error) {
-            console.error('AI Chat error:', error);
-            this.hideTyping();
-            this.addMessage('assistant', '❌ Sorry, I encountered an error. Please try again. Make sure the server is running and OpenAI API key is configured.');
+            this.handleError(error);
         }
 
         this.isTyping = false;
