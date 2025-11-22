@@ -245,6 +245,11 @@ body {
     margin-bottom: 1.5rem;
 }
 
+.stats-grid.stats-compact {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.85rem;
+}
+
 .stat-card {
     background: var(--bg-primary);
     border-radius: 1rem;
@@ -252,6 +257,12 @@ body {
     box-shadow: var(--shadow);
     text-align: center;
     transition: transform 0.2s;
+}
+
+.stats-grid.stats-compact .stat-card {
+    padding: 0.95rem;
+    border-radius: 0.85rem;
+    min-height: 120px;
 }
 
 .stat-card:active {
@@ -263,11 +274,20 @@ body {
     margin-bottom: 0.5rem;
 }
 
+.stats-grid.stats-compact .stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.35rem;
+}
+
 .stat-value {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--primary);
     margin-bottom: 0.25rem;
+}
+
+.stats-grid.stats-compact .stat-value {
+    font-size: 1.25rem;
 }
 
 .stat-label {
@@ -282,6 +302,43 @@ body {
     padding: 1.5rem;
     box-shadow: var(--shadow);
     margin-bottom: 1.5rem;
+}
+
+.critical-actions-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.critical-actions-card .card-toggle {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 1.25rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.critical-actions-card .card-toggle .toggle-icon {
+    transition: transform 0.2s ease;
+}
+
+.critical-actions-card .card-toggle[aria-expanded="true"] .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.critical-actions-body {
+    padding: 0 1.5rem 1.5rem;
+    border-top: 1px solid var(--bg-tertiary);
+}
+
+.critical-actions-body[hidden] {
+    display: none;
 }
 
 .card h2 {
@@ -913,6 +970,29 @@ body {
     padding: 0.25rem 0.5rem;
     line-height: 1;
     margin-right: 0.5rem;
+}
+
+.turnaround-top-controls {
+    display: flex;
+    justify-content: center;
+    padding: 0.35rem 0 0.25rem;
+}
+
+.turnaround-top-controls .menu-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    width: 48px;
+    height: 48px;
+    margin: 0;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.turnaround-top-controls .menu-btn:focus,
+.turnaround-top-controls .menu-btn:active {
+    background: rgba(255, 255, 255, 0.25);
+    outline: none;
+    transform: translateY(1px);
 }
 
 /* Project Badge */
@@ -1562,9 +1642,34 @@ body {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    justify-content: space-between;
+    flex-wrap: wrap;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
     border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.copilot-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.copilot-edit-btn {
+    background: transparent;
+    border: 1px solid rgba(102, 126, 234, 0.4);
+    color: #4c51bf;
+    padding: 0.4rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.copilot-edit-btn:hover {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.8);
 }
 
 .copilot-icon {
@@ -1646,6 +1751,90 @@ body {
 .copilot-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+.copilot-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.copilot-editor label {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.copilot-editor input,
+.copilot-editor textarea {
+    width: 100%;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 6px;
+    padding: 0.6rem 0.75rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: vertical;
+}
+
+.copilot-editor textarea {
+    min-height: 120px;
+}
+
+.copilot-editor-hint {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.copilot-editor-status {
+    min-height: 1.25rem;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.copilot-editor-status[data-state="success"] {
+    color: #2b8a3e;
+}
+
+.copilot-editor-status[data-state="error"] {
+    color: #c92a2a;
+}
+
+.copilot-editor-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.copilot-btn-primary,
+.copilot-btn-secondary {
+    border-radius: 6px;
+    padding: 0.6rem 1.4rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.copilot-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border: 1px solid transparent;
+}
+
+.copilot-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.copilot-btn-secondary {
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #ced4da;
+}
+
+.copilot-btn-secondary:hover {
+    background: #e9ecef;
 }
 
 /* Revenue Calculator Styles */

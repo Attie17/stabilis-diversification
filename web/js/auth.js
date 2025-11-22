@@ -994,3 +994,4 @@ window.canAccessCopilot = canAccessCopilot;
 window.getCopilotButton = getCopilotButton;
 window.getMilestoneOwnerBadge = getMilestoneOwnerBadge;
 window.getCurrentUser = () => currentUser;
+window.milestoneOwners = milestoneOwners;

@@ -215,7 +215,10 @@ function updateDashboard() {
 
     // Milestones
     const { total, complete } = getMilestoneStatus();
-    document.getElementById('milestones-done').textContent = `${complete}/${total}`;
+    const milestoneProgressEl = document.getElementById('milestones-done');
+    if (milestoneProgressEl) {
+        milestoneProgressEl.textContent = `${complete}/${total}`;
+    }
 
     // Dates
     document.getElementById('timeline-start').textContent = formatDate(turnaroundData.startDate);
@@ -423,6 +426,11 @@ function renderPhases() {
             </div>
         `;
     }).join('');
+
+    currentOpenPhase = null;
+    currentOpenMilestone = null;
+    currentOpenChecklist = null;
+    currentOpenNotes = null;
 }
 
 function renderKPIs() {
@@ -508,6 +516,7 @@ function renderRisks() {
 }
 
 // Toggle Functions
+let currentOpenPhase = null;
 let currentOpenMilestone = null;
 let currentOpenChecklist = null;
 let currentOpenNotes = null;
@@ -517,23 +526,64 @@ window.togglePhase = function (phaseId, event) {
     if (event) event.stopPropagation();
 
     const phaseCard = document.querySelector(`[data-phase-id="${phaseId}"]`);
+    if (!phaseCard) return;
+    const description = phaseCard.querySelector('.phase-description-section');
+    const isOpen = description && description.style.display === 'block';
+
+    if (isOpen) {
+        closePhaseCard(phaseId);
+        return;
+    }
+
+    if (currentOpenPhase && currentOpenPhase !== phaseId) {
+        closePhaseCard(currentOpenPhase);
+    }
+
+    openPhaseCard(phaseCard, phaseId);
+};
+
+function openPhaseCard(phaseCard, phaseId) {
     const description = phaseCard.querySelector('.phase-description-section');
     const milestones = phaseCard.querySelector('.phase-milestones');
     const arrow = phaseCard.querySelector('.expand-btn');
 
-    // Toggle display
-    const isOpen = description.style.display === 'block';
-    description.style.display = isOpen ? 'none' : 'block';
-    milestones.style.display = isOpen ? 'none' : 'block';
-    arrow.textContent = isOpen ? '▼' : '▲';
+    if (description) description.style.display = 'block';
+    if (milestones) milestones.style.display = 'block';
+    if (arrow) arrow.textContent = '▲';
 
-    // Close all milestone details when closing phase
-    if (isOpen) {
+    phaseCard.classList.add('phase-open');
+    currentOpenPhase = phaseId;
+}
+
+function closePhaseCard(phaseId) {
+    const phaseCard = document.querySelector(`[data-phase-id="${phaseId}"]`);
+    if (!phaseCard) return;
+
+    const description = phaseCard.querySelector('.phase-description-section');
+    const milestones = phaseCard.querySelector('.phase-milestones');
+    const arrow = phaseCard.querySelector('.expand-btn');
+
+    if (description) description.style.display = 'none';
+    if (milestones) {
+        milestones.style.display = 'none';
         milestones.querySelectorAll('.milestone-details').forEach(d => d.style.display = 'none');
-        currentOpenMilestone = null;
-        closeAllInMilestone(currentOpenMilestone);
     }
-};
+    if (arrow) arrow.textContent = '▼';
+
+    phaseCard.classList.remove('phase-open');
+    if (currentOpenPhase === phaseId) {
+        currentOpenPhase = null;
+    }
+
+    if (currentOpenMilestone) {
+        const details = phaseCard.querySelector(`[data-milestone-details="${currentOpenMilestone}"]`);
+        if (details) {
+            checkUnsavedAndClose(currentOpenMilestone, details);
+            closeAllInMilestone(currentOpenMilestone);
+            currentOpenMilestone = null;
+        }
+    }
+}
 
 window.toggleMilestoneDetails = function (milestoneId, event) {
     if (event) event.stopPropagation();
@@ -626,6 +676,11 @@ window.saveChecklistNoteAndClose = function (milestoneId, checklistIdx) {
 };
 
 function closeAllInMilestone(milestoneId) {
+    if (!milestoneId) {
+        currentOpenChecklist = null;
+        currentOpenNotes = null;
+        return;
+    }
     // Close checklist
     const checklist = document.getElementById(`checklist-${milestoneId}`);
     if (checklist) checklist.style.display = 'none';
@@ -669,6 +724,17 @@ function bindEvents() {
 
     // FAB
     document.getElementById('add-update')?.addEventListener('click', openTurnaroundUpdateModal);
+
+    // Critical actions toggle
+    const criticalToggle = document.getElementById('critical-actions-toggle');
+    const criticalBody = document.getElementById('critical-actions-body');
+    if (criticalToggle && criticalBody) {
+        criticalToggle.addEventListener('click', () => {
+            const expanded = criticalToggle.getAttribute('aria-expanded') === 'true';
+            criticalToggle.setAttribute('aria-expanded', (!expanded).toString());
+            criticalBody.hidden = expanded;
+        });
+    }
 }
 
 function openTurnaroundUpdateModal() {

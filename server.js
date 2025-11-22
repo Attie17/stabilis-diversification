@@ -16,6 +16,7 @@ const CronScheduler = require('./services/cron-scheduler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const CEO_USER_NAME = (process.env.CEO_USER_NAME || 'Attie Nel').toLowerCase();
 
 // Middleware
 app.use(cors());
@@ -41,7 +42,29 @@ const scheduler = new CronScheduler(supabase);
 // Store active threads per user/session (in-memory for now)
 const activeThreads = new Map();
 
+function getRequestingUser(req) {
+    const headerName = req.headers['x-user-name'];
+    if (typeof headerName === 'string') {
+        return headerName.trim();
+    }
+    if (Array.isArray(headerName)) {
+        return headerName[0].trim();
+    }
+    return null;
+}
+
+function requireCEOAccess(req, res, next) {
+    const userName = getRequestingUser(req);
+    if (userName && userName.toLowerCase() === CEO_USER_NAME) {
+        return next();
+    }
+    console.warn('🚫 AI endpoint blocked for user:', userName || 'unknown');
+    return res.status(403).json({ error: 'AI Executive Assistant access is limited to the CEO.' });
+}
+
 // ===== BACKEND API ROUTES =====
+
+app.use('/api/ai', requireCEOAccess);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -61,7 +84,7 @@ app.get('/api/health', (req, res) => {
 // AI Chat endpoint
 app.post('/api/ai/chat', async (req, res) => {
     try {
-        const { message, thread_id } = req.body;
+        const { message, thread_id, session_id } = req.body;
 
         if (!message) {
             return res.status(400).json({ error: 'Message is required' });
@@ -69,20 +92,31 @@ app.post('/api/ai/chat', async (req, res) => {
 
         console.log(`\n💬 Chat request: "${message.substring(0, 50)}..."`);
 
+        const sessionKey = session_id || req.headers['x-session-id'] || req.ip;
+
         // Get or create thread for this session
         let threadId = thread_id;
+        if (!threadId && sessionKey && activeThreads.has(sessionKey)) {
+            threadId = activeThreads.get(sessionKey);
+        }
+
         if (!threadId) {
             const thread = await aiService.createThread();
             threadId = thread.id;
-            activeThreads.set('default', threadId);
         }
 
         // Get response from AI
         const response = await aiService.chat(message, threadId);
 
+        if (sessionKey) {
+            activeThreads.set(sessionKey, response.thread_id);
+        }
+
         res.json({
             response: response.response,
             thread_id: response.thread_id,
+            run_id: response.run_id,
+            latency_ms: response.latency_ms,
             timestamp: new Date().toISOString()
         });
     } catch (error) {

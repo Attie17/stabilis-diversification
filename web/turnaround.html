@@ -126,8 +126,10 @@
 
         <!-- Header -->
         <header class="app-header turnaround-header">
+            <div class="turnaround-top-controls">
+                <button class="menu-btn" id="menu-btn" aria-label="Open turnaround menu">☰</button>
+            </div>
             <div class="header-content">
-                <button class="menu-btn" id="menu-btn">☰</button>
                 <div class="header-title-section">
                     <div class="title-with-badge">
                         <h1>🔄 Turnaround Strategy</h1>
@@ -164,7 +166,7 @@
                 </div>
 
                 <!-- Stats Cards -->
-                <div class="stats-grid">
+                <div class="stats-grid stats-compact">
                     <div class="stat-card urgent">
                         <div class="stat-icon">⚠️</div>
                         <div class="stat-value" id="progress-percent">0%</div>
@@ -174,11 +176,6 @@
                         <div class="stat-icon">💰</div>
                         <div class="stat-value">-15.5%</div>
                         <div class="stat-label">Operating Margin (Target: +5%)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🎯</div>
-                        <div class="stat-value" id="milestones-done">0/18</div>
-                        <div class="stat-label">Milestones</div>
                     </div>
                     <div class="stat-card urgent">
                         <div class="stat-icon">📅</div>
@@ -218,10 +215,16 @@
                 </div>
 
                 <!-- Critical Actions -->
-                <div class="card">
-                    <h2>Critical Actions (Next 7 Days)</h2>
-                    <div class="milestone-list" id="critical-milestones">
-                        <!-- Populated by JS -->
+                <div class="card critical-actions-card">
+                    <button class="card-toggle" id="critical-actions-toggle" aria-expanded="false" type="button">
+                        <span>See Critical Actions</span>
+                        <span class="toggle-icon">▼</span>
+                    </button>
+                    <div class="critical-actions-body" id="critical-actions-body" hidden>
+                        <h2>Critical Actions (Next 7 Days)</h2>
+                        <div class="milestone-list" id="critical-milestones">
+                            <!-- Populated by JS -->
+                        </div>
                     </div>
                 </div>
             </div>

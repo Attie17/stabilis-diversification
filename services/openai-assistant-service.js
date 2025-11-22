@@ -13,6 +13,8 @@ class OpenAIAssistantService {
         });
         this.assistantId = null;
         this.threadId = null;
+        this.pollIntervalMs = Number(process.env.OPENAI_POLL_INTERVAL_MS) || 400;
+        this.maxWaitMs = Number(process.env.OPENAI_MAX_WAIT_MS) || 45000;
     }
 
     // Create or retrieve assistant
@@ -329,73 +331,102 @@ When asked about project status, revenue, or risks, use the custom functions to 
 
     // Send message and get response
     async chat(message, threadId = null) {
+        const startTime = Date.now();
+
         try {
-            // Use existing thread or create new one
-            if (!threadId && !this.threadId) {
-                await this.createThread();
-            }
-            const activeThreadId = threadId || this.threadId;
+            const activeThreadId = await this.ensureThreadId(threadId);
 
             console.log(`   📝 Thread ID: ${activeThreadId}`);
             console.log(`   📝 Assistant ID: ${this.assistantId}`);
 
-            // Add user message
             await this.openai.beta.threads.messages.create(activeThreadId, {
                 role: "user",
                 content: message
             });
 
-            // Run assistant
             const run = await this.openai.beta.threads.runs.create(activeThreadId, {
                 assistant_id: this.assistantId
             });
 
             console.log(`   📝 Run ID: ${run.id}`);
-            console.log(`   📝 Run status: ${run.status}`);
 
-            // Poll for completion
-            let runStatus = await this.openai.beta.threads.runs.retrieve(run.id, { thread_id: activeThreadId });
+            await this.waitForRunCompletion(run, activeThreadId, startTime);
 
-            while (runStatus.status !== 'completed' && runStatus.status !== 'failed' && runStatus.status !== 'requires_action') {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                runStatus = await this.openai.beta.threads.runs.retrieve(run.id, { thread_id: activeThreadId });
-            }
-
-            // Handle function calls
-            if (runStatus.status === 'requires_action') {
-                const toolOutputs = await this.handleFunctionCalls(runStatus.required_action.submit_tool_outputs.tool_calls);
-
-                // Submit function outputs
-                await this.openai.beta.threads.runs.submitToolOutputs(run.id, {
-                    thread_id: activeThreadId,
-                    tool_outputs: toolOutputs
-                });
-
-                // Wait for completion
-                runStatus = await this.openai.beta.threads.runs.retrieve(run.id, { thread_id: activeThreadId });
-                while (runStatus.status !== 'completed' && runStatus.status !== 'failed') {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    runStatus = await this.openai.beta.threads.runs.retrieve(run.id, { thread_id: activeThreadId });
-                }
-            }
-
-            if (runStatus.status === 'failed') {
-                throw new Error('Assistant run failed: ' + runStatus.last_error?.message);
-            }
-
-            // Get messages
-            const messages = await this.openai.beta.threads.messages.list(activeThreadId);
-            const lastMessage = messages.data[0];
+            const assistantResponse = await this.getLatestAssistantMessage(activeThreadId);
 
             return {
-                response: lastMessage.content[0].text.value,
+                response: assistantResponse,
                 thread_id: activeThreadId,
-                run_id: run.id
+                run_id: run.id,
+                latency_ms: Date.now() - startTime
             };
         } catch (error) {
             console.error('❌ Error in chat:', error.message);
             throw error;
         }
+    }
+
+    async ensureThreadId(threadId) {
+        if (threadId) {
+            this.threadId = threadId;
+            return threadId;
+        }
+
+        if (this.threadId) {
+            return this.threadId;
+        }
+
+        const thread = await this.createThread();
+        return thread.id;
+    }
+
+    async waitForRunCompletion(initialRun, threadId, startTime = Date.now()) {
+        let runStatus = initialRun;
+
+        while (true) {
+            if (runStatus.status === 'completed') {
+                return runStatus;
+            }
+
+            if (['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
+                const errorMessage = runStatus.last_error?.message || `Assistant run ${runStatus.status}`;
+                throw new Error(errorMessage);
+            }
+
+            if (runStatus.status === 'requires_action') {
+                const toolCalls = runStatus.required_action?.submit_tool_outputs?.tool_calls || [];
+                const toolOutputs = await this.handleFunctionCalls(toolCalls);
+
+                runStatus = await this.openai.beta.threads.runs.submitToolOutputs(runStatus.id, {
+                    thread_id: threadId,
+                    tool_outputs: toolOutputs
+                });
+                continue;
+            }
+
+            if (Date.now() - startTime > this.maxWaitMs) {
+                throw new Error('Assistant response timed out');
+            }
+
+            await this.sleep(this.pollIntervalMs);
+            runStatus = await this.openai.beta.threads.runs.retrieve(runStatus.id, { thread_id: threadId });
+        }
+    }
+
+    async getLatestAssistantMessage(threadId) {
+        const messages = await this.openai.beta.threads.messages.list(threadId, { limit: 20 });
+        const assistantMessage = messages.data.find(msg => msg.role === 'assistant');
+
+        if (!assistantMessage) {
+            throw new Error('No assistant response found');
+        }
+
+        const textBlock = assistantMessage.content.find(block => block.type === 'text');
+        return textBlock?.text?.value?.trim() || 'No text response returned.';
+    }
+
+    sleep(durationMs) {
+        return new Promise(resolve => setTimeout(resolve, durationMs));
     }
 
     // Handle function calls from assistant

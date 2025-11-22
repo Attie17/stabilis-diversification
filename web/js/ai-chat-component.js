@@ -1,13 +1,42 @@
 // Reusable AI Chat Component
 // Can be embedded in any page for context-aware AI assistance
 
+const CEO_USER_NAME = 'Attie Nel';
+
+function getStoredUserProfile() {
+    try {
+        return window.currentUser || JSON.parse(localStorage.getItem('stabilis-user') || 'null');
+    } catch (error) {
+        console.warn('Unable to read stored user profile for AI assistant', error);
+        return null;
+    }
+}
+
+function isCEOUser(user = getStoredUserProfile()) {
+    return Boolean(user && user.name === CEO_USER_NAME);
+}
+
 class AIChatComponent {
     constructor(containerId, context = {}) {
         this.container = document.getElementById(containerId);
         this.context = context; // Page-specific context (e.g., project name)
-        this.threadId = null;
+        this.threadStorageKey = `ai-thread-${containerId}`;
+        this.sessionStorageKey = `ai-session-${containerId}`;
+        this.user = getStoredUserProfile();
+        this.threadId = this.restorePersistedThread();
+        this.sessionId = this.getOrCreateSessionId();
         this.messages = [];
         this.isTyping = false;
+        this.slowResponseTimer = null;
+        this.timeoutTimer = null;
+
+        if (!isCEOUser(this.user)) {
+            if (this.container) {
+                // CEO-only policy: remove the widget so other roles never see it.
+                this.container.remove();
+            }
+            return;
+        }
 
         this.render();
         this.setupEventListeners();
@@ -27,37 +56,9 @@ class AIChatComponent {
                 </div>
                 
                 <div class="ai-chat-body">
-                    <div class="ai-chat-messages" id="ai-messages-${this.container.id}">
-                        <div class="ai-welcome-message">
-                            <div class="ai-avatar">🤖</div>
-                            <div class="ai-message-content">
-                                <p>Hello! I'm your AI Executive Assistant. I can help you with:</p>
-                                <ul>
-                                    <li>📊 Critical alerts and risks</li>
-                                    <li>💰 Revenue projections and variance</li>
-                                    <li>📝 Recent project changes</li>
-                                    <li>🎯 Milestone status and deadlines</li>
-                                    <li>🔍 Research and business intelligence</li>
-                                </ul>
-                                <p>Ask me anything about your projects!</p>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="ai-chat-messages" id="ai-messages-${this.container.id}"></div>
                     
-                    <div class="ai-suggested-questions">
-                        <button class="ai-suggestion-chip" data-question="What are my critical alerts?">
-                            🚨 Critical alerts
-                        </button>
-                        <button class="ai-suggestion-chip" data-question="Show me the revenue projection">
-                            💰 Revenue projection
-                        </button>
-                        <button class="ai-suggestion-chip" data-question="What changed recently?">
-                            📝 Recent changes
-                        </button>
-                        <button class="ai-suggestion-chip" data-question="Which milestones are overdue?">
-                            ⏰ Overdue milestones
-                        </button>
-                    </div>
+                    <div class="ai-chat-status" id="ai-status-${this.container.id}" aria-live="polite"></div>
                     
                     <div class="ai-chat-input-area">
                         <textarea 
@@ -76,14 +77,16 @@ class AIChatComponent {
     }
 
     setupEventListeners() {
-        const input = document.getElementById(`ai-input-${this.container.id}`);
-        const sendBtn = document.getElementById(`ai-send-${this.container.id}`);
+        this.inputEl = document.getElementById(`ai-input-${this.container.id}`);
+        this.sendBtn = document.getElementById(`ai-send-${this.container.id}`);
+        this.statusEl = document.getElementById(`ai-status-${this.container.id}`);
+        this.setStatus('');
 
         // Send on button click
-        sendBtn.addEventListener('click', () => this.sendMessage());
+        this.sendBtn.addEventListener('click', () => this.sendMessage());
 
         // Send on Enter (Shift+Enter for new line)
-        input.addEventListener('keydown', (e) => {
+        this.inputEl.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 this.sendMessage();
@@ -102,13 +105,12 @@ class AIChatComponent {
     }
 
     async sendMessage() {
-        const input = document.getElementById(`ai-input-${this.container.id}`);
-        const message = input.value.trim();
+        const message = this.inputEl.value.trim();
 
         if (!message || this.isTyping) return;
 
         // Clear input
-        input.value = '';
+        this.inputEl.value = '';
 
         // Add user message to UI
         this.addMessage('user', message);
@@ -116,6 +118,9 @@ class AIChatComponent {
         // Show typing indicator
         this.showTyping();
         this.isTyping = true;
+        this.setSendingState(true);
+        this.setStatus('Connecting to assistant…');
+        this.startThinkingTimer();
 
         try {
             // Add context to message if available
@@ -124,33 +129,48 @@ class AIChatComponent {
                 contextualMessage = `[Context: ${this.context.project} project] ${message}`;
             }
 
-            // Always use full backend URL for API calls
-            const backendUrl = 'https://stabilis-diversification.onrender.com';
-            const apiEndpoint = `${backendUrl}/api/ai/chat`;
+            const apiEndpoint = `${this.getBackendBaseUrl()}/api/ai/chat`;
 
             // Send to AI
             const response = await fetch(apiEndpoint, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: this.buildAuthorizedHeaders(),
                 body: JSON.stringify({
                     message: contextualMessage,
-                    thread_id: this.threadId
+                    thread_id: this.threadId,
+                    session_id: this.sessionId
                 })
             });
 
+            let data;
             if (!response.ok) {
-                throw new Error(`API error: ${response.status}`);
+                let details = response.statusText || 'Unknown error';
+                try {
+                    const errorBody = await response.json();
+                    details = errorBody.error || errorBody.message || details;
+                } catch (err) {
+                    // Ignore JSON parse errors for non-JSON responses
+                }
+                throw new Error(`API error ${response.status}: ${details}`);
+            } else {
+                data = await response.json();
             }
 
-            const data = await response.json();
             this.handleAIResponse(data);
         } catch (error) {
             this.handleError(error);
+        } finally {
+            this.isTyping = false;
+            this.clearThinkingTimer();
         }
+    }
 
-        this.isTyping = false;
+    buildAuthorizedHeaders() {
+        const headers = { 'Content-Type': 'application/json' };
+        if (this.user?.name) {
+            headers['X-User-Name'] = this.user.name;
+        }
+        return headers;
     }
 
     addMessage(role, content) {
@@ -226,6 +246,122 @@ class AIChatComponent {
         return div.innerHTML;
     }
 
+    handleAIResponse(data) {
+        this.hideTyping();
+        this.setSendingState(false);
+
+        if (data.thread_id) {
+            this.persistThreadId(data.thread_id);
+        }
+
+        const reply = data.response || 'No response received.';
+        this.addMessage('assistant', reply);
+
+        if (typeof data.latency_ms === 'number') {
+            const seconds = (data.latency_ms / 1000).toFixed(1);
+            this.setStatus(`Answered in ${seconds}s`, 'success');
+        } else {
+            this.setStatus('');
+        }
+    }
+
+    handleError(error) {
+        console.error('AI chat error:', error);
+        this.hideTyping();
+        this.setSendingState(false);
+        const message = error?.message || 'Something went wrong. Please try again.';
+        this.setStatus(message, 'error');
+        this.addMessage('assistant', `⚠️ ${message}`);
+    }
+
+    setSendingState(isSending) {
+        if (!this.sendBtn) return;
+        this.sendBtn.disabled = isSending;
+        if (isSending) {
+            this.sendBtn.classList.add('loading');
+        } else {
+            this.sendBtn.classList.remove('loading');
+        }
+    }
+
+    startThinkingTimer() {
+        this.clearThinkingTimer();
+        this.slowResponseTimer = setTimeout(() => {
+            this.setStatus('Still thinking…', 'pending');
+        }, 6000);
+
+        this.timeoutTimer = setTimeout(() => {
+            this.setStatus('Taking longer than usual. Hang tight…', 'pending');
+        }, 12000);
+    }
+
+    clearThinkingTimer() {
+        if (this.slowResponseTimer) {
+            clearTimeout(this.slowResponseTimer);
+            this.slowResponseTimer = null;
+        }
+
+        if (this.timeoutTimer) {
+            clearTimeout(this.timeoutTimer);
+            this.timeoutTimer = null;
+        }
+    }
+
+    setStatus(message, state = 'info') {
+        if (!this.statusEl) return;
+        this.statusEl.textContent = message || '';
+        this.statusEl.dataset.state = state;
+    }
+
+    getBackendBaseUrl() {
+        if (window.STABILIS_BACKEND_URL) {
+            return window.STABILIS_BACKEND_URL;
+        }
+
+        const host = window.location.hostname;
+        const isLocal = host === 'localhost' || host === '127.0.0.1';
+
+        if (isLocal) {
+            return 'http://localhost:3000';
+        }
+
+        return 'https://stabilis-diversification.onrender.com';
+    }
+
+    persistThreadId(threadId) {
+        this.threadId = threadId;
+        try {
+            if (!threadId) {
+                window.localStorage.removeItem(this.threadStorageKey);
+            } else {
+                window.localStorage.setItem(this.threadStorageKey, threadId);
+            }
+        } catch (error) {
+            console.warn('Unable to persist thread ID:', error);
+        }
+    }
+
+    restorePersistedThread() {
+        try {
+            return window.localStorage.getItem(this.threadStorageKey);
+        } catch (error) {
+            return null;
+        }
+    }
+
+    getOrCreateSessionId() {
+        try {
+            const existing = window.localStorage.getItem(this.sessionStorageKey);
+            if (existing) return existing;
+
+            const newId = (window.crypto?.randomUUID?.() || `session-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+            window.localStorage.setItem(this.sessionStorageKey, newId);
+            return newId;
+        } catch (error) {
+            return `session-${Date.now()}`;
+        }
+    }
+
     // Public methods
     minimize() {
         this.container.querySelector('.ai-chat-widget').classList.add('minimized');
@@ -239,7 +375,7 @@ class AIChatComponent {
         const messagesContainer = document.getElementById(`ai-messages-${this.container.id}`);
         messagesContainer.innerHTML = '';
         this.messages = [];
-        this.threadId = null;
+        this.persistThreadId(null);
         this.render();
         this.setupEventListeners();
     }

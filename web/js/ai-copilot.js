@@ -794,16 +794,60 @@ const copilotData = {
     }
 };
 
+const COPILOT_OVERRIDE_KEY = 'stabilis-copilot-overrides';
+let copilotOverrides = {};
+
+function applyCopilotOverrides() {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+        return;
+    }
+
+    try {
+        const stored = JSON.parse(localStorage.getItem(COPILOT_OVERRIDE_KEY) || '{}');
+        copilotOverrides = stored;
+
+        Object.entries(stored).forEach(([milestoneId, override]) => {
+            const base = copilotData.milestones[milestoneId] || {
+                title: milestoneId,
+                simpleExplanation: '',
+                whatYouNeed: [],
+                tips: [],
+                commonQuestions: []
+            };
+            copilotData.milestones[milestoneId] = {
+                ...base,
+                ...override,
+                whatYouNeed: override.whatYouNeed || base.whatYouNeed,
+                tips: override.tips || base.tips,
+                commonQuestions: override.commonQuestions || base.commonQuestions
+            };
+        });
+    } catch (error) {
+        console.warn('⚠️ Unable to load copilot overrides', error);
+        copilotOverrides = {};
+    }
+}
+
+applyCopilotOverrides();
+
 // AI Copilot Functions
 function showCopilot(milestoneId) {
     const guidance = copilotData.milestones[milestoneId];
+    const canEdit = canEditCopilotGuidance(milestoneId);
+
+    const editButton = canEdit
+        ? `<button class="copilot-edit-btn" onclick="openCopilotEditor('${milestoneId}')">✏️ Edit Guidance</button>`
+        : '';
 
     if (!guidance) {
         return `
             <div class="copilot-panel">
                 <div class="copilot-header">
-                    <span class="copilot-icon">🤖</span>
-                    <h3>AI Copilot</h3>
+                    <div class="copilot-title">
+                        <span class="copilot-icon">🤖</span>
+                        <h3>AI Copilot</h3>
+                    </div>
+                    ${canEdit ? `<button class="copilot-edit-btn" onclick="openCopilotEditor('${milestoneId}')">➕ Add Guidance</button>` : ''}
                 </div>
                 <p>No specific guidance available for this milestone yet.</p>
                 <button onclick="showGeneralHelp()" class="copilot-btn">Ask Me Anything</button>
@@ -811,11 +855,18 @@ function showCopilot(milestoneId) {
         `;
     }
 
+    const needs = Array.isArray(guidance.whatYouNeed) ? guidance.whatYouNeed : [];
+    const tips = Array.isArray(guidance.tips) ? guidance.tips : [];
+    const questions = Array.isArray(guidance.commonQuestions) ? guidance.commonQuestions : [];
+
     return `
         <div class="copilot-panel">
             <div class="copilot-header">
-                <span class="copilot-icon">🤖</span>
-                <h3>AI Copilot: ${guidance.title}</h3>
+                <div class="copilot-title">
+                    <span class="copilot-icon">🤖</span>
+                    <h3>AI Copilot: ${guidance.title}</h3>
+                </div>
+                ${editButton}
             </div>
             
             <div class="copilot-section">
@@ -826,20 +877,20 @@ function showCopilot(milestoneId) {
             <div class="copilot-section">
                 <h4>✅ What You Need</h4>
                 <ul class="copilot-list">
-                    ${guidance.whatYouNeed.map(item => `<li>${item}</li>`).join('')}
+                    ${needs.map(item => `<li>${item}</li>`).join('')}
                 </ul>
             </div>
             
             <div class="copilot-section">
                 <h4>💡 Tips for Success</h4>
                 <ul class="copilot-list">
-                    ${guidance.tips.map(tip => `<li>${tip}</li>`).join('')}
+                    ${tips.map(tip => `<li>${tip}</li>`).join('')}
                 </ul>
             </div>
             
             <div class="copilot-section">
                 <h4>❓ Common Questions</h4>
-                ${guidance.commonQuestions.map(qa => `
+                ${questions.map(qa => `
                     <div class="copilot-qa">
                         <p class="copilot-question"><strong>Q:</strong> ${qa.q}</p>
                         <p class="copilot-answer"><strong>A:</strong> ${qa.a}</p>
@@ -945,6 +996,150 @@ function showRevenueCalculatorModal() {
     showModal('💰 Revenue Calculator', showRevenueCalculator());
 }
 
+function canEditCopilotGuidance(milestoneId) {
+    if (typeof window === 'undefined') return false;
+    const getUser = window.getCurrentUser || (() => window.currentUser || null);
+    const user = getUser();
+
+    if (!user) return false;
+    if (user.access === 'all') return true;
+
+    const owners = window.milestoneOwners && window.milestoneOwners[milestoneId] || [];
+    return owners.includes(user.name);
+}
+
+function getGuidanceTemplate(milestoneId) {
+    return {
+        title: milestoneId,
+        simpleExplanation: '',
+        whatYouNeed: [],
+        tips: [],
+        commonQuestions: [],
+        ...(copilotData.milestones[milestoneId] || {})
+    };
+}
+
+function openCopilotEditor(milestoneId) {
+    if (!canEditCopilotGuidance(milestoneId)) {
+        showModal('Access Restricted', '<p>Only milestone owners or executives can edit Copilot guidance.</p>');
+        return;
+    }
+
+    const guidance = getGuidanceTemplate(milestoneId);
+    const needsText = (guidance.whatYouNeed || []).join('\n');
+    const tipsText = (guidance.tips || []).join('\n');
+    const qaText = (guidance.commonQuestions || []).map(qa => `${qa.q} | ${qa.a}`).join('\n');
+
+    showModal(`Edit Copilot Guidance – ${milestoneId}`, `
+        <div class="copilot-editor" data-milestone="${milestoneId}">
+            <div id="copilot-editor-status" class="copilot-editor-status" role="status"></div>
+            <label for="copilot-title-input">Title</label>
+            <input type="text" id="copilot-title-input" value="${escapeCopilotHtml(guidance.title || '')}" />
+
+            <label for="copilot-simple-input">Simple Explanation</label>
+            <textarea id="copilot-simple-input" rows="4">${escapeCopilotHtml(guidance.simpleExplanation || '')}</textarea>
+
+            <label for="copilot-need-input">What You Need (one item per line)</label>
+            <textarea id="copilot-need-input" rows="4">${escapeCopilotHtml(needsText)}</textarea>
+
+            <label for="copilot-tips-input">Tips (one item per line)</label>
+            <textarea id="copilot-tips-input" rows="4">${escapeCopilotHtml(tipsText)}</textarea>
+
+            <label for="copilot-qa-input">Common Questions (format: Question | Answer per line)</label>
+            <textarea id="copilot-qa-input" rows="6">${escapeCopilotHtml(qaText)}</textarea>
+
+            <p class="copilot-editor-hint">Changes save to this browser and can be exported later. Content stays locked unless you deliberately update it.</p>
+
+            <div class="copilot-editor-actions">
+                <button class="copilot-btn-primary" onclick="saveCopilotGuidance('${milestoneId}')">Save Guidance</button>
+                <button class="copilot-btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    `);
+}
+
+function saveCopilotGuidance(milestoneId) {
+    if (!canEditCopilotGuidance(milestoneId)) {
+        updateCopilotEditorStatus('You no longer have permission to edit this guidance.', 'error');
+        return;
+    }
+
+    const title = document.getElementById('copilot-title-input')?.value.trim() || milestoneId;
+    const simpleExplanation = document.getElementById('copilot-simple-input')?.value.trim() || '';
+    const whatYouNeed = serializeListInput(document.getElementById('copilot-need-input')?.value || '');
+    const tips = serializeListInput(document.getElementById('copilot-tips-input')?.value || '');
+    const commonQuestions = serializeQuestionsInput(document.getElementById('copilot-qa-input')?.value || '');
+
+    const updates = {
+        title,
+        simpleExplanation,
+        whatYouNeed,
+        tips,
+        commonQuestions
+    };
+
+    copilotOverrides[milestoneId] = updates;
+
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+        localStorage.setItem(COPILOT_OVERRIDE_KEY, JSON.stringify(copilotOverrides));
+    }
+
+    copilotData.milestones[milestoneId] = {
+        ...getGuidanceTemplate(milestoneId),
+        ...updates
+    };
+
+    const copilotContent = document.getElementById(`copilot-${milestoneId}`);
+    if (copilotContent) {
+        copilotContent.innerHTML = showCopilot(milestoneId);
+        copilotContent.dataset.copilotLoaded = 'true';
+    }
+
+    updateCopilotEditorStatus('✅ Guidance updated successfully.', 'success');
+    setTimeout(() => {
+        if (typeof closeModal === 'function') {
+            closeModal();
+        }
+    }, 1000);
+}
+
+function serializeListInput(value) {
+    return value
+        .split('\n')
+        .map(item => item.trim())
+        .filter(Boolean);
+}
+
+function serializeQuestionsInput(value) {
+    return value
+        .split('\n')
+        .map(line => {
+            const parts = line.split('|');
+            if (parts.length < 2) return null;
+            const question = parts.shift();
+            const answer = parts.join('|');
+            if (!question || !answer) return null;
+            return { q: question.trim(), a: answer.trim() };
+        })
+        .filter(Boolean);
+}
+
+function updateCopilotEditorStatus(message, state = 'info') {
+    const statusEl = document.getElementById('copilot-editor-status');
+    if (!statusEl) return;
+    statusEl.textContent = message;
+    statusEl.dataset.state = state;
+}
+
+function escapeCopilotHtml(value = '') {
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // Export copilotData globally for access from other scripts
 window.copilotData = copilotData;
 
@@ -954,6 +1149,9 @@ window.showRevenueCalculator = showRevenueCalculator;
 window.showRevenueCalculatorModal = showRevenueCalculatorModal;
 window.showGeneralHelp = showGeneralHelp;
 window.calculateCustomRevenue = calculateCustomRevenue;
+window.openCopilotEditor = openCopilotEditor;
+window.saveCopilotGuidance = saveCopilotGuidance;
+window.canEditCopilotGuidance = canEditCopilotGuidance;
 
 // Generate Copilot button (role-based access)
 function getCopilotButton(milestoneId, projectType = 'diversification') {

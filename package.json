@@ -7,6 +7,7 @@
     "vercel-build": "echo 'Vercel build complete'",
     "start": "node server.js",
     "dev": "node server.js",
+    "kill": "kill-port 3000",
     "excel-sync": "node scripts/excel-sync.js",
     "excel-create": "node scripts/create-excel-template.js",
     "status": "powershell -ExecutionPolicy Bypass -File ./scripts/project-status.ps1",
@@ -45,6 +46,9 @@
     "node-fetch": "^2.7.0",
     "openai": "^6.9.1",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "kill-port": "^2.0.1"
   },
   "engines": {
     "node": "22.x"

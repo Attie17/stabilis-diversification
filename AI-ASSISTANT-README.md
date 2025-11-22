@@ -162,6 +162,10 @@ node scripts/setup-database.js
 node scripts/check-tables.js
 ```
 
+### Quick fix for missing alerts table
+
+If you only need to unblock the alert service, run the SQL in `database/alerts-table.sql` inside the Supabase SQL editor. The backend now falls back to in-memory alerts when the table is missing, but you'll get persistence (and no console warnings) once the table exists.
+
 ---
 
 ## 🧪 Testing

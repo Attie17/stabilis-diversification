@@ -16,12 +16,105 @@ const REPORT_DEFINITIONS = [
 ];
 
 let reportsOverlayListenersBound = false;
+let dashboardRefreshInterval = null;
+let dashboardActive = false;
+const ACCESS_OVERLAY_ID = 'executive-access-overlay';
 
 // Check if user has executive access
-function hasExecutiveAccess() {
-    const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
+function hasExecutiveAccess(user = getAuthUser()) {
+    if (!user) return false;
     const executiveUsers = window.EXECUTIVE_USERS || ['Developer', 'Attie Nel', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
-    return executiveUsers.includes(currentUser.name);
+    if (executiveUsers.includes(user.name)) return true;
+
+    const accessLevel = typeof user.access === 'string' ? user.access.toLowerCase() : '';
+    const roleLabel = typeof user.role === 'string' ? user.role.toLowerCase() : '';
+
+    if (accessLevel === 'all') return true;
+    if (roleLabel.includes('system administrator')) return true;
+
+    return false;
+}
+
+function startDashboardAutoRefresh() {
+    if (dashboardActive) return;
+    dashboardActive = true;
+    refreshDashboard();
+    dashboardRefreshInterval = setInterval(() => {
+        refreshDashboard();
+    }, 30000);
+}
+
+function stopDashboardAutoRefresh() {
+    if (!dashboardActive) return;
+    dashboardActive = false;
+    if (dashboardRefreshInterval) {
+        clearInterval(dashboardRefreshInterval);
+        dashboardRefreshInterval = null;
+    }
+}
+
+function renderAccessRestrictedState(user) {
+    let overlay = document.getElementById(ACCESS_OVERLAY_ID);
+    const userName = user?.name || 'team member';
+    const greetingName = userName.split(' ')[0] || userName;
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = ACCESS_OVERLAY_ID;
+        overlay.className = 'executive-access-overlay';
+        overlay.innerHTML = `
+            <div class="executive-access-panel">
+                <div class="access-icon">🔒</div>
+                <h2>Steering Access Required</h2>
+                <p class="access-message" data-access-message></p>
+                <p class="access-help">
+                    Executive Command contains the consolidated turnaround, diversification, and wellness portfolio. You still have access to every project dashboard and the AI Executive Assistant below.
+                </p>
+                <div class="access-actions">
+                    <button type="button" class="access-return-btn" data-return-projects>↩ Return to Project Hub</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        const returnBtn = overlay.querySelector('[data-return-projects]');
+        if (returnBtn) {
+            returnBtn.addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+        }
+    }
+    const messageEl = overlay.querySelector('[data-access-message]');
+    if (messageEl) {
+        messageEl.textContent = `Hi ${greetingName}, Executive Command is reserved for the CEO and Steering Committee.`;
+    }
+    overlay.classList.add('active');
+}
+
+function removeAccessRestrictedState() {
+    const overlay = document.getElementById(ACCESS_OVERLAY_ID);
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
+function handleExecutiveAccessState() {
+    const user = getAuthUser();
+    if (!user) {
+        stopDashboardAutoRefresh();
+        removeAccessRestrictedState();
+        return;
+    }
+    if (!hasExecutiveAccess(user)) {
+        stopDashboardAutoRefresh();
+        renderAccessRestrictedState(user);
+        return;
+    }
+    removeAccessRestrictedState();
+    startDashboardAutoRefresh();
+}
+
+function setupExecutiveDashboardAccessWatcher() {
+    handleExecutiveAccessState();
+    window.addEventListener('stabilis-user-changed', handleExecutiveAccessState);
 }
 
 function getAuthUser() {
@@ -31,6 +124,14 @@ function getAuthUser() {
         console.warn('Unable to read user session', error);
         return null;
     }
+}
+
+function getAIRequestHeaders() {
+    const user = getAuthUser();
+    if (user?.name) {
+        return { 'X-User-Name': user.name };
+    }
+    return {};
 }
 
 function isSteeringUser(user = getAuthUser()) {
@@ -216,27 +317,6 @@ function getLatestProjectData(baseData, storageKey) {
         console.warn(`Failed to hydrate project data for ${storageKey}`, error);
         return clone;
     }
-}
-
-// Initialize dashboard
-function initDashboard() {
-    // Check access
-    if (!hasExecutiveAccess()) {
-        window.location.href = 'landing.html';
-        return;
-    }
-
-    // Load all data
-    loadAllData();
-
-    // Update timestamp
-    updateTimestamp();
-
-    // Set up auto-refresh every 30 seconds
-    setInterval(() => {
-        loadAllData();
-        updateTimestamp();
-    }, 30000);
 }
 
 // Update timestamp
@@ -610,7 +690,9 @@ function updateTeamCapacity(turnaround, diversification, wellness) {
 }
 
 // Section switching
-function showSection(sectionName) {
+function showSection(sectionName, triggerBtn) {
+    console.log('showSection called:', sectionName);
+    
     // Hide all sections
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
@@ -622,10 +704,20 @@ function showSection(sectionName) {
     });
 
     // Show selected section
-    document.getElementById(`section-${sectionName}`).classList.add('active');
+    const targetSection = document.getElementById(`section-${sectionName}`);
+    if (targetSection) {
+        targetSection.classList.add('active');
+        console.log('Activated section:', sectionName);
+    } else {
+        console.error('Section not found:', `section-${sectionName}`);
+    }
 
     // Highlight active nav button
-    event.target.classList.add('active');
+    if (triggerBtn instanceof HTMLElement) {
+        triggerBtn.classList.add('active');
+    } else {
+        document.querySelector(`.nav-btn[data-section="${sectionName}"]`)?.classList.add('active');
+    }
 }
 
 window.showSection = showSection;
@@ -955,7 +1047,9 @@ function refreshDashboard() {
 // Load AI-generated alerts
 async function loadAIAlerts() {
     try {
-        const response = await fetch('/api/ai/alerts');
+        const response = await fetch('/api/ai/alerts', {
+            headers: getAIRequestHeaders()
+        });
         if (!response.ok) return;
 
         const data = await response.json();
@@ -1034,7 +1128,8 @@ function updateCriticalItemsWithAI(alerts) {
 async function acknowledgeAlert(alertId) {
     try {
         const response = await fetch(`/api/ai/alerts/${alertId}/acknowledge`, {
-            method: 'POST'
+            method: 'POST',
+            headers: getAIRequestHeaders()
         });
 
         if (response.ok) {
@@ -1064,19 +1159,169 @@ function canEditWorkbook() {
     return authorizedUsers.includes(currentUser.name);
 }
 
+function updateWorkbookButtonVisibility() {
+    const canEdit = canEditWorkbook();
+    document.querySelectorAll('[data-role="workbook-action"]').forEach(el => {
+        el.style.display = canEdit ? '' : 'none';
+    });
+}
+
+function revealDashboardAction(actionKey) {
+    if (!actionKey) return;
+    const actionBtn = document.querySelector(`[data-hamburger-action="${actionKey}"]`);
+    if (actionBtn) {
+        actionBtn.classList.add('is-visible');
+    }
+}
+
+function updateSummaryPlaceholder() {
+    const placeholder = document.getElementById('exec-summary-placeholder');
+    if (!placeholder) return;
+    const hasVisibleCard = Boolean(document.querySelector('.summary-card.summary-visible'));
+    placeholder.style.display = hasVisibleCard ? 'none' : '';
+}
+
+function toggleExecutiveSidebar() {
+    document.getElementById('sidebar')?.classList.toggle('open');
+    document.getElementById('sidebar-overlay')?.classList.toggle('active');
+}
+
+function closeExecutiveSidebar() {
+    document.getElementById('sidebar')?.classList.remove('open');
+    document.getElementById('sidebar-overlay')?.classList.remove('active');
+}
+
+function handleExecutiveSidebarSectionToggle(button) {
+    const section = button.closest('.sidebar-section');
+    const arrow = button.querySelector('.section-arrow');
+    const wasExpanded = section?.classList.contains('expanded');
+
+    document.querySelectorAll('#sidebar .sidebar-section').forEach(sec => sec.classList.remove('expanded'));
+    document.querySelectorAll('#sidebar .section-arrow').forEach(icon => icon.textContent = '▼');
+
+    if (section && !wasExpanded) {
+        section.classList.add('expanded');
+        if (arrow) arrow.textContent = '▲';
+    }
+}
+
+function handleExecutiveSidebarAction(action) {
+    revealDashboardAction(action);
+    switch (action) {
+        case 'nav-project-hub':
+            window.location.href = 'landing.html?stay=1';
+            break;
+        case 'nav-turnaround':
+            window.location.href = 'turnaround.html';
+            break;
+        case 'nav-diversification':
+            window.location.href = 'index.html';
+            break;
+        case 'nav-wellness':
+            window.location.href = 'wellness.html';
+            break;
+        case 'nav-executive':
+            window.location.href = 'executive-dashboard.html';
+            break;
+        case 'action-refresh':
+            refreshDashboard();
+            break;
+        case 'action-reports':
+            openReportsMenu();
+            break;
+        case 'action-edit-milestone':
+            if (typeof window.showEditMilestoneModal === 'function') {
+                window.showEditMilestoneModal();
+            }
+            break;
+        case 'action-edit-workbook':
+            openExcelFile();
+            break;
+        case 'action-open-chat':
+            document.getElementById('ai-chat-container')?.scrollIntoView({ behavior: 'smooth' });
+            break;
+        default:
+            break;
+    }
+    closeExecutiveSidebar();
+}
+
+function focusExecutiveSummary(targetId) {
+    if (!targetId) return;
+    showSection('overview');
+    requestAnimationFrame(() => {
+        const target = document.getElementById(targetId);
+        const card = target?.closest('.dashboard-card');
+        if (card) {
+            card.classList.add('summary-visible');
+            card.classList.add('summary-focus');
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => card.classList.remove('summary-focus'), 1500);
+            updateSummaryPlaceholder();
+        }
+    });
+    closeExecutiveSidebar();
+}
+
+function bindExecutiveSidebar() {
+    document.getElementById('menu-btn')?.addEventListener('click', toggleExecutiveSidebar);
+    document.getElementById('sidebar-close')?.addEventListener('click', closeExecutiveSidebar);
+    document.getElementById('sidebar-overlay')?.addEventListener('click', closeExecutiveSidebar);
+
+    document.querySelectorAll('#sidebar .sidebar-section-title').forEach(button => {
+        button.addEventListener('click', () => handleExecutiveSidebarSectionToggle(button));
+    });
+
+    const expandedArrow = document.querySelector('#sidebar .sidebar-section.expanded .section-arrow');
+    if (expandedArrow) {
+        expandedArrow.textContent = '▲';
+    }
+
+    document.querySelectorAll('#sidebar [data-action]').forEach(btn => {
+        btn.addEventListener('click', event => {
+            handleExecutiveSidebarAction(event.currentTarget.getAttribute('data-action'));
+        });
+    });
+
+    document.querySelectorAll('#sidebar [data-summary]').forEach(btn => {
+        btn.addEventListener('click', event => {
+            focusExecutiveSummary(event.currentTarget.getAttribute('data-summary'));
+        });
+    });
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    initAuth();
-    initReportsMenu();
-    setTimeout(initDashboard, 500); // Wait for auth to complete
+    console.log('Executive Dashboard initializing...');
     
-    // Hide Edit Workbook button if user is not authorized
-    setTimeout(() => {
-        const excelBtn = document.querySelector('.excel-edit-btn');
-        if (excelBtn && !canEditWorkbook()) {
-            excelBtn.style.display = 'none';
-        }
-    }, 600);
+    // Initialize auth first
+    if (typeof initAuth === 'function') {
+        initAuth();
+    } else {
+        console.error('initAuth function not found');
+    }
+    
+    // Initialize reports menu
+    if (typeof initReportsMenu === 'function') {
+        initReportsMenu();
+    }
+    
+    // Setup access watcher
+    setupExecutiveDashboardAccessWatcher();
+    
+    // Update workbook button visibility
+    updateWorkbookButtonVisibility();
+    
+    // Bind sidebar
+    bindExecutiveSidebar();
+    
+    // Update placeholder
+    updateSummaryPlaceholder();
+    
+    // Listen for user changes
+    window.addEventListener('stabilis-user-changed', updateWorkbookButtonVisibility);
+    
+    console.log('Executive Dashboard initialized');
 });
 
 function handleProjectDataChange(event) {

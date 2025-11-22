@@ -1,6 +1,8 @@
 // App State
 let currentView = 'dashboard';
 let currentRiskFilter = 'all';
+let phaseRenderQueued = false;
+let copilotButtonRenderQueued = false;
 const QUICK_UPDATE_STORAGE_KEY = 'stabilis-diversification-updates';
 const REPORT_TITLES = {
     'revenue-projection': 'Revenue Projection Report',
@@ -28,6 +30,38 @@ const PROJECT_REPORT_ACCESS = {
     'budget-q1-2026': ['Nastasha Jacobs', 'Attie Nel'],
     'budget-fy-2026-27': ['Nastasha Jacobs', 'Attie Nel']
 };
+
+function schedulePhaseRender() {
+    if (phaseRenderQueued) return;
+    phaseRenderQueued = true;
+
+    const run = () => {
+        phaseRenderQueued = false;
+        renderPhases();
+    };
+
+    if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+        window.requestAnimationFrame(run);
+    } else {
+        setTimeout(run, 0);
+    }
+}
+
+function scheduleCopilotButtonRender() {
+    if (copilotButtonRenderQueued) return;
+    copilotButtonRenderQueued = true;
+
+    const run = () => {
+        copilotButtonRenderQueued = false;
+        renderCopilotButtons();
+    };
+
+    if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+        window.requestAnimationFrame(run);
+    } else {
+        setTimeout(run, 0);
+    }
+}
 
 // Utility Functions
 function formatCurrency(amount) {
@@ -220,7 +254,6 @@ function handleReportNavigation(reportKey, url) {
 function renderCopilotButtons() {
     // Wait for copilotData and getCopilotButton to be available
     if (typeof window.getCopilotButton !== 'function') {
-        console.warn('getCopilotButton not yet loaded, retrying...');
         setTimeout(renderCopilotButtons, 100);
         return;
     }
@@ -230,9 +263,6 @@ function renderCopilotButtons() {
             const container = document.getElementById(`copilot-btn-${m.id}`);
             if (container) {
                 container.innerHTML = getCopilotButton(m.id, 'diversification');
-                console.log(`Rendered copilot button for ${m.id}`);
-            } else {
-                console.warn(`Copilot container not found for ${m.id}`);
             }
         });
     });
@@ -246,7 +276,6 @@ function init() {
     updateCountdown();
     updateDashboard();
     renderPhases();
-    renderCopilotButtons();
     renderRisks();
     renderTeam();
     bindEvents();
@@ -324,6 +353,7 @@ function updateDashboard() {
 
 function renderPhases() {
     const container = document.getElementById('phases-container');
+    if (!container) return;
     container.innerHTML = projectData.phases.map(phase => {
         const complete = phase.milestones.filter(m => m.status === 'complete').length;
         const total = phase.milestones.length;
@@ -383,9 +413,7 @@ function renderPhases() {
                                 
                                 <!-- AI Copilot (Role-Based Access) -->
                                 <div id="copilot-btn-${m.id}"></div>
-                                <div class="copilot-content" id="copilot-${m.id}" style="display: none;">
-                                    ${showCopilot(m.id)}
-                                </div>
+                                <div class="copilot-content" id="copilot-${m.id}" data-copilot-loaded="false" style="display: none;"></div>
                                 
                                 <!-- Notes & Attachments Button -->
                                 <button class="notes-toggle-btn" onclick="toggleMilestoneNotes('${m.id}', event)">
@@ -452,6 +480,8 @@ function renderRisks() {
             <div class="risk-owner">Owner: ${risk.owner}</div>
         </div>
     `).join('');
+
+    scheduleCopilotButtonRender();
 }
 
 function renderTeam() {
@@ -535,6 +565,13 @@ window.toggleCopilot = function (milestoneId, event) {
     if (event) event.stopPropagation();
 
     const copilotSection = document.getElementById(`copilot-${milestoneId}`);
+    if (!copilotSection) return;
+
+    if (copilotSection.dataset.copilotLoaded !== 'true') {
+        copilotSection.innerHTML = showCopilot(milestoneId);
+        copilotSection.dataset.copilotLoaded = 'true';
+    }
+
     const isOpen = copilotSection.style.display === 'block';
 
     copilotSection.style.display = isOpen ? 'none' : 'block';
@@ -813,7 +850,7 @@ function toggleMilestoneStatus(milestoneId, refreshUI = false) {
     saveMilestoneStatus();
     if (refreshUI) {
         updateDashboard();
-        renderPhases();
+        schedulePhaseRender();
         saveToLocalStorage();
     }
 }
@@ -1564,7 +1601,7 @@ window.saveMilestoneChanges = function () {
 
         // Update UI
         updateDashboard();
-        renderPhases();
+        schedulePhaseRender();
 
         // Show success message
         closeModal();
@@ -1593,7 +1630,7 @@ window.addEventListener('storage', (event) => {
     if (event.key === 'stabilis-project-data') {
         loadFromLocalStorage();
         updateDashboard();
-        renderPhases();
+        schedulePhaseRender();
     }
 });
 
@@ -1603,7 +1640,7 @@ window.addEventListener('project-data-updated', (event) => {
     }
     loadFromLocalStorage();
     updateDashboard();
-    renderPhases();
+    schedulePhaseRender();
 });
 
 // Apply saved theme

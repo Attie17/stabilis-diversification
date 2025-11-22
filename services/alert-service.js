@@ -10,6 +10,8 @@ class AlertService {
         this.supabase = supabase;
         this.alerts = []; // In-memory storage if no DB
         this.milestones = [];
+        this.dbAlertsAvailable = Boolean(supabase);
+        this.missingTableNotified = false;
     }
 
     // Load milestones from static files
@@ -255,13 +257,23 @@ class AlertService {
         });
 
         // Store in memory or database
-        if (this.supabase) {
+        if (this.supabase && this.dbAlertsAvailable) {
             const { error } = await this.supabase
                 .from('alerts')
                 .insert(allAlerts);
 
             if (error) {
-                console.error('❌ Error saving alerts to database:', error);
+                if (error.code === 'PGRST205') {
+                    this.dbAlertsAvailable = false;
+                    if (!this.missingTableNotified) {
+                        console.error('❌ Supabase is missing the alerts table.');
+                        console.error('   Run database/schema.sql (or database/alerts-table.sql) inside the Supabase SQL editor to provision it.');
+                        console.error('   Until then, the service will store alerts in memory only.');
+                        this.missingTableNotified = true;
+                    }
+                } else {
+                    console.error('❌ Error saving alerts to database:', error);
+                }
                 this.alerts = allAlerts; // Fallback to memory
             } else {
                 console.log(`✅ Saved ${allAlerts.length} alerts to database`);
