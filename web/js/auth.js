@@ -23,6 +23,7 @@ const teamRoles = {
 
     // Team members with specific milestone access
     team: [
+        { name: "Karin Weideman", role: "Operational Manager", milestones: [], password: null },
         { name: "Lizette Botha", role: "Case Manager", milestones: [], password: null },
         { name: "Bertha Vorster", role: "Admin & Admissions Officer", milestones: [], password: null },
         { name: "Sne Khonyane", role: "Youth Clinical Lead & Wellness Coordinator", milestones: [], password: null },
