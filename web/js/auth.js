@@ -220,11 +220,12 @@ function navigateAfterLogin(fromAutoLogin = false) {
     // After login, immediately redirect to appropriate dashboard
     if (!fromAutoLogin) {
         if (isExecutiveUser(currentUser.name) && !onExecutivePage) {
-            // Executive users go to Executive Command
+            // Executive users ALWAYS go to Executive Command (fix for CEO landing on wrong page)
+            console.log('Redirecting executive user to Executive Command:', currentUser.name);
             window.location.href = 'executive-dashboard.html';
             return;
         } else if (!isExecutiveUser(currentUser.name) && (onLandingPage || onExecutivePage)) {
-            // Non-executive users go to Project Hub
+            // Non-executive users go to Diversification Dashboard
             window.location.href = 'index.html';
             return;
         }

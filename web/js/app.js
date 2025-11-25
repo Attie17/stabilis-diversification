@@ -838,14 +838,27 @@ function toggleMilestone(milestoneId) {
 
 function toggleMilestoneStatus(milestoneId, refreshUI = false) {
     let found = false;
+    let updatedMilestone = null;
     projectData.phases.forEach(phase => {
         const milestone = phase.milestones.find(m => m.id === milestoneId);
         if (milestone) {
             milestone.status = milestone.status === 'complete' ? 'planned' : 'complete';
+            // Track who completed it and when
+            if (milestone.status === 'complete') {
+                milestone.completedDate = new Date().toISOString();
+                milestone.completedBy = window.currentUser?.name || 'Unknown';
+            } else {
+                milestone.completedDate = null;
+                milestone.completedBy = null;
+            }
+            updatedMilestone = milestone;
             found = true;
         }
     });
     if (!found) return;
+
+    // TODO: Sync to Excel to persist across deployments
+    // syncMilestoneToExcel(milestoneId, updatedMilestone);
 
     saveMilestoneStatus();
     if (refreshUI) {
@@ -1705,4 +1718,59 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// ============================================================================
+// EXCEL SYNC FUNCTIONALITY (Future Implementation)
+// ============================================================================
+
+/**
+ * Sync milestone changes to Excel file for persistent storage
+ * This ensures data survives across deployments and code updates
+ * 
+ * @param {string} milestoneId - The milestone ID (e.g., "P1-M1")
+ * @param {object} milestone - The milestone object with updated fields
+ */
+async function syncMilestoneToExcel(milestoneId, milestone) {
+    // TODO: Implement when Excel sync endpoint is ready
+    // This will POST to /api/milestone/update endpoint
+    
+    console.log('Excel sync placeholder - would sync:', { milestoneId, milestone });
+    
+    /*
+    try {
+        const response = await fetch('/api/milestone/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                project: 'diversification', // or 'turnaround' or 'wellness'
+                milestoneId: milestoneId,
+                status: milestone.status,
+                completedDate: milestone.completedDate,
+                completedBy: milestone.completedBy,
+                notes: milestone.notes,
+                changeLog: milestone.changeLog
+            })
+        });
+        
+        if (!response.ok) {
+            console.error('Failed to sync to Excel');
+            showNotification('Warning: Changes saved locally but not synced to Excel', 'warning');
+        } else {
+            showNotification('Changes synced to Excel successfully', 'success');
+        }
+    } catch (error) {
+        console.error('Excel sync error:', error);
+        showNotification('Warning: Changes saved locally but not synced to Excel', 'warning');
+    }
+    */
+}
+
+/**
+ * Show a notification to the user
+ */
+function showNotification(message, type = 'info') {
+    // Simple notification - can be enhanced with a toast library
+    console.log(`[${type.toUpperCase()}] ${message}`);
+    // TODO: Add visual notification in UI
+}
 

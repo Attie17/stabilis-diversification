@@ -98,13 +98,33 @@
 
     <script src="js/auth.js"></script>
     <script>
+        // Version management - force sign out on version changes but preserve passwords
+        const APP_VERSION = '1.1.0'; // Increment this when deploying new versions
+        const VERSION_KEY = 'stabilis-app-version';
+        const PASSWORDS_KEY = 'stabilis-passwords'; // Separate storage for passwords
+        
+        function checkVersion() {
+            const storedVersion = localStorage.getItem(VERSION_KEY);
+            if (storedVersion && storedVersion !== APP_VERSION) {
+                // Version changed - preserve passwords but clear user session
+                console.log(`Version updated from ${storedVersion} to ${APP_VERSION}`);
+                const passwords = localStorage.getItem(PASSWORDS_KEY);
+                localStorage.removeItem('stabilis-user'); // Force re-login
+                if (passwords) {
+                    localStorage.setItem(PASSWORDS_KEY, passwords); // Preserve passwords
+                }
+            }
+            localStorage.setItem(VERSION_KEY, APP_VERSION);
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
+            checkVersion();
             initAuth();
             const params = new URLSearchParams(window.location.search);
             const stayOnLanding = params.get('stay') === '1';
             const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
             const executiveUsers = window.EXECUTIVE_USERS || ['Developer', 'Attie Nel', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
-            if (!stayOnLanding && executiveUsers.includes(currentUser.name)) {
+            if (!stayOnLanding && currentUser.name && executiveUsers.includes(currentUser.name)) {
                 window.location.href = 'executive-dashboard.html';
             }
         });
