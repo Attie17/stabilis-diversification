@@ -349,3 +349,8 @@ const projectData = {
 if (typeof window !== 'undefined') {
     window.projectData = projectData;
 }
+
+// Export for Node.js environment (server-side)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = projectData;
+}

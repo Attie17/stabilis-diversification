@@ -314,10 +314,7 @@ class AIChatComponent {
     }
 
     getBackendBaseUrl() {
-        if (window.STABILIS_BACKEND_URL) {
-            return window.STABILIS_BACKEND_URL;
-        }
-
+        // For Vercel deployments, API endpoints are relative to the same domain
         const host = window.location.hostname;
         const isLocal = host === 'localhost' || host === '127.0.0.1';
 
@@ -325,7 +322,8 @@ class AIChatComponent {
             return 'http://localhost:3000';
         }
 
-        return 'https://stabilis-diversification.onrender.com';
+        // Use current origin for Vercel serverless functions
+        return window.location.origin;
     }
 
     persistThreadId(threadId) {

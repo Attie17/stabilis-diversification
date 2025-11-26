@@ -807,3 +807,8 @@ if (typeof window !== 'undefined') {
     window.wellnessProject = wellnessProject;
     window.wellnessData = wellnessData;
 }
+
+// Export for Node.js environment (server-side)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = wellnessData;
+}

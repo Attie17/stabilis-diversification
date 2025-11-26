@@ -458,3 +458,8 @@ const turnaroundData = {
 if (typeof window !== 'undefined') {
     window.turnaroundData = turnaroundData;
 }
+
+// Export for Node.js environment (server-side)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = turnaroundData;
+}
