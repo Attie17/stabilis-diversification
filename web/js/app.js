@@ -670,11 +670,6 @@ window.handleFileUpload = function (milestoneId, files) {
     document.getElementById(`upload-${milestoneId}`).value = '';
 };
 
-// Milestone Toggle
-function toggleMilestone(milestoneId) {
-    toggleMilestoneStatus(milestoneId);
-}
-
 function bindEvents() {
     // Navigation
     document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -860,11 +855,12 @@ function toggleMilestoneStatus(milestoneId, refreshUI = false) {
     // TODO: Sync to Excel to persist across deployments
     // syncMilestoneToExcel(milestoneId, updatedMilestone);
 
-    saveMilestoneStatus();
+    // Save to localStorage immediately
+    saveToLocalStorage();
+    
     if (refreshUI) {
         updateDashboard();
         schedulePhaseRender();
-        saveToLocalStorage();
     }
 }
 
