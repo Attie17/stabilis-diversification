@@ -129,7 +129,7 @@ class AIChatComponent {
                 contextualMessage = `[Context: ${this.context.project} project] ${message}`;
             }
 
-            const apiEndpoint = `${this.getBackendBaseUrl()}/api/ai/chat`;
+            const apiEndpoint = `${this.getBackendBaseUrl()}/api/chat`;
 
             // Send to AI
             const response = await fetch(apiEndpoint, {

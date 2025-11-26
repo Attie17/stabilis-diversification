@@ -17,10 +17,14 @@
 }
 
 .ai-chat-widget.minimized {
-    max-height: 60px;
+    max-height: 140px;
 }
 
-.ai-chat-widget.minimized .ai-chat-body {
+.ai-chat-widget.minimized .ai-chat-messages {
+    display: none;
+}
+
+.ai-chat-widget.minimized .ai-chat-status {
     display: none;
 }
 
