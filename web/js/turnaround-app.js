@@ -867,10 +867,23 @@ function switchView(viewName) {
     document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
 }
 
-function toggleMilestone(milestoneId) {
+async function toggleMilestone(milestoneId) {
+    // Check if user is view-only (board members)
+    if (currentUser && window.BOARD_MEMBERS && window.BOARD_MEMBERS.includes(currentUser.name)) {
+        showModal('View-Only Access', `
+            <p>Board members have read-only access to project data.</p>
+            <p>Contact the steering committee to request milestone updates.</p>
+        `);
+        return;
+    }
+
+    let found = false;
+    let oldStatus = null;
+    
     turnaroundData.phases.forEach(phase => {
         const milestone = phase.milestones.find(m => m.id === milestoneId);
         if (milestone) {
+            oldStatus = milestone.status;
             milestone.status = milestone.status === 'complete' ? 'planned' : 'complete';
             
             // Track who completed it and when
@@ -882,11 +895,39 @@ function toggleMilestone(milestoneId) {
                 milestone.completedBy = null;
             }
             
+            found = true;
             updateDashboard();
             renderPhases();
             saveToLocalStorage();
         }
     });
+
+    if (!found) return;
+
+    // Sync to backend (optimistic update already done)
+    try {
+        const response = await fetch('/api/milestones/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-User-Name': currentUser?.name || 'Unknown'
+            },
+            body: JSON.stringify({
+                milestoneId: milestoneId,
+                status: milestone.status,
+                changedBy: currentUser?.name || 'Unknown',
+                notes: `Turnaround: Status changed from ${oldStatus} to ${milestone.status}`
+            })
+        });
+
+        if (!response.ok) {
+            console.warn('Backend sync failed, using localStorage');
+        } else {
+            console.log('✅ Turnaround milestone synced to backend');
+        }
+    } catch (error) {
+        console.warn('Backend not reachable, using localStorage only:', error.message);
+    }
 }
 
 function showModal(title, content) {

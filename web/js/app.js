@@ -831,13 +831,26 @@ function toggleMilestone(milestoneId) {
     toggleMilestoneStatus(milestoneId, true);
 }
 
-function toggleMilestoneStatus(milestoneId, refreshUI = false) {
+async function toggleMilestoneStatus(milestoneId, refreshUI = false) {
+    // Check if user is view-only (board members)
+    if (currentUser && window.BOARD_MEMBERS && window.BOARD_MEMBERS.includes(currentUser.name)) {
+        showModal('View-Only Access', `
+            <p>Board members have read-only access to project data.</p>
+            <p>Contact the steering committee to request milestone updates.</p>
+        `);
+        return;
+    }
+
     let found = false;
     let updatedMilestone = null;
+    let oldStatus = null;
+    
     projectData.phases.forEach(phase => {
         const milestone = phase.milestones.find(m => m.id === milestoneId);
         if (milestone) {
+            oldStatus = milestone.status;
             milestone.status = milestone.status === 'complete' ? 'planned' : 'complete';
+            
             // Track who completed it and when
             if (milestone.status === 'complete') {
                 milestone.completedDate = new Date().toISOString();
@@ -850,17 +863,43 @@ function toggleMilestoneStatus(milestoneId, refreshUI = false) {
             found = true;
         }
     });
+    
     if (!found) return;
 
-    // TODO: Sync to Excel to persist across deployments
-    // syncMilestoneToExcel(milestoneId, updatedMilestone);
-
-    // Save to localStorage immediately
+    // Save to localStorage immediately (optimistic update)
     saveToLocalStorage();
     
     if (refreshUI) {
         updateDashboard();
         schedulePhaseRender();
+    }
+
+    // Sync to backend (fire and forget with fallback)
+    try {
+        const response = await fetch('/api/milestones/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-User-Name': currentUser?.name || 'Unknown'
+            },
+            body: JSON.stringify({
+                milestoneId: milestoneId,
+                status: updatedMilestone.status,
+                changedBy: currentUser?.name || 'Unknown',
+                notes: `Status changed from ${oldStatus} to ${updatedMilestone.status}`
+            })
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            // If backend fails, localStorage is already updated (optimistic)
+            console.warn('Backend sync failed, using localStorage:', data.error);
+        } else {
+            console.log('✅ Milestone synced to backend');
+        }
+    } catch (error) {
+        // Network error - localStorage already updated
+        console.warn('Backend not reachable, using localStorage only:', error.message);
     }
 }
 

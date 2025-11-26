@@ -49,6 +49,18 @@
       "destination": "/api/health"
     },
     {
+      "source": "/api/milestones",
+      "destination": "/api/milestones/index"
+    },
+    {
+      "source": "/api/milestones/update",
+      "destination": "/api/milestones/update"
+    },
+    {
+      "source": "/api/milestones/sync",
+      "destination": "/api/milestones/sync"
+    },
+    {
       "source": "/",
       "destination": "/landing.html"
     },

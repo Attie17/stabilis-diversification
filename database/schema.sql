@@ -19,16 +19,20 @@ CREATE TABLE IF NOT EXISTS milestones (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Milestone updates history
+-- Milestone updates history (audit trail)
 CREATE TABLE IF NOT EXISTS milestone_updates (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     milestone_id TEXT REFERENCES milestones(id) ON DELETE CASCADE,
     field_changed TEXT NOT NULL,
     old_value TEXT,
     new_value TEXT,
+    changed_by TEXT NOT NULL,
     notes TEXT,
+    is_financial BOOLEAN DEFAULT FALSE,
     timestamp TIMESTAMPTZ DEFAULT NOW()
 );
+
+COMMENT ON COLUMN milestone_updates.is_financial IS 'TRUE if change affects revenue/budget tracking';
 
 CREATE INDEX IF NOT EXISTS idx_milestone_updates_milestone ON milestone_updates(milestone_id);
 CREATE INDEX IF NOT EXISTS idx_milestone_updates_timestamp ON milestone_updates(timestamp DESC);

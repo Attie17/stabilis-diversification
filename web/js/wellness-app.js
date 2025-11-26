@@ -568,10 +568,23 @@ window.saveMilestoneNoteAndClose = function (milestoneId) {
     currentOpenNotes = null;
 };
 
-function toggleMilestoneStatus(milestoneId) {
+async function toggleMilestoneStatus(milestoneId) {
+    // Check if user is view-only (board members)
+    if (currentUser && window.BOARD_MEMBERS && window.BOARD_MEMBERS.includes(currentUser.name)) {
+        showModal('View-Only Access', `
+            <p>Board members have read-only access to project data.</p>
+            <p>Contact the steering committee to request milestone updates.</p>
+        `);
+        return;
+    }
+
+    let found = false;
+    let oldStatus = null;
+    
     wellnessProject.phases.forEach(phase => {
         const milestone = phase.milestones.find(m => m.id === milestoneId);
         if (milestone) {
+            oldStatus = milestone.status;
             milestone.status = milestone.status === 'complete' ? 'planned' : 'complete';
             
             // Track who completed it and when
@@ -583,11 +596,39 @@ function toggleMilestoneStatus(milestoneId) {
                 milestone.completedBy = null;
             }
             
+            found = true;
             saveMilestoneStatus(milestoneId, milestone.status);
             renderPhases();
             renderCopilotButtons();
         }
     });
+
+    if (!found) return;
+
+    // Sync to backend (optimistic update already done)
+    try {
+        const response = await fetch('/api/milestones/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-User-Name': currentUser?.name || 'Unknown'
+            },
+            body: JSON.stringify({
+                milestoneId: milestoneId,
+                status: milestone.status,
+                changedBy: currentUser?.name || 'Unknown',
+                notes: `Wellness: Status changed from ${oldStatus} to ${milestone.status}`
+            })
+        });
+
+        if (!response.ok) {
+            console.warn('Backend sync failed, using localStorage');
+        } else {
+            console.log('✅ Wellness milestone synced to backend');
+        }
+    } catch (error) {
+        console.warn('Backend not reachable, using localStorage only:', error.message);
+    }
 }
 
 // Copilot
