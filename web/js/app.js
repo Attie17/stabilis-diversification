@@ -18,17 +18,17 @@ const REPORT_TITLES = {
     'budget-fy-2026-27': 'Budget FY 2026-27 (Apr 2026 - Mar 2027)'
 };
 const PROJECT_REPORT_ACCESS = {
-    'revenue-projection': ['Attie Nel', 'Nastasha Jacobs'],
-    'cost-analysis': ['Nastasha Jacobs', 'Attie Nel'],
+    'revenue-projection': ['Attie Nel', 'Nastasha Jackson'],
+    'cost-analysis': ['Nastasha Jackson', 'Attie Nel'],
     'phase-progress': ['Attie Nel', 'Berno Paul', 'Lydia Gittens'],
     'risk-assessment': ['Attie Nel', 'Berno Paul', 'Lydia Gittens'],
     'resource-utilization': ['Attie Nel', 'Lydia Gittens'],
-    'kpi-dashboard-report': ['Attie Nel', 'Nastasha Jacobs', 'Berno Paul', 'Lydia Gittens'],
+    'kpi-dashboard-report': ['Attie Nel', 'Nastasha Jackson', 'Berno Paul', 'Lydia Gittens'],
     'timeline-analysis': ['Attie Nel'],
-    'budget-actual': ['Nastasha Jacobs', 'Attie Nel'],
-    'cashflow-projection': ['Nastasha Jacobs', 'Attie Nel'],
-    'budget-q1-2026': ['Nastasha Jacobs', 'Attie Nel'],
-    'budget-fy-2026-27': ['Nastasha Jacobs', 'Attie Nel']
+    'budget-actual': ['Nastasha Jackson', 'Attie Nel'],
+    'cashflow-projection': ['Nastasha Jackson', 'Attie Nel'],
+    'budget-q1-2026': ['Nastasha Jackson', 'Attie Nel'],
+    'budget-fy-2026-27': ['Nastasha Jackson', 'Attie Nel']
 };
 
 function schedulePhaseRender() {

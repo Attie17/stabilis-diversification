@@ -511,7 +511,7 @@ const wellnessProject = {
                 {
                     id: "W2-M8",
                     title: "Financial Review & Pricing Adjustment",
-                    owner: "Wellness Champion + Nastasha Jacobs",
+                    owner: "Wellness Champion + Nastasha Jackson",
                     due: "2026-11-30",
                     status: "planned",
                     description: "Review utilisation, revenue, therapist ratios; adjust pricing; introduce package-based pricing (family/group bundles)",
@@ -723,7 +723,7 @@ const wellnessProject = {
             severity: 'medium',
             impact: 'Medium',
             likelihood: 'Medium',
-            owner: 'Nastasha Jacobs',
+            owner: 'Nastasha Jackson',
             status: 'active'
         },
         {
@@ -786,7 +786,7 @@ const wellnessProject = {
         },
         {
             role: "Finance Officer",
-            name: "Nastasha Jacobs",
+            name: "Nastasha Jackson",
             responsibilities: "Billing, payments, financial tracking, medical aid claims"
         }
     ],

@@ -123,7 +123,7 @@
             const params = new URLSearchParams(window.location.search);
             const stayOnLanding = params.get('stay') === '1';
             const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
-            const executiveUsers = window.EXECUTIVE_USERS || ['Developer', 'Attie Nel', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
+            const executiveUsers = window.EXECUTIVE_USERS || ['Developer', 'Attie Nel', 'Nastasha Jackson', 'Lydia Gittens', 'Berno Paul'];
             if (!stayOnLanding && currentUser.name && executiveUsers.includes(currentUser.name)) {
                 window.location.href = 'executive-dashboard.html';
             }
