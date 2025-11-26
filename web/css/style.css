@@ -19,6 +19,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    /* Improve touch responsiveness */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
 }
 
 body {
@@ -28,6 +30,8 @@ body {
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+    /* Prevent double-tap zoom */
+    touch-action: manipulation;
 }
 
 #app {
@@ -448,11 +452,27 @@ body {
 .milestone-checkbox {
     width: 20px;
     height: 20px;
+    min-width: 20px;
+    min-height: 20px;
     border: 2px solid var(--border);
     border-radius: 50%;
     margin-right: 0.875rem;
     flex-shrink: 0;
     margin-top: 2px;
+    cursor: pointer;
+    /* Mobile touch target expansion */
+    position: relative;
+}
+
+/* Expand touch target for mobile without affecting visual size */
+.milestone-checkbox::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: -12px;
+    right: -12px;
+    bottom: -12px;
+    /* Creates 44x44px touch target around 20x20px checkbox */
 }
 
 .milestone-item.complete .milestone-checkbox {
@@ -2341,6 +2361,7 @@ body.dark-theme {
     
     .stat-card {
         padding: 1rem;
+        min-height: 44px; /* Touch target minimum */
     }
     
     .stat-value {
@@ -2366,6 +2387,41 @@ body.dark-theme {
     
     .milestone-item {
         padding: 0.875rem;
+        min-height: 60px; /* Ensure adequate touch target */
+    }
+    
+    /* Enlarge checkboxes on mobile */
+    .milestone-checkbox {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        min-height: 28px;
+    }
+    
+    /* Buttons need proper touch targets */
+    button, .btn, .nav-tab {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Sidebar full-screen on mobile */
+    .sidebar {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    /* Overlay should cover entire screen */
+    .sidebar-overlay {
+        display: none;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 999;
+        -webkit-tap-highlight-color: transparent;
     }
     
     .nav-tabs {
@@ -2394,9 +2450,28 @@ body.dark-theme {
         font-size: 1.125rem;
     }
     
-    .sidebar {
-        width: 85%;
-        max-width: 320px;
+    /* Menu button larger on mobile */
+    .menu-btn {
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 1.5rem;
+        padding: 0.5rem;
+    }
+    
+    /* Phase cards stack better on mobile */
+    .phase-card {
+        margin-bottom: 1rem;
+    }
+    
+    .phase-header {
+        padding: 1rem;
+    }
+    
+    /* Expand buttons are touch-friendly */
+    .expand-btn {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0.5rem;
     }
 }
 

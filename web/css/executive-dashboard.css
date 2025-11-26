@@ -711,10 +711,36 @@ body.reports-menu-open {
     .nav-btn {
         font-size: 0.85rem;
         padding: 0.625rem 0.9rem;
+        min-height: 44px; /* Touch target */
     }
 
     .stat-number {
         font-size: 1.5rem;
+    }
+    
+    /* Executive sidebar full-screen on mobile */
+    .exec-sidebar {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    /* All buttons touch-friendly */
+    button, .btn, .sidebar-item {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+    }
+    
+    /* Menu button larger */
+    .menu-btn {
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 1.5rem;
+    }
+    
+    /* Stat cards clickable */
+    .stat-card {
+        min-height: 80px;
+        cursor: pointer;
     }
 }
 
