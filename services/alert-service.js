@@ -5,6 +5,16 @@ require('dotenv').config();
 const fs = require('fs').promises;
 const path = require('path');
 
+// Load data sources statically to ensure bundling
+let diversificationData, turnaroundData, wellnessData;
+try {
+    diversificationData = require('../web/js/data.js');
+    turnaroundData = require('../web/js/turnaround-data.js');
+    wellnessData = require('../web/js/wellness-data.js');
+} catch (e) {
+    console.warn('Failed to load project data files:', e.message);
+}
+
 class AlertService {
     constructor(supabase = null) {
         this.supabase = supabase;
@@ -17,10 +27,10 @@ class AlertService {
     // Load milestones from static files
     async loadMilestones() {
         try {
-            // Load all three data sources
-            const diversification = require('../web/js/data.js');
-            const turnaround = require('../web/js/turnaround-data.js');
-            const wellness = require('../web/js/wellness-data.js');
+            // Use pre-loaded data
+            const diversification = diversificationData;
+            const turnaround = turnaroundData;
+            const wellness = wellnessData;
 
             this.milestones = [];
 

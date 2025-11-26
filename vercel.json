@@ -33,16 +33,8 @@
   ],
   "rewrites": [
     {
-      "source": "/api/health",
-      "destination": "/api/health"
-    },
-    {
-      "source": "/api/chat",
-      "destination": "/api/chat"
-    },
-    {
-      "source": "/api/dashboard",
-      "destination": "/api/dashboard"
+      "source": "/api/ai/alerts/(?<id>[^/]+)/acknowledge",
+      "destination": "/api/ai/acknowledge?id=$id"
     },
     {
       "source": "/",
