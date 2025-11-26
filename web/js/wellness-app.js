@@ -573,6 +573,16 @@ function toggleMilestoneStatus(milestoneId) {
         const milestone = phase.milestones.find(m => m.id === milestoneId);
         if (milestone) {
             milestone.status = milestone.status === 'complete' ? 'planned' : 'complete';
+            
+            // Track who completed it and when
+            if (milestone.status === 'complete') {
+                milestone.completedDate = new Date().toISOString();
+                milestone.completedBy = window.currentUser?.name || 'Unknown';
+            } else {
+                milestone.completedDate = null;
+                milestone.completedBy = null;
+            }
+            
             saveMilestoneStatus(milestoneId, milestone.status);
             renderPhases();
             renderCopilotButtons();
