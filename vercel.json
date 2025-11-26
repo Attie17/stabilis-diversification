@@ -37,6 +37,18 @@
       "destination": "/api/ai/acknowledge?id=:id"
     },
     {
+      "source": "/api/ai/alerts",
+      "destination": "/api/ai/alerts"
+    },
+    {
+      "source": "/api/chat",
+      "destination": "/api/chat"
+    },
+    {
+      "source": "/api/health",
+      "destination": "/api/health"
+    },
+    {
       "source": "/",
       "destination": "/landing.html"
     },
@@ -58,7 +70,7 @@
     }
   ],
   "functions": {
-    "api/*.js": {
+    "api/**/*.js": {
       "memory": 1024,
       "maxDuration": 10
     }
