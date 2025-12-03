@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stabilis-shell-v1.1.2';
+const CACHE_NAME = 'stabilis-shell-v1.1.3';
 const SHELL_ASSETS = [
     '/',
     '/landing.html',
@@ -92,6 +92,8 @@ self.addEventListener('fetch', event => {
                     if (response.ok) {
                         caches.open(CACHE_NAME).then(cache => cache.put(request, response));
                     }
+                }).catch(() => {
+                    // Silently fail background update - cached version is still valid
                 });
                 return cachedResponse;
             }

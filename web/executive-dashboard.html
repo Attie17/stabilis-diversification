@@ -29,7 +29,8 @@
                     <div class="sidebar-section-content" id="exec-navigation">
                         <button class="sidebar-item" data-action="nav-project-hub">← Project Hub</button>
                         <button class="sidebar-item" data-action="nav-turnaround">🚨 Turnaround Dashboard</button>
-                        <button class="sidebar-item" data-action="nav-diversification">📈 Diversification Dashboard</button>
+                        <button class="sidebar-item" data-action="nav-diversification">📈 Diversification
+                            Dashboard</button>
                         <button class="sidebar-item" data-action="nav-wellness">💚 Wellness Centre</button>
                         <button class="sidebar-item" data-action="nav-executive">📊 Executive Command</button>
                     </div>
@@ -43,7 +44,8 @@
                         <button class="sidebar-item" data-action="action-refresh">🔄 Refresh Data</button>
                         <button class="sidebar-item" data-action="action-reports">📑 Reports &amp; Analytics</button>
                         <button class="sidebar-item" data-action="action-edit-milestone">✏️ Edit Milestone</button>
-                        <button class="sidebar-item" data-role="workbook-action" data-action="action-edit-workbook">📊 Edit Workbook</button>
+                        <button class="sidebar-item" data-role="workbook-action" data-action="action-edit-workbook">📊
+                            Edit Workbook</button>
                         <button class="sidebar-item" data-action="action-open-chat">🤖 Ask the AI Assistant</button>
                     </div>
                 </div>
@@ -53,7 +55,8 @@
                         <span class="section-arrow">▼</span>
                     </button>
                     <div class="sidebar-section-content" id="exec-summaries">
-                        <button class="sidebar-item" data-summary="critical-items">🚨 Requires Immediate Attention</button>
+                        <button class="sidebar-item" data-summary="critical-items">🚨 Requires Immediate
+                            Attention</button>
                         <button class="sidebar-item" data-summary="revenue-summary">💰 Revenue Summary</button>
                         <button class="sidebar-item" data-summary="risk-overview">⚠️ Risk Overview</button>
                         <button class="sidebar-item" data-summary="this-week">📅 This Week's Milestones</button>
@@ -78,11 +81,14 @@
                         <a href="landing.html?stay=1" class="view-project-btn" title="Return to Landing"
                             data-hamburger-action="nav-project-hub">🏠 Project Hub</a>
                         <button class="reports-menu-trigger" onclick="openReportsMenu()"
-                            title="Reports &amp; Analytics quick menu" data-hamburger-action="action-reports">📑 Reports &amp; Analytics</button>
+                            title="Reports &amp; Analytics quick menu" data-hamburger-action="action-reports">📑 Reports
+                            &amp; Analytics</button>
                         <button onclick="openExcelFile()" class="excel-edit-btn" data-role="workbook-action"
-                            title="Edit project data in Excel" data-hamburger-action="action-edit-workbook">📊 Edit Workbook</button>
+                            title="Edit project data in Excel" data-hamburger-action="action-edit-workbook">📊 Edit
+                            Workbook</button>
                         <button onclick="showEditMilestoneModal()" class="edit-milestone-btn"
-                            title="Edit any project milestone" data-hamburger-action="action-edit-milestone">✏️ Edit Milestone</button>
+                            title="Edit any project milestone" data-hamburger-action="action-edit-milestone">✏️ Edit
+                            Milestone</button>
                         <button onclick="refreshDashboard()" class="refresh-btn" title="Refresh Data"
                             data-hamburger-action="action-refresh">🔄</button>
                         <div class="user-info" id="user-info"></div>
@@ -90,217 +96,226 @@
                 </div>
             </header>
 
-        <!-- Critical Alerts Banner -->
-        <div class="alerts-banner" id="alerts-banner" style="display: none;"></div>
+            <!-- Critical Alerts Banner -->
+            <div class="alerts-banner" id="alerts-banner" style="display: none;"></div>
 
-        <h2 class="dashboard-subheading">KPI Overview</h2>
-        <!-- Top Stats Grid -->
-        <section class="top-stats">
-            <div class="stat-card turnaround-card" onclick="window.location.href='turnaround.html'" style="cursor: pointer;" title="Click to view Turnaround Project">
-                <div class="stat-icon">🚨</div>
-                <div class="stat-content">
-                    <h3>Turnaround</h3>
-                    <div class="stat-number" id="turnaround-progress">0%</div>
-                    <div class="stat-meta" id="turnaround-meta">Loading...</div>
-                </div>
-            </div>
-            <div class="stat-card diversification-card" onclick="window.location.href='index.html'" style="cursor: pointer;" title="Click to view Diversification Project">
-                <div class="stat-icon">📈</div>
-                <div class="stat-content">
-                    <h3>Diversification</h3>
-                    <div class="stat-number" id="diversification-progress">0%</div>
-                    <div class="stat-meta" id="diversification-meta">Loading...</div>
-                </div>
-            </div>
-            <div class="stat-card wellness-card" onclick="window.location.href='wellness.html'" style="cursor: pointer;" title="Click to view Wellness Centre">
-                <div class="stat-icon">💚</div>
-                <div class="stat-content">
-                    <h3>Wellness Centre</h3>
-                    <div class="stat-number" id="wellness-progress">0%</div>
-                    <div class="stat-meta" id="wellness-meta">Loading...</div>
-                </div>
-            </div>
-            <div class="stat-card overall-card" onclick="showSection('projects', this)" style="cursor: pointer;" title="Click to view all projects">
-                <div class="stat-icon">🎯</div>
-                <div class="stat-content">
-                    <h3>Overall Progress</h3>
-                    <div class="stat-number" id="overall-progress">0%</div>
-                    <div class="stat-meta" id="overall-meta">Loading...</div>
-                </div>
-            </div>
-        </section>
-
-        <h2 class="dashboard-subheading">Navigation Tabs</h2>
-        <!-- Quick Navigation -->
-        <nav class="quick-nav">
-            <button class="nav-btn" data-section="financial" onclick="showSection('financial', this)">💰 Financial</button>
-            <button class="nav-btn" data-section="risks" onclick="showSection('risks', this)">⚠️ Risks</button>
-            <button class="nav-btn" data-section="timeline" onclick="showSection('timeline', this)">📅 Timeline</button>
-            <button class="nav-btn" data-section="team" onclick="showSection('team', this)">👥 Team</button>
-            <button class="nav-btn" data-section="projects" onclick="showSection('projects', this)">🎯 Projects</button>
-            <button class="nav-btn" data-section="reports" onclick="showSection('reports', this)">📑 Reports</button>
-        </nav>
-
-        <!-- Content Sections -->
-        <main class="dashboard-content">
-            <!-- Overview Section -->
-            <section id="section-overview" class="content-section active">
-                <p class="summary-placeholder" id="exec-summary-placeholder">
-                    Explore more options in the menu (☰) right at the top.
-                </p>
-                <div class="section-grid">
-                    <!-- Critical Items -->
-                    <div class="dashboard-card full-width summary-card" data-summary-card="critical-items">
-                        <h2>🚨 Requires Immediate Attention</h2>
-                        <div id="critical-items" class="critical-list">Loading...</div>
+            <h2 class="dashboard-subheading">KPI Overview</h2>
+            <!-- Top Stats Grid -->
+            <section class="top-stats">
+                <div class="stat-card turnaround-card" onclick="window.location.href='turnaround.html'"
+                    style="cursor: pointer;" title="Click to view Turnaround Project">
+                    <div class="stat-icon">🚨</div>
+                    <div class="stat-content">
+                        <h3>Turnaround</h3>
+                        <div class="stat-number" id="turnaround-progress">0%</div>
+                        <div class="stat-meta" id="turnaround-meta">Loading...</div>
                     </div>
-
-                    <!-- Revenue Summary -->
-                    <div class="dashboard-card summary-card" data-summary-card="revenue-summary">
-                        <h2>💰 Revenue Summary (18 Months)</h2>
-                        <div id="revenue-summary" class="financial-summary">Loading...</div>
+                </div>
+                <div class="stat-card diversification-card" onclick="window.location.href='index.html'"
+                    style="cursor: pointer;" title="Click to view Diversification Project">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-content">
+                        <h3>Diversification</h3>
+                        <div class="stat-number" id="diversification-progress">0%</div>
+                        <div class="stat-meta" id="diversification-meta">Loading...</div>
                     </div>
-
-                    <!-- Risk Overview -->
-                    <div class="dashboard-card summary-card" data-summary-card="risk-overview">
-                        <h2>⚠️ Risk Overview</h2>
-                        <div id="risk-overview" class="risk-summary">Loading...</div>
+                </div>
+                <div class="stat-card wellness-card" onclick="window.location.href='wellness.html'"
+                    style="cursor: pointer;" title="Click to view Wellness Centre">
+                    <div class="stat-icon">💚</div>
+                    <div class="stat-content">
+                        <h3>Wellness Centre</h3>
+                        <div class="stat-number" id="wellness-progress">0%</div>
+                        <div class="stat-meta" id="wellness-meta">Loading...</div>
                     </div>
-
-                    <!-- This Week -->
-                    <div class="dashboard-card summary-card" data-summary-card="this-week">
-                        <h2>📅 This Week's Milestones</h2>
-                        <div id="this-week" class="milestone-list">Loading...</div>
-                    </div>
-
-                    <!-- Team Capacity -->
-                    <div class="dashboard-card summary-card" data-summary-card="team-capacity">
-                        <h2>👥 Team Capacity</h2>
-                        <div id="team-capacity" class="team-summary">Loading...</div>
+                </div>
+                <div class="stat-card overall-card" onclick="showSection('projects', this)" style="cursor: pointer;"
+                    title="Click to view all projects">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-content">
+                        <h3>Overall Progress</h3>
+                        <div class="stat-number" id="overall-progress">0%</div>
+                        <div class="stat-meta" id="overall-meta">Loading...</div>
                     </div>
                 </div>
             </section>
 
-            <!-- Financial Section -->
-            <section id="section-financial" class="content-section">
-                <div class="section-grid">
-                    <div class="dashboard-card full-width">
-                        <h2>💰 Consolidated Financial Overview</h2>
-                        <div id="financial-overview">Loading...</div>
-                    </div>
-                    <div class="dashboard-card">
-                        <h2>📊 Revenue by Project</h2>
-                        <div id="revenue-breakdown">Loading...</div>
-                    </div>
-                    <div class="dashboard-card">
-                        <h2>💳 Budget vs Actual</h2>
-                        <div id="budget-actual">Loading...</div>
-                    </div>
-                </div>
-            </section>
+            <h2 class="dashboard-subheading">Navigation Tabs</h2>
+            <!-- Quick Navigation -->
+            <nav class="quick-nav">
+                <button class="nav-btn" data-section="financial" onclick="showSection('financial', this)">💰
+                    Financial</button>
+                <button class="nav-btn" data-section="risks" onclick="showSection('risks', this)">⚠️ Risks</button>
+                <button class="nav-btn" data-section="timeline" onclick="showSection('timeline', this)">📅
+                    Timeline</button>
+                <button class="nav-btn" data-section="team" onclick="showSection('team', this)">👥 Team</button>
+                <button class="nav-btn" data-section="projects" onclick="showSection('projects', this)">🎯
+                    Projects</button>
+                <button class="nav-btn" data-section="reports" onclick="showSection('reports', this)">📑
+                    Reports</button>
+            </nav>
 
-            <!-- Risks Section -->
-            <section id="section-risks" class="content-section">
-                <div class="section-grid">
-                    <div class="dashboard-card full-width">
-                        <h2>⚠️ All Risks Across Projects</h2>
-                        <div id="all-risks">Loading...</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Timeline Section -->
-            <section id="section-timeline" class="content-section">
-                <div class="section-grid">
-                    <div class="dashboard-card full-width">
-                        <h2>📅 Master Timeline - All Projects</h2>
-                        <div id="master-timeline">Loading...</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Team Section -->
-            <section id="section-team" class="content-section">
-                <div class="section-grid">
-                    <div class="dashboard-card full-width">
-                        <h2>👥 Team Allocation Across Projects</h2>
-                        <div id="team-allocation">Loading...</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Projects Section -->
-            <section id="section-projects" class="content-section">
-                <div class="section-grid">
-                    <div class="dashboard-card">
-                        <h2>🚨 Turnaround Project</h2>
-                        <button onclick="window.location.href='turnaround.html'" class="view-project-btn">View Full
-                            Project</button>
-                        <div id="turnaround-detail">Loading...</div>
-                    </div>
-                    <div class="dashboard-card">
-                        <h2>📈 Diversification Project</h2>
-                        <button onclick="window.location.href='index.html'" class="view-project-btn">View Full
-                            Project</button>
-                        <div id="diversification-detail">Loading...</div>
-                    </div>
-                    <div class="dashboard-card">
-                        <h2>💚 Wellness Centre Project</h2>
-                        <button onclick="window.location.href='wellness.html'" class="view-project-btn">View Full
-                            Project</button>
-                        <div id="wellness-detail">Loading...</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Reports Section -->
-            <section id="section-reports" class="content-section">
-                <div class="dashboard-card full-width">
-                    <div class="reports-header">
-                        <div>
-                            <h2>📑 Reports & Analytics</h2>
-                            <p class="reports-description">Steering-only command center for deep-dive report pack.</p>
+            <!-- Content Sections -->
+            <main class="dashboard-content">
+                <!-- Overview Section -->
+                <section id="section-overview" class="content-section active">
+                    <p class="summary-placeholder" id="exec-summary-placeholder">
+                        Explore more options in the menu (☰) right at the top.
+                    </p>
+                    <div class="section-grid">
+                        <!-- Critical Items -->
+                        <div class="dashboard-card full-width summary-card" data-summary-card="critical-items">
+                            <h2>🚨 Requires Immediate Attention</h2>
+                            <div id="critical-items" class="critical-list">Loading...</div>
                         </div>
-                        <div class="reports-header-actions">
-                            <button class="report-menu-btn" onclick="showReportsGuide()">📘 How to export</button>
+
+                        <!-- Revenue Summary -->
+                        <div class="dashboard-card summary-card" data-summary-card="revenue-summary">
+                            <h2>💰 Revenue Summary (18 Months)</h2>
+                            <div id="revenue-summary" class="financial-summary">Loading...</div>
+                        </div>
+
+                        <!-- Risk Overview -->
+                        <div class="dashboard-card summary-card" data-summary-card="risk-overview">
+                            <h2>⚠️ Risk Overview</h2>
+                            <div id="risk-overview" class="risk-summary">Loading...</div>
+                        </div>
+
+                        <!-- This Week -->
+                        <div class="dashboard-card summary-card" data-summary-card="this-week">
+                            <h2>📅 This Week's Milestones</h2>
+                            <div id="this-week" class="milestone-list">Loading...</div>
+                        </div>
+
+                        <!-- Team Capacity -->
+                        <div class="dashboard-card summary-card" data-summary-card="team-capacity">
+                            <h2>👥 Team Capacity</h2>
+                            <div id="team-capacity" class="team-summary">Loading...</div>
                         </div>
                     </div>
-                    <div class="reports-grid" id="reports-grid"></div>
-                </div>
-            </section>
-        </main>
-    </div>
+                </section>
 
-    <div id="reports-menu-overlay" class="reports-menu-overlay" aria-hidden="true">
-        <div class="reports-menu-panel" role="dialog" aria-modal="true" aria-labelledby="reports-menu-title">
-            <div class="reports-menu-header">
-                <div>
-                    <h2 id="reports-menu-title">📑 Reports &amp; Analytics</h2>
-                    <p>Quick-launch the steering pack without leaving Executive Command.</p>
-                </div>
-                <div class="reports-menu-actions">
-                    <button class="report-menu-btn" onclick="showReportsGuide()">📘 Export instructions</button>
-                    <button class="reports-menu-close" onclick="closeReportsMenu()"
-                        aria-label="Close Reports Menu">✕</button>
-                </div>
-            </div>
-            <div class="reports-menu-grid reports-grid" id="reports-menu-list"></div>
+                <!-- Financial Section -->
+                <section id="section-financial" class="content-section">
+                    <div class="section-grid">
+                        <div class="dashboard-card full-width">
+                            <h2>💰 Consolidated Financial Overview</h2>
+                            <div id="financial-overview">Loading...</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h2>📊 Revenue by Project</h2>
+                            <div id="revenue-breakdown">Loading...</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h2>💳 Budget vs Actual</h2>
+                            <div id="budget-actual">Loading...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Risks Section -->
+                <section id="section-risks" class="content-section">
+                    <div class="section-grid">
+                        <div class="dashboard-card full-width">
+                            <h2>⚠️ All Risks Across Projects</h2>
+                            <div id="all-risks">Loading...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Timeline Section -->
+                <section id="section-timeline" class="content-section">
+                    <div class="section-grid">
+                        <div class="dashboard-card full-width">
+                            <h2>📅 Master Timeline - All Projects</h2>
+                            <div id="master-timeline">Loading...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Team Section -->
+                <section id="section-team" class="content-section">
+                    <div class="section-grid">
+                        <div class="dashboard-card full-width">
+                            <h2>👥 Team Allocation Across Projects</h2>
+                            <div id="team-allocation">Loading...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Projects Section -->
+                <section id="section-projects" class="content-section">
+                    <div class="section-grid">
+                        <div class="dashboard-card">
+                            <h2>🚨 Turnaround Project</h2>
+                            <button onclick="window.location.href='turnaround.html'" class="view-project-btn">View Full
+                                Project</button>
+                            <div id="turnaround-detail">Loading...</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h2>📈 Diversification Project</h2>
+                            <button onclick="window.location.href='index.html'" class="view-project-btn">View Full
+                                Project</button>
+                            <div id="diversification-detail">Loading...</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h2>💚 Wellness Centre Project</h2>
+                            <button onclick="window.location.href='wellness.html'" class="view-project-btn">View Full
+                                Project</button>
+                            <div id="wellness-detail">Loading...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Reports Section -->
+                <section id="section-reports" class="content-section">
+                    <div class="dashboard-card full-width">
+                        <div class="reports-header">
+                            <div>
+                                <h2>📑 Reports & Analytics</h2>
+                                <p class="reports-description">Steering-only command center for deep-dive report pack.
+                                </p>
+                            </div>
+                            <div class="reports-header-actions">
+                                <button class="report-menu-btn" onclick="showReportsGuide()">📘 How to export</button>
+                            </div>
+                        </div>
+                        <div class="reports-grid" id="reports-grid"></div>
+                    </div>
+                </section>
+            </main>
         </div>
-    </div>
 
-    <!-- AI Chat Widget Container -->
-    <div id="ai-chat-container"></div>
+        <div id="reports-menu-overlay" class="reports-menu-overlay" aria-hidden="true">
+            <div class="reports-menu-panel" role="dialog" aria-modal="true" aria-labelledby="reports-menu-title">
+                <div class="reports-menu-header">
+                    <div>
+                        <h2 id="reports-menu-title">📑 Reports &amp; Analytics</h2>
+                        <p>Quick-launch the steering pack without leaving Executive Command.</p>
+                    </div>
+                    <div class="reports-menu-actions">
+                        <button class="report-menu-btn" onclick="showReportsGuide()">📘 Export instructions</button>
+                        <button class="reports-menu-close" onclick="closeReportsMenu()"
+                            aria-label="Close Reports Menu">✕</button>
+                    </div>
+                </div>
+                <div class="reports-menu-grid reports-grid" id="reports-menu-list"></div>
+            </div>
+        </div>
+
+        <!-- AI Chat Widget Container -->
+        <div id="ai-chat-container"></div>
     </div>
 
     <!-- Scripts -->
-    <script src="js/auth.js?v=1.1.2"></script>
-    <script src="js/pwa-install.js?v=1.1.2"></script>
-    <script src="js/data.js?v=1.1.2"></script>
-    <script src="js/turnaround-data.js?v=1.1.2"></script>
-    <script src="js/wellness-data.js?v=1.1.2"></script>
-    <script src="js/edit-milestone.js?v=1.1.2"></script>
-    <script src="js/ai-chat-component.js?v=1.1.2"></script>
-    <script src="js/executive-dashboard.js?v=1.1.2"></script>
+    <script src="js/auth.js?v=1.1.4"></script>
+    <script src="js/pwa-install.js?v=1.1.4"></script>
+    <script src="js/data.js?v=1.1.4"></script>
+    <script src="js/turnaround-data.js?v=1.1.4"></script>
+    <script src="js/wellness-data.js?v=1.1.4"></script>
+    <script src="js/edit-milestone.js?v=1.1.4"></script>
+    <script src="js/ai-chat-component.js?v=1.1.4"></script>
+    <script src="js/executive-dashboard.js?v=1.1.4"></script>
     <script>
         // Open Excel file for editing - now using OneDrive
         async function openExcelFile() {
@@ -308,7 +323,7 @@
             const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
             const authorizedUsers = ['Attie Nel', 'Nastasha Jackson', 'Developer'];
             const boardMembers = window.BOARD_MEMBERS || ['Ds. Danie van Rensburg', 'Ds. Wynand van Niekerk'];
-            
+
             if (!authorizedUsers.includes(currentUser.name)) {
                 if (boardMembers.includes(currentUser.name)) {
                     alert('View-Only Access: Board members can view the Executive Command dashboard but cannot edit the workbook. Contact the CEO or Finance Manager for edits.');
@@ -317,11 +332,11 @@
                 }
                 return;
             }
-            
+
             // Open OneDrive Excel file in new tab
             const oneDriveUrl = 'https://1drv.ms/x/c/1fb6106c0dfb653b/IQAwiTAPo1EPRalRZsBRuE6iAVKUgGCC1a1qi5Xaw7KrPEg?e=wvqemv';
             window.open(oneDriveUrl, '_blank');
-            
+
             // Show simple instructions
             const modal = document.createElement('div');
             modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;';
@@ -342,18 +357,18 @@
                 </div>
             `;
             document.body.appendChild(modal);
-            
+
             return;
-            
+
             // OLD CODE BELOW (kept for reference, never reached)
             try {
                 console.log('Requesting Excel file access...');
-                
+
                 // Determine backend URL based on environment
-                const backendUrl = window.location.hostname.includes('localhost') 
+                const backendUrl = window.location.hostname.includes('localhost')
                     ? 'http://localhost:3000'
                     : 'https://stabilis-diversification.onrender.com'; // Your Render backend URL
-                
+
                 // Call server endpoint
                 const response = await fetch(`${backendUrl}/api/open-excel`, {
                     method: 'GET',
@@ -362,7 +377,7 @@
                         'Cache-Control': 'no-cache'
                     }
                 });
-                
+
                 console.log('Response status:', response.status);
                 const result = await response.json();
                 console.log('Response data:', result);
@@ -468,7 +483,7 @@
         async function uploadExcelFile(backendUrl) {
             const fileInput = document.getElementById('excelFileInput');
             const statusDiv = document.getElementById('uploadStatus');
-            
+
             if (!fileInput.files || fileInput.files.length === 0) {
                 statusDiv.style.display = 'block';
                 statusDiv.style.background = '#fee2e2';
@@ -476,29 +491,29 @@
                 statusDiv.textContent = '⚠️ Please select a file first';
                 return;
             }
-            
+
             const file = fileInput.files[0];
             const formData = new FormData();
             formData.append('excel', file);
-            
+
             statusDiv.style.display = 'block';
             statusDiv.style.background = '#dbeafe';
             statusDiv.style.color = '#1e40af';
             statusDiv.textContent = '⏳ Uploading...';
-            
+
             try {
                 const response = await fetch(`${backendUrl}/api/excel/upload`, {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
                     statusDiv.style.background = '#d1fae5';
                     statusDiv.style.color = '#065f46';
                     statusDiv.textContent = '✅ File uploaded successfully! Refreshing dashboard...';
-                    
+
                     setTimeout(() => {
                         window.location.reload();
                     }, 2000);

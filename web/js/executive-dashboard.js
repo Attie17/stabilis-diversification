@@ -19,11 +19,16 @@ let reportsOverlayListenersBound = false;
 let dashboardRefreshInterval = null;
 let dashboardActive = false;
 const ACCESS_OVERLAY_ID = 'executive-access-overlay';
+const lastSyncedProjects = {
+    turnaround: null,
+    diversification: null,
+    wellness: null
+};
 
 // Check if user has executive access
 function hasExecutiveAccess(user = getAuthUser()) {
     if (!user) return false;
-    const executiveUsers = window.EXECUTIVE_USERS || ['Developer', 'Attie Nel', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
+    const executiveUsers = window.EXECUTIVE_USERS || ['Developer', 'Attie Nel', 'Nastasha Jackson', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
     if (executiveUsers.includes(user.name)) return true;
 
     const accessLevel = typeof user.access === 'string' ? user.access.toLowerCase() : '';
@@ -38,9 +43,9 @@ function hasExecutiveAccess(user = getAuthUser()) {
 function startDashboardAutoRefresh() {
     if (dashboardActive) return;
     dashboardActive = true;
-    refreshDashboard();
+    refreshDashboard(); // Initial load (fire and forget)
     dashboardRefreshInterval = setInterval(() => {
-        refreshDashboard();
+        refreshDashboard(); // Periodic refresh (fire and forget)
     }, 30000);
 }
 
@@ -136,7 +141,7 @@ function getAIRequestHeaders() {
 
 function isSteeringUser(user = getAuthUser()) {
     if (!user) return false;
-    const steering = window.STEERING_COMMITTEE || ['Attie Nel', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
+    const steering = window.STEERING_COMMITTEE || ['Attie Nel', 'Nastasha Jackson', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
     return steering.includes(user.name) || user.name === 'Developer';
 }
 
@@ -305,18 +310,88 @@ function mergeSavedMilestones(base, saved) {
     return base;
 }
 
-function getLatestProjectData(baseData, storageKey) {
+// Merge database milestones into project data structure
+function mergeDatabaseMilestones(baseData, dbMilestones) {
+    if (!baseData || !dbMilestones || !Array.isArray(dbMilestones)) return baseData;
+
     const clone = cloneProjectData(baseData);
-    if (!clone) return null;
+    if (!clone || !clone.phases) return baseData;
+
+    clone.phases.forEach(phase => {
+        if (!phase.milestones) return;
+        phase.milestones.forEach(milestone => {
+            const dbMilestone = dbMilestones.find(m => m.id === milestone.id);
+            if (dbMilestone) {
+                // Update with database values
+                milestone.status = dbMilestone.status;
+                if (dbMilestone.revenue !== undefined) {
+                    milestone.revenue = dbMilestone.revenue;
+                }
+            }
+        });
+    });
+
+    return clone;
+}
+
+// Load milestones from database
+async function loadMilestonesFromDatabase(projectPrefix) {
+    try {
+        const response = await fetch(`/api/milestones?project=${projectPrefix}`);
+        if (!response.ok) {
+            console.warn('Database fetch failed, using cached data');
+            return null;
+        }
+        const result = await response.json();
+        return result.success ? result.milestones : null;
+    } catch (error) {
+        console.warn('Database unavailable, using cached data:', error.message);
+        return null;
+    }
+}
+
+function getLatestProjectData(baseData, fallbackKey, dbSnapshotKey) {
+    const keysToCheck = [dbSnapshotKey, fallbackKey].filter(Boolean);
+    for (const key of keysToCheck) {
+        const hydrated = hydrateFromStorage(baseData, key);
+        if (hydrated) return hydrated;
+    }
+    return cloneProjectData(baseData);
+}
+
+function reuseLastSyncedProject(lastSnapshot, baseData, fallbackKey, dbSnapshotKey) {
+    if (lastSnapshot) {
+        return cloneProjectData(lastSnapshot);
+    }
+    return getLatestProjectData(baseData, fallbackKey, dbSnapshotKey);
+}
+
+function hydrateFromStorage(baseData, storageKey) {
+    if (!baseData || !storageKey) return null;
     try {
         const savedRaw = localStorage.getItem(storageKey);
-        if (!savedRaw) return clone;
+        if (!savedRaw) return null;
         const saved = JSON.parse(savedRaw);
+        const clone = cloneProjectData(baseData);
+        if (!clone) return null;
         return mergeSavedMilestones(clone, saved);
     } catch (error) {
         console.warn(`Failed to hydrate project data for ${storageKey}`, error);
-        return clone;
+        return null;
     }
+}
+
+function persistProjectData(storageKey, data) {
+    if (!data) return;
+    const keys = Array.isArray(storageKey) ? storageKey.filter(Boolean) : [storageKey];
+    keys.forEach(key => {
+        if (!key) return;
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+        } catch (error) {
+            console.warn(`Failed to persist project data for ${key}`, error);
+        }
+    });
 }
 
 // Update timestamp
@@ -332,16 +407,64 @@ function updateTimestamp() {
 }
 
 // Load and aggregate all project data
-function loadAllData() {
-    const turnaroundData = typeof window.turnaroundData !== 'undefined'
-        ? getLatestProjectData(window.turnaroundData, 'stabilis-turnaround-data')
+async function loadAllData() {
+    // Load from database first (synced across all browsers)
+    const [turnaroundDbData, diversificationDbData, wellnessDbData] = await Promise.all([
+        loadMilestonesFromDatabase('T'),
+        loadMilestonesFromDatabase('P'),
+        loadMilestonesFromDatabase('W')
+    ]);
+
+    // Merge database data with base project data
+    let turnaroundData = typeof window.turnaroundData !== 'undefined'
+        ? cloneProjectData(window.turnaroundData)
         : null;
-    const diversificationData = typeof window.projectData !== 'undefined'
-        ? getLatestProjectData(window.projectData, 'stabilis-project-data')
+    let diversificationData = typeof window.projectData !== 'undefined'
+        ? cloneProjectData(window.projectData)
         : null;
-    const wellnessData = typeof window.wellnessData !== 'undefined'
-        ? getLatestProjectData(window.wellnessData, 'stabilis-wellness-data')
+    let wellnessData = typeof window.wellnessData !== 'undefined'
+        ? cloneProjectData(window.wellnessData)
         : null;
+
+    // Apply database milestones (if available)
+    if (turnaroundDbData) {
+        turnaroundData = mergeDatabaseMilestones(turnaroundData, turnaroundDbData);
+        persistProjectData(['stabilis-turnaround-data', 'stabilis-turnaround-data-db'], turnaroundData);
+        lastSyncedProjects.turnaround = cloneProjectData(turnaroundData);
+    } else {
+        turnaroundData = reuseLastSyncedProject(
+            lastSyncedProjects.turnaround,
+            window.turnaroundData,
+            'stabilis-turnaround-data',
+            'stabilis-turnaround-data-db'
+        );
+    }
+
+    if (diversificationDbData) {
+        diversificationData = mergeDatabaseMilestones(diversificationData, diversificationDbData);
+        persistProjectData(['stabilis-project-data', 'stabilis-project-data-db'], diversificationData);
+        lastSyncedProjects.diversification = cloneProjectData(diversificationData);
+    } else {
+        diversificationData = reuseLastSyncedProject(
+            lastSyncedProjects.diversification,
+            window.projectData,
+            'stabilis-project-data',
+            'stabilis-project-data-db'
+        );
+    }
+
+    if (wellnessDbData) {
+        wellnessData = mergeDatabaseMilestones(wellnessData, wellnessDbData);
+        persistProjectData(['stabilis-wellness-data', 'stabilis-wellness-data-db'], wellnessData);
+        lastSyncedProjects.wellness = cloneProjectData(wellnessData);
+    } else {
+        wellnessData = reuseLastSyncedProject(
+            lastSyncedProjects.wellness,
+            window.wellnessData,
+            'stabilis-wellness-data',
+            'stabilis-wellness-data-db'
+        );
+    }
 
     // Calculate progress for each project
     const turnaroundProgress = calculateProjectProgress(turnaroundData);
@@ -384,15 +507,16 @@ function calculateProjectProgress(projectData) {
         if (phase.milestones) {
             phase.milestones.forEach(m => {
                 total++;
-                if (m.status === 'complete') complete++;
+                // Check both 'complete' (frontend) and 'completed' (database)
+                if (m.status === 'complete' || m.status === 'completed') complete++;
 
                 const dueDate = new Date(m.due || m.dueDate);
-                if (dueDate < today && m.status !== 'complete') {
+                if (dueDate < today && m.status !== 'complete' && m.status !== 'completed') {
                     overdue++;
                     if (m.priority === 'critical' || m.priority === 'high') critical++;
                 }
 
-                if (dueDate >= today && dueDate <= nextWeek && m.status !== 'complete') {
+                if (dueDate >= today && dueDate <= nextWeek && m.status !== 'complete' && m.status !== 'completed') {
                     upcoming++;
                 }
             });
@@ -692,7 +816,7 @@ function updateTeamCapacity(turnaround, diversification, wellness) {
 // Section switching
 function showSection(sectionName, triggerBtn) {
     console.log('showSection called:', sectionName);
-    
+
     // Hide all sections
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
@@ -1038,8 +1162,8 @@ function updateProjectsSection(turnaround, diversification, wellness) {
 }
 
 // Refresh dashboard
-function refreshDashboard() {
-    loadAllData();
+async function refreshDashboard() {
+    await loadAllData();
     loadAIAlerts(); // Load AI-generated alerts
     updateTimestamp();
 }
@@ -1078,6 +1202,7 @@ function displayAlertsBanner(alerts) {
         return;
     }
 
+    window.currentCriticalAlerts = criticalAlerts;
     banner.innerHTML = `
         <div class="alert-banner-content">
             <span class="alert-icon">🚨</span>
@@ -1086,11 +1211,106 @@ function displayAlertsBanner(alerts) {
                 - ${criticalAlerts[0].message}
                 ${criticalAlerts.length > 1 ? ` and ${criticalAlerts.length - 1} more...` : ''}
             </span>
-            <button onclick="showSection('overview')" class="alert-view-btn">View Details</button>
+            <button type="button" class="alert-view-btn" data-alert-details-toggle onclick="toggleAlertDetails()">View Details</button>
         </div>
+        <div class="alert-details-panel" id="alert-details-panel"></div>
     `;
     banner.style.display = 'flex';
+    banner.classList.remove('expanded');
+
+    renderAlertDetailsList(criticalAlerts);
 }
+
+function renderAlertDetailsList(alerts) {
+    const detailsPanel = document.getElementById('alert-details-panel');
+    if (!detailsPanel) return;
+    if (!alerts || alerts.length === 0) {
+        detailsPanel.innerHTML = '<div class="alert-details-empty">✅ No critical alerts right now</div>';
+        return;
+    }
+
+    detailsPanel.innerHTML = alerts.map((alert, index) => {
+        const identifier = alert.milestone_id || alert.details?.risk_id || 'Alert';
+        const title = alert.details?.milestone_title || alert.details?.risk_title || alert.message;
+        const owner = alert.details?.owner || 'Unassigned';
+        return `
+            <button class="alert-detail-item" type="button" onclick="viewAlertDetail(${index})">
+                <div class="alert-detail-heading">
+                    <strong>${identifier}</strong>
+                    <span>${title}</span>
+                </div>
+                <div class="alert-detail-meta">Owner: ${owner}</div>
+            </button>
+        `;
+    }).join('');
+}
+
+function toggleAlertDetails() {
+    const banner = document.getElementById('alerts-banner');
+    if (!banner) return;
+    banner.classList.toggle('expanded');
+    const toggleBtn = banner.querySelector('[data-alert-details-toggle]');
+    if (toggleBtn) {
+        toggleBtn.textContent = banner.classList.contains('expanded') ? 'Hide Details' : 'View Details';
+    }
+}
+
+function viewAlertDetail(alertIndex) {
+    const alerts = window.currentCriticalAlerts || [];
+    const alert = alerts[alertIndex];
+    if (!alert) return;
+    const modal = ensureAlertModal();
+    const body = modal.querySelector('[data-alert-modal-body]');
+    const isRisk = Boolean(alert.details?.risk_id);
+    const title = alert.details?.milestone_title || alert.details?.risk_title || alert.message;
+    const owner = alert.details?.owner || alert.owner || 'Unassigned';
+    const due = alert.details?.due_date || alert.details?.due || alert.due;
+    const identifier = alert.milestone_id || alert.details?.risk_id || 'N/A';
+    const extraMsg = isRisk
+        ? `<p><strong>Phase:</strong> ${alert.details?.phase || 'Unknown'}</p>
+           <p>${alert.details?.description || alert.message}</p>`
+        : `<p>${alert.message}</p>`;
+    body.innerHTML = `
+        <p><strong>ID:</strong> ${identifier}</p>
+        <p><strong>Title:</strong> ${title}</p>
+        <p><strong>Owner:</strong> ${owner}</p>
+        ${due ? `<p><strong>Due:</strong> ${formatDate(new Date(due))}</p>` : ''}
+        <p><strong>Status:</strong> ${alert.details?.status || alert.status || 'Unknown'}</p>
+        ${extraMsg}
+    `;
+    modal.querySelector('[data-alert-modal-title]').textContent = isRisk ? 'Critical Risk' : 'Critical Milestone';
+    modal.classList.add('active');
+}
+
+function ensureAlertModal() {
+    let modal = document.getElementById('alert-milestone-modal');
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.id = 'alert-milestone-modal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-alert-modal-title>Critical Milestone</h2>
+                <button class="modal-close" type="button" aria-label="Close" onclick="closeAlertMilestoneModal()">&times;</button>
+            </div>
+            <div class="modal-body" data-alert-modal-body></div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    return modal;
+}
+
+function closeAlertMilestoneModal() {
+    const modal = document.getElementById('alert-milestone-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+window.toggleAlertDetails = toggleAlertDetails;
+window.viewAlertDetail = viewAlertDetail;
+window.closeAlertMilestoneModal = closeAlertMilestoneModal;
 
 // Update critical items with AI alerts
 function updateCriticalItemsWithAI(alerts) {
@@ -1155,7 +1375,7 @@ function formatDate(date) {
 function canEditWorkbook() {
     const currentUser = getAuthUser();
     if (!currentUser) return false;
-    const authorizedUsers = ['Attie Nel', 'Nastasha Jacobs', 'Developer'];
+    const authorizedUsers = ['Attie Nel', 'Nastasha Jackson', 'Nastasha Jacobs', 'Developer'];
     return authorizedUsers.includes(currentUser.name);
 }
 
@@ -1293,39 +1513,46 @@ function bindExecutiveSidebar() {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Executive Dashboard initializing...');
-    
+
     // Initialize auth first
     if (typeof initAuth === 'function') {
         initAuth();
     } else {
         console.error('initAuth function not found');
     }
-    
+
     // Initialize reports menu
     if (typeof initReportsMenu === 'function') {
         initReportsMenu();
     }
-    
+
     // Setup access watcher
     setupExecutiveDashboardAccessWatcher();
-    
+
     // Update workbook button visibility
     updateWorkbookButtonVisibility();
-    
+
     // Bind sidebar
     bindExecutiveSidebar();
-    
+
     // Update placeholder
     updateSummaryPlaceholder();
-    
+
     // Listen for user changes
     window.addEventListener('stabilis-user-changed', updateWorkbookButtonVisibility);
-    
+
     console.log('Executive Dashboard initialized');
 });
 
 function handleProjectDataChange(event) {
-    const keys = ['stabilis-project-data', 'stabilis-turnaround-data', 'stabilis-wellness-data'];
+    const keys = [
+        'stabilis-project-data',
+        'stabilis-project-data-db',
+        'stabilis-turnaround-data',
+        'stabilis-turnaround-data-db',
+        'stabilis-wellness-data',
+        'stabilis-wellness-data-db'
+    ];
     const key = event.detail?.key || event.key;
     if (keys.includes(key)) {
         refreshDashboard();

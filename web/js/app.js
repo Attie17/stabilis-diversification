@@ -844,13 +844,13 @@ async function toggleMilestoneStatus(milestoneId, refreshUI = false) {
     let found = false;
     let updatedMilestone = null;
     let oldStatus = null;
-    
+
     projectData.phases.forEach(phase => {
         const milestone = phase.milestones.find(m => m.id === milestoneId);
         if (milestone) {
             oldStatus = milestone.status;
             milestone.status = milestone.status === 'complete' ? 'planned' : 'complete';
-            
+
             // Track who completed it and when
             if (milestone.status === 'complete') {
                 milestone.completedDate = new Date().toISOString();
@@ -863,12 +863,12 @@ async function toggleMilestoneStatus(milestoneId, refreshUI = false) {
             found = true;
         }
     });
-    
+
     if (!found) return;
 
     // Save to localStorage immediately (optimistic update)
     saveToLocalStorage();
-    
+
     if (refreshUI) {
         updateDashboard();
         schedulePhaseRender();
@@ -878,24 +878,21 @@ async function toggleMilestoneStatus(milestoneId, refreshUI = false) {
     try {
         const response = await fetch('/api/milestones/update', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-User-Name': currentUser?.name || 'Unknown'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                milestoneId: milestoneId,
-                status: updatedMilestone.status,
-                changedBy: currentUser?.name || 'Unknown',
-                notes: `Status changed from ${oldStatus} to ${updatedMilestone.status}`
+                milestone_id: milestoneId,
+                field: 'status',
+                old_value: oldStatus,
+                new_value: updatedMilestone.status === 'complete' ? 'completed' : updatedMilestone.status,
+                changed_by: currentUser?.name || 'Unknown'
             })
         });
 
         if (!response.ok) {
             const data = await response.json();
-            // If backend fails, localStorage is already updated (optimistic)
             console.warn('Backend sync failed, using localStorage:', data.error);
         } else {
-            console.log('✅ Milestone synced to backend');
+            console.log('✅ Diversification milestone synced to backend');
         }
     } catch (error) {
         // Network error - localStorage already updated
@@ -1768,9 +1765,9 @@ document.addEventListener('DOMContentLoaded', () => {
 async function syncMilestoneToExcel(milestoneId, milestone) {
     // TODO: Implement when Excel sync endpoint is ready
     // This will POST to /api/milestone/update endpoint
-    
+
     console.log('Excel sync placeholder - would sync:', { milestoneId, milestone });
-    
+
     /*
     try {
         const response = await fetch('/api/milestone/update', {

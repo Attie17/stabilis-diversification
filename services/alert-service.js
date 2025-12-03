@@ -5,7 +5,7 @@ require('dotenv').config();
 const fs = require('fs').promises;
 const path = require('path');
 
-// Load data sources statically to ensure bundling
+// Load data sources statically (used only if DB unavailable)
 let diversificationData, turnaroundData, wellnessData;
 try {
     diversificationData = require('../web/js/data.js');
@@ -18,23 +18,70 @@ try {
 class AlertService {
     constructor(supabase = null) {
         this.supabase = supabase;
-        this.alerts = []; // In-memory storage if no DB
+        this.alerts = []; // In-memory storage if no DB table
         this.milestones = [];
         this.dbAlertsAvailable = Boolean(supabase);
         this.missingTableNotified = false;
+        this.usedFallbackData = false;
+    }
+
+    async loadMilestones() {
+        this.usedFallbackData = false;
+        if (await this.loadMilestonesFromDatabase()) {
+            return this.milestones;
+        }
+        await this.loadMilestonesFromStatic();
+        this.usedFallbackData = true;
+        return this.milestones;
+    }
+
+    async loadMilestonesFromDatabase() {
+        if (!this.supabase) return false;
+
+        try {
+            const { data, error } = await this.supabase
+                .from('milestones')
+                .select('*');
+
+            if (error) {
+                console.warn('⚠️  Supabase milestones fetch failed, falling back to static data:', error.message);
+                return false;
+            }
+
+            if (!Array.isArray(data) || data.length === 0) {
+                console.warn('⚠️  Supabase returned no milestone rows, falling back to static data');
+                return false;
+            }
+
+            this.milestones = data.map(row => ({
+                id: row.id,
+                title: row.title || row.name,
+                owner: row.owner,
+                due: row.due_date || row.due,
+                status: row.status || 'planned',
+                phase_id: row.phase_id,
+                phase_name: row.phase_name || row.phase_id,
+                revenue: row.revenue,
+                updated_at: row.updated_at
+            }));
+
+            console.log(`✅ Loaded ${this.milestones.length} milestones from Supabase for alert checking`);
+            return true;
+        } catch (error) {
+            console.error('❌ Supabase milestone fetch threw, falling back to static data:', error.message);
+            return false;
+        }
     }
 
     // Load milestones from static files
-    async loadMilestones() {
+    async loadMilestonesFromStatic() {
         try {
-            // Use pre-loaded data
             const diversification = diversificationData;
             const turnaround = turnaroundData;
             const wellness = wellnessData;
 
             this.milestones = [];
 
-            // Extract all milestones
             [diversification, turnaround, wellness].forEach(project => {
                 if (project && project.phases) {
                     project.phases.forEach(phase => {
@@ -51,11 +98,10 @@ class AlertService {
                 }
             });
 
-            console.log(`📦 Loaded ${this.milestones.length} milestones for alert checking`);
-            return this.milestones;
+            console.log(`📦 Loaded ${this.milestones.length} milestones from static data for alert checking`);
         } catch (error) {
-            console.error('❌ Error loading milestones:', error.message);
-            return [];
+            console.error('❌ Error loading milestones from static files:', error.message);
+            this.milestones = [];
         }
     }
 
@@ -222,23 +268,75 @@ class AlertService {
         try {
             const risksPath = path.join(__dirname, '../tracking/risks.md');
             const risksContent = await fs.readFile(risksPath, 'utf-8');
-
-            // Simple pattern matching for high/critical risks
             const lines = risksContent.split('\n');
-            lines.forEach((line, index) => {
-                if (line.includes('🔴') || line.toLowerCase().includes('critical') || line.toLowerCase().includes('high risk')) {
-                    alerts.push({
-                        type: 'risk',
-                        severity: 'critical',
-                        message: `High-priority risk detected in risks.md (line ${index + 1})`,
-                        details: {
-                            risk_line: line.trim(),
-                            file: 'tracking/risks.md',
-                            line_number: index + 1
-                        }
-                    });
+
+            let currentSeverity = 'info';
+            let currentRisk = null;
+
+            const pushRisk = () => {
+                if (!currentRisk) return;
+                alerts.push({
+                    type: 'risk',
+                    severity: currentRisk.severity,
+                    message: `${currentRisk.title} (${currentRisk.id}) requires attention`,
+                    details: {
+                        risk_id: currentRisk.id,
+                        risk_title: currentRisk.title,
+                        owner: currentRisk.owner,
+                        phase: currentRisk.phase,
+                        description: currentRisk.description,
+                        file: 'tracking/risks.md',
+                        line_number: currentRisk.lineNumber
+                    }
+                });
+                currentRisk = null;
+            };
+
+            lines.forEach((rawLine, index) => {
+                const line = rawLine.trim();
+                if (!line) return;
+
+                if (line.startsWith('### ')) {
+                    pushRisk();
+                    if (line.includes('🔴') || line.toLowerCase().includes('high')) {
+                        currentSeverity = 'critical';
+                    } else if (line.includes('🟡') || line.toLowerCase().includes('medium')) {
+                        currentSeverity = 'warning';
+                    } else {
+                        currentSeverity = 'info';
+                    }
+                    return;
+                }
+
+                if (line.startsWith('#### ')) {
+                    pushRisk();
+                    const match = line.match(/^####\s+([^:]+):\s*(.+)$/);
+                    if (match) {
+                        currentRisk = {
+                            id: match[1].trim(),
+                            title: match[2].trim(),
+                            owner: 'Unassigned',
+                            phase: 'Unknown',
+                            description: '',
+                            lineNumber: index + 1,
+                            severity: currentSeverity
+                        };
+                    }
+                    return;
+                }
+
+                if (!currentRisk) return;
+
+                if (line.startsWith('- **Owner:**')) {
+                    currentRisk.owner = line.replace('- **Owner:**', '').replace(/\*\*/g, '').trim();
+                } else if (line.startsWith('- **Phase:**')) {
+                    currentRisk.phase = line.replace('- **Phase:**', '').replace(/\*\*/g, '').trim();
+                } else if (line.startsWith('- **Description:**')) {
+                    currentRisk.description = line.replace('- **Description:**', '').replace(/\*\*/g, '').trim();
                 }
             });
+
+            pushRisk();
         } catch (error) {
             console.log('ℹ️  No risks.md file found or error reading it');
         }
@@ -248,9 +346,12 @@ class AlertService {
 
     // Generate all alerts
     async generateAlerts() {
-        console.log('🔔 Generating alerts...\n');
+        console.log('🔔 Generating alerts...');
 
         await this.loadMilestones();
+        if (this.usedFallbackData) {
+            console.warn('⚠️  Alerts generated using static fallback data. Database milestones were unavailable.');
+        }
 
         const allAlerts = [
             ...(await this.checkUpcomingDeadlines()),

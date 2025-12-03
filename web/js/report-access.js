@@ -133,7 +133,7 @@
 
     function hasSteeringAccess(user) {
         if (!user) return false;
-        const steering = window.STEERING_COMMITTEE || ['Attie Nel', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
+        const steering = window.STEERING_COMMITTEE || ['Attie Nel', 'Nastasha Jackson', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
         return steering.includes(user.name) || isDeveloper(user);
     }
 

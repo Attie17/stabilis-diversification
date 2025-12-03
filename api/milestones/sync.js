@@ -25,9 +25,9 @@ module.exports = async (req, res) => {
 
         // Initialize Supabase
         if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
-            return res.status(500).json({ 
+            return res.status(500).json({
                 error: 'Database not configured',
-                fallback: true 
+                fallback: true
             });
         }
 
@@ -68,9 +68,9 @@ module.exports = async (req, res) => {
 
     } catch (error) {
         console.error('API error:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: error.message,
-            fallback: true 
+            fallback: true
         });
     }
 };

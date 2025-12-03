@@ -103,7 +103,7 @@
         const APP_VERSION = '1.1.2'; // Increment this when deploying new versions
         const VERSION_KEY = 'stabilis-app-version';
         const PASSWORDS_KEY = 'stabilis-passwords'; // Separate storage for passwords
-        
+
         function checkVersion() {
             const storedVersion = localStorage.getItem(VERSION_KEY);
             if (storedVersion && storedVersion !== APP_VERSION) {
@@ -117,7 +117,7 @@
             }
             localStorage.setItem(VERSION_KEY, APP_VERSION);
         }
-        
+
         document.addEventListener('DOMContentLoaded', () => {
             checkVersion();
             initAuth();

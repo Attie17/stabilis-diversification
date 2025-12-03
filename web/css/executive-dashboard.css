@@ -120,6 +120,95 @@ body.reports-menu-open {
     margin-bottom: 1.25rem;
     color: white;
     animation: pulse 2s infinite;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.alert-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.alert-icon {
+    font-size: 1.5rem;
+}
+
+.alert-text {
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+.alert-view-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.4rem 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.alert-view-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.alert-details-panel {
+    display: none;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    padding: 0.5rem;
+}
+
+.alerts-banner.expanded .alert-details-panel {
+    display: block;
+}
+
+.alert-detail-item {
+    width: 100%;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 0.65rem 0.75rem;
+    color: #fff;
+    margin-bottom: 0.45rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.alert-detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.alert-detail-item:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.alert-detail-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.alert-detail-heading span {
+    font-weight: 500;
+}
+
+.alert-detail-meta {
+    font-size: 0.8rem;
+    opacity: 0.85;
+    margin-top: 0.25rem;
+}
+
+.alert-details-empty {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
 }
 
 @keyframes pulse {
@@ -718,10 +807,11 @@ body.reports-menu-open {
         font-size: 1.5rem;
     }
     
-    /* Executive sidebar full-screen on mobile */
-    .exec-sidebar {
+    /* Executive sidebar: hide completely when closed, full-screen when open */
+    .sidebar.exec-sidebar {
         width: 100%;
         max-width: 100%;
+        left: -100% !important; /* ensure the menu fully slides off-screen when closed */
     }
     
     /* All buttons touch-friendly */

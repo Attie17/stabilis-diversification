@@ -1,4 +1,5 @@
 const AlertService = require('../../services/alert-service');
+const { createClient } = require('@supabase/supabase-js');
 
 module.exports = async (req, res) => {
     // Enable CORS
@@ -21,8 +22,11 @@ module.exports = async (req, res) => {
 
     try {
         const { severity } = req.query;
-        const alertService = new AlertService();
-        
+        const supabase = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
+            ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
+            : null;
+        const alertService = new AlertService(supabase);
+
         const result = await alertService.generateAlerts();
 
         let alerts = result.alerts;

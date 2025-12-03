@@ -81,8 +81,86 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// AI Chat endpoint
-app.post('/api/ai/chat', async (req, res) => {
+// Milestone API endpoints (no CEO restriction - all authenticated users)
+// GET /api/milestones - Fetch all milestones
+app.get('/api/milestones', async (req, res) => {
+    try {
+        if (!supabase) {
+            return res.status(500).json({ error: 'Database not configured', fallback: true });
+        }
+
+        const { project } = req.query;
+        let query = supabase.from('milestones').select('*');
+
+        if (project) {
+            query = query.ilike('phase_id', `${project}%`);
+        }
+
+        const { data, error } = await query.order('phase_id', { ascending: true });
+
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(500).json({ error: error.message });
+        }
+
+        res.json({ success: true, milestones: data || [] });
+    } catch (error) {
+        console.error('❌ Milestones fetch error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /api/milestones/update - Update milestone status
+app.post('/api/milestones/update', async (req, res) => {
+    try {
+        if (!supabase) {
+            return res.status(500).json({ error: 'Database not configured' });
+        }
+
+        const { milestone_id, field, old_value, new_value, changed_by } = req.body;
+
+        if (!milestone_id || !field || !changed_by) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        // Update milestone in database
+        const { data: milestone, error: milestoneError } = await supabase
+            .from('milestones')
+            .update({ [field]: new_value, updated_at: new Date().toISOString() })
+            .eq('id', milestone_id)
+            .select()
+            .single();
+
+        if (milestoneError) {
+            console.error('Milestone update error:', milestoneError);
+            return res.status(500).json({ error: milestoneError.message });
+        }
+
+        // Log to audit trail
+        const { error: auditError } = await supabase
+            .from('milestone_updates')
+            .insert({
+                milestone_id,
+                field_changed: field,
+                old_value: String(old_value),
+                new_value: String(new_value),
+                changed_by,
+                timestamp: new Date().toISOString()
+            });
+
+        if (auditError) {
+            console.warn('Audit trail error:', auditError);
+        }
+
+        res.json({ success: true, milestone });
+    } catch (error) {
+        console.error('❌ Milestone update error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// AI Chat endpoint (both /api/chat and /api/ai/chat for compatibility)
+const handleChat = async (req, res) => {
     try {
         const { message, thread_id, session_id } = req.body;
 
@@ -123,7 +201,10 @@ app.post('/api/ai/chat', async (req, res) => {
         console.error('❌ Chat error:', error);
         res.status(500).json({ error: error.message });
     }
-});
+};
+
+app.post('/api/chat', handleChat);
+app.post('/api/ai/chat', handleChat);
 
 // Get active alerts
 app.get('/api/ai/alerts', async (req, res) => {
@@ -275,9 +356,9 @@ const upload = multer({ dest: 'uploads/' });
 app.get('/api/excel/download', (req, res) => {
     const fs = require('fs');
     const excelPath = path.join(__dirname, 'data', 'stabilis-data.xlsx');
-    
+
     console.log('📥 Excel download request received');
-    
+
     if (!fs.existsSync(excelPath)) {
         console.error('❌ Excel file not found at:', excelPath);
         return res.status(404).json({
@@ -285,7 +366,7 @@ app.get('/api/excel/download', (req, res) => {
             error: 'Excel file not found'
         });
     }
-    
+
     console.log('✅ Sending Excel file for download');
     res.download(excelPath, 'stabilis-data.xlsx', (err) => {
         if (err) {
@@ -301,21 +382,21 @@ app.get('/api/excel/download', (req, res) => {
 app.post('/api/excel/upload', upload.single('excel'), (req, res) => {
     const fs = require('fs');
     const excelPath = path.join(__dirname, 'data', 'stabilis-data.xlsx');
-    
+
     console.log('📤 Excel upload request received');
-    
+
     if (!req.file) {
         return res.status(400).json({
             success: false,
             error: 'No file uploaded'
         });
     }
-    
+
     try {
         // Move uploaded file to data directory
         fs.renameSync(req.file.path, excelPath);
         console.log('✅ Excel file uploaded successfully');
-        
+
         res.json({
             success: true,
             message: 'Excel file updated successfully'
@@ -334,9 +415,9 @@ app.get('/api/open-excel', (req, res) => {
     const { exec } = require('child_process');
     const fs = require('fs');
     const excelPath = path.join(__dirname, 'data', 'stabilis-data.xlsx');
-    
+
     console.log('📊 Excel open request received');
-    
+
     // Check if running on cloud (Render/Heroku) - don't try to open Excel
     if (process.env.RENDER || process.env.HEROKU || process.env.NODE_ENV === 'production') {
         console.log('🌐 Running on cloud - redirecting to download/upload flow');
@@ -347,7 +428,7 @@ app.get('/api/open-excel', (req, res) => {
             downloadUrl: '/api/excel/download'
         });
     }
-    
+
     // First verify file exists
     if (!fs.existsSync(excelPath)) {
         console.error('❌ Excel file not found at:', excelPath);
@@ -357,14 +438,14 @@ app.get('/api/open-excel', (req, res) => {
             path: excelPath
         });
     }
-    
+
     console.log('✅ File exists, attempting to open:', excelPath);
-    
+
     // Use simpler command without complex PowerShell syntax (Windows only)
-    const command = process.platform === 'win32' 
+    const command = process.platform === 'win32'
         ? `start "" "${excelPath}"`
         : `open "${excelPath}"`; // Mac
-    
+
     exec(command, (error, stdout, stderr) => {
         if (error) {
             console.error('❌ Error opening Excel:', error.message);

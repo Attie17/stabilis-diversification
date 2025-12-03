@@ -151,9 +151,9 @@ function buildUserOptions() {
     `;
 }
 
-const STEERING_COMMITTEE = ['Attie Nel', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
+const STEERING_COMMITTEE = ['Attie Nel', 'Nastasha Jackson', 'Nastasha Jacobs', 'Lydia Gittens', 'Berno Paul'];
 const BOARD_MEMBERS = ['Ds. Danie van Rensburg', 'Ds. Wynand van Niekerk'];
-const EXECUTIVE_USERS = ['Developer', ...STEERING_COMMITTEE, ...BOARD_MEMBERS];
+const EXECUTIVE_USERS = Array.from(new Set(['Developer', ...STEERING_COMMITTEE, ...BOARD_MEMBERS]));
 window.EXECUTIVE_USERS = EXECUTIVE_USERS;
 window.STEERING_COMMITTEE = STEERING_COMMITTEE;
 window.BOARD_MEMBERS = BOARD_MEMBERS;
@@ -278,7 +278,7 @@ window.disableDevAutoLogin = function () {
 function initAuth() {
     // Check if this is a fresh session (page reload/refresh)
     const sessionActive = sessionStorage.getItem('stabilis-session-active');
-    
+
     // If no active session marker, this is a reload - sign out and require fresh login
     if (!sessionActive) {
         localStorage.removeItem('stabilis-user');
@@ -287,7 +287,7 @@ function initAuth() {
             window.currentUser = null;
         }
     }
-    
+
     // Now check for saved user (will be null if we just cleared it above)
     const savedUser = localStorage.getItem('stabilis-user');
     if (savedUser) {
@@ -300,13 +300,13 @@ function initAuth() {
         initInactivityTracking(); // Start tracking inactivity
         return;
     }
-    
+
     // Try auto-login for dev environment
     if (autoLoginForDev()) {
         sessionStorage.setItem('stabilis-session-active', 'true');
         return;
     }
-    
+
     showLoginScreen();
 }
 
@@ -540,8 +540,9 @@ window.completeNewUserRegistration = function () {
 
     const developerUser = teamRoles.developer.find(u => u.name === selectedName);
     const adminUser = teamRoles.admin.find(u => u.name === selectedName);
+    const boardUser = teamRoles.board.find(u => u.name === selectedName);
     const teamUser = teamRoles.team.find(u => u.name === selectedName);
-    const foundUser = developerUser || adminUser || teamUser;
+    const foundUser = developerUser || adminUser || boardUser || teamUser;
 
     if (!foundUser) {
         errorDiv.textContent = '❌ Could not find that user. Please contact your administrator.';
@@ -571,9 +572,10 @@ window.loginUser = function () {
     // Find user in team data
     const developerUser = teamRoles.developer.find(u => u.name === selectedName);
     const adminUser = teamRoles.admin.find(u => u.name === selectedName);
+    const boardUser = teamRoles.board.find(u => u.name === selectedName);
     const teamUser = teamRoles.team.find(u => u.name === selectedName);
 
-    const foundUser = developerUser || adminUser || teamUser;
+    const foundUser = developerUser || adminUser || boardUser || teamUser;
 
     if (foundUser) {
         // Check if this is first login (no password set)

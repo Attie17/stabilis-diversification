@@ -7,18 +7,18 @@ let installBannerDismissed = false;
 // Listen for beforeinstallprompt event
 window.addEventListener('beforeinstallprompt', (e) => {
     console.log('[PWA] Install prompt available');
-    
+
     // Prevent default mini-infobar
     e.preventDefault();
-    
+
     // Store event for later use
     deferredPrompt = e;
-    
+
     // Check if user dismissed banner before
     const dismissed = localStorage.getItem('pwa-install-dismissed');
     const dismissedTime = dismissed ? parseInt(dismissed, 10) : 0;
     const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-    
+
     // Show banner if not dismissed or dismissed more than 7 days ago
     if (!dismissed || dismissedTime < sevenDaysAgo) {
         showInstallBanner();
@@ -28,7 +28,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 // Show install banner
 function showInstallBanner() {
     if (installBannerDismissed) return;
-    
+
     const banner = document.createElement('div');
     banner.id = 'pwa-install-banner';
     banner.className = 'pwa-install-banner';
@@ -45,9 +45,9 @@ function showInstallBanner() {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(banner);
-    
+
     // Add CSS if not already present
     if (!document.getElementById('pwa-install-styles')) {
         const style = document.createElement('style');
@@ -170,31 +170,31 @@ function showInstallBanner() {
 }
 
 // Install PWA
-window.installPWA = async function() {
+window.installPWA = async function () {
     if (!deferredPrompt) {
         console.warn('[PWA] Install prompt not available');
         return;
     }
-    
+
     console.log('[PWA] Showing install prompt');
-    
+
     // Show install prompt
     deferredPrompt.prompt();
-    
+
     // Wait for user response
     const { outcome } = await deferredPrompt.userChoice;
     console.log(`[PWA] User response: ${outcome}`);
-    
+
     // Clear deferred prompt
     deferredPrompt = null;
-    
+
     // Remove banner
     const banner = document.getElementById('pwa-install-banner');
     if (banner) {
         banner.style.animation = 'slideDown 0.3s ease-out';
         setTimeout(() => banner.remove(), 300);
     }
-    
+
     // Track installation
     if (outcome === 'accepted') {
         console.log('[PWA] User accepted install');
@@ -203,19 +203,19 @@ window.installPWA = async function() {
 };
 
 // Dismiss banner
-window.dismissInstallBanner = function() {
+window.dismissInstallBanner = function () {
     installBannerDismissed = true;
-    
+
     // Store dismissal timestamp
     localStorage.setItem('pwa-install-dismissed', Date.now().toString());
-    
+
     // Remove banner with animation
     const banner = document.getElementById('pwa-install-banner');
     if (banner) {
         banner.style.animation = 'slideDown 0.3s ease-out';
         setTimeout(() => banner.remove(), 300);
     }
-    
+
     console.log('[PWA] Install banner dismissed');
 };
 
@@ -224,7 +224,7 @@ window.addEventListener('appinstalled', () => {
     console.log('[PWA] App installed successfully');
     localStorage.setItem('pwa-installed', 'true');
     deferredPrompt = null;
-    
+
     // Remove banner if visible
     const banner = document.getElementById('pwa-install-banner');
     if (banner) banner.remove();

@@ -648,7 +648,7 @@ function toggleCopilot(milestoneId) {
         copilotContainer.innerHTML = getCopilotButton(milestoneId, 'wellness');
     } else {
         copilotContainer.innerHTML = showWellnessCopilot(milestoneId);
-        if (details.style.display === 'none') {
+        if (details && details.style.display === 'none') {
             details.style.display = 'block';
         }
     }
@@ -754,19 +754,16 @@ function bindEvents() {
 
     console.log('✅ Events bound, nav tabs found:', document.querySelectorAll('.nav-tab').length);
 
-    // Milestone checkbox delegation
-    const phasesContainer = document.getElementById('phases-container');
-    if (phasesContainer) {
-        phasesContainer.addEventListener('click', (event) => {
-            const checkbox = event.target.closest('.milestone-checkbox');
-            if (!checkbox) return;
-            event.stopPropagation();
-            const milestoneId = checkbox.dataset.id;
+    // Milestone checkbox delegation - use change event instead of click
+    document.addEventListener('change', (event) => {
+        if (event.target.classList.contains('milestone-checkbox')) {
+            const milestoneId = event.target.dataset.id;
             if (milestoneId) {
+                console.log('📍 Checkbox toggled:', milestoneId);
                 toggleMilestoneStatus(milestoneId);
             }
-        });
-    }
+        }
+    });
 
     // Hamburger menu
     document.getElementById('menu-btn')?.addEventListener('click', toggleSidebar);

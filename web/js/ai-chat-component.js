@@ -132,30 +132,35 @@ class AIChatComponent {
             const apiEndpoint = `${this.getBackendBaseUrl()}/api/chat`;
 
             // Send to AI
-            const response = await fetch(apiEndpoint, {
-                method: 'POST',
-                headers: this.buildAuthorizedHeaders(),
-                body: JSON.stringify({
-                    message: contextualMessage,
-                    thread_id: this.threadId,
-                    session_id: this.sessionId
-                })
-            });
-
             let data;
-            if (!response.ok) {
-                let details = response.statusText || 'Unknown error';
-                try {
-                    const errorBody = await response.json();
-                    details = errorBody.error || errorBody.message || details;
-                } catch (err) {
-                    // Ignore JSON parse errors for non-JSON responses
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: this.buildAuthorizedHeaders(),
+                    body: JSON.stringify({
+                        message: contextualMessage,
+                        thread_id: this.threadId,
+                        session_id: this.sessionId
+                    })
+                });
+                if (!response.ok) {
+                    let details = response.statusText || 'Unknown error';
+                    try {
+                        const errorBody = await response.json();
+                        details = errorBody.error || errorBody.message || details;
+                    } catch (err) {
+                        // Ignore JSON parse errors for non-JSON responses
+                    }
+                    console.error('[AI Chat] Failed to fetch:', details);
+                    throw new Error(`API error ${response.status}: ${details}`);
+                } else {
+                    data = await response.json();
                 }
-                throw new Error(`API error ${response.status}: ${details}`);
-            } else {
-                data = await response.json();
+            } catch (fetchError) {
+                console.error('[AI Chat] Network or fetch error:', fetchError);
+                this.handleError(fetchError);
+                return;
             }
-
             this.handleAIResponse(data);
         } catch (error) {
             this.handleError(error);

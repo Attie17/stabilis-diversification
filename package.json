@@ -8,6 +8,8 @@
     "start": "node server.js",
     "dev": "node server.js",
     "kill": "kill-port 3000",
+    "sync-db": "node scripts/sync-milestones-to-db.js",
+    "sync-db-dry": "node scripts/sync-milestones-to-db.js --dry-run",
     "excel-sync": "node scripts/excel-sync.js",
     "excel-create": "node scripts/create-excel-template.js",
     "status": "powershell -ExecutionPolicy Bypass -File ./scripts/project-status.ps1",

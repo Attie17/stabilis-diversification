@@ -21,9 +21,9 @@ module.exports = async (req, res) => {
 
     try {
         const { id } = req.query; // From rewrite
-        
+
         if (!id) {
-             return res.status(400).json({ error: 'Alert ID is required' });
+            return res.status(400).json({ error: 'Alert ID is required' });
         }
 
         const alertService = new AlertService();

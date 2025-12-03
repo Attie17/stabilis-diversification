@@ -14,7 +14,8 @@ function canEditMilestones() {
     const editableUsers = [
         "Developer",          // System Administrator
         "Attie Nel",          // CEO & Project Manager
-        "Nastasha Jacobs",     // Finance Manager  
+        "Nastasha Jackson",   // Finance Manager  
+        "Nastasha Jacobs",    // Legacy Finance alias
         "Karin Weideman"      // Operational Manager
     ];
 
@@ -54,7 +55,7 @@ function broadcastProjectDataUpdate(key, data) {
 // Show edit milestone modal
 window.showEditMilestoneModal = function () {
     if (!canEditMilestones()) {
-        alert('⚠️ Access Denied\n\nOnly the CEO, Finance Manager, and Operational Manager can edit milestones.\n\nCurrent authorized users:\n• Attie Nel (CEO & Project Manager)\n• Nastasha Jacobs (Finance Manager)\n• Karin Weideman (Operational Manager)');
+        alert('⚠️ Access Denied\n\nOnly the CEO, Finance Manager, and Operational Manager can edit milestones.\n\nCurrent authorized users:\n• Attie Nel (CEO & Project Manager)\n• Nastasha Jackson (Finance Manager)\n• Karin Weideman (Operational Manager)');
         return;
     }
 
@@ -98,7 +99,7 @@ window.showEditMilestoneModal = function () {
                                 <option value="">-- Select person --</option>
                                 <optgroup label="Leadership">
                                     <option value="Attie Nel">Attie Nel (CEO & Project Manager)</option>
-                                    <option value="Nastasha Jacobs">Nastasha Jacobs (Finance Manager)</option>
+                                    <option value="Nastasha Jackson">Nastasha Jackson (Finance Manager)</option>
                                     <option value="Karin Weideman">Karin Weideman (Operational Manager)</option>
                                     <option value="Berno Paul">Berno Paul (Clinical Lead)</option>
                                 </optgroup>
@@ -288,7 +289,7 @@ function findMilestone(milestoneId, project) {
 }
 
 // Save milestone edits
-window.saveMilestoneEdits = function () {
+window.saveMilestoneEdits = async function () {
     const select = document.getElementById('select-milestone');
     const milestoneId = select.value;
     const project = select.options[select.selectedIndex].dataset.project;
@@ -311,11 +312,13 @@ window.saveMilestoneEdits = function () {
 
     // Update milestone in appropriate data structure
     let updated = false;
+    let oldStatus = '';
 
     if (project === 'Diversification' && typeof projectData !== 'undefined') {
         projectData.phases.forEach(phase => {
             const milestone = phase.milestones.find(m => m.id === milestoneId);
             if (milestone) {
+                oldStatus = milestone.status;
                 milestone.owner = newOwner;
                 milestone.due = newDueDate;
                 milestone.dueDate = newDueDate;
@@ -333,6 +336,7 @@ window.saveMilestoneEdits = function () {
         turnaroundData.phases.forEach(phase => {
             const milestone = phase.milestones.find(m => m.id === milestoneId);
             if (milestone) {
+                oldStatus = milestone.status;
                 milestone.owner = newOwner;
                 milestone.dueDate = newDueDate;
                 milestone.status = newStatus;
@@ -349,6 +353,7 @@ window.saveMilestoneEdits = function () {
         wellnessData.phases.forEach(phase => {
             const milestone = phase.milestones.find(m => m.id === milestoneId);
             if (milestone) {
+                oldStatus = milestone.status;
                 milestone.owner = newOwner;
                 milestone.dueDate = newDueDate;
                 milestone.status = newStatus;
@@ -373,12 +378,64 @@ window.saveMilestoneEdits = function () {
             notes: notes
         });
 
+        // SYNC TO DATABASE
+        try {
+            const currentUser = JSON.parse(localStorage.getItem('stabilis-current-user') || '{}');
+            const changedBy = currentUser.name || 'Unknown User';
+
+            // We map 'complete' (frontend) to 'completed' (db schema) if necessary, 
+            // but the schema allows both or we should be consistent. 
+            // The schema says: CHECK (status IN ('planned', 'in_progress', 'completed', 'blocked'))
+            // The frontend uses: 'complete' in the select box.
+            // We must normalize this.
+            let dbStatus = newStatus;
+            if (newStatus === 'complete') dbStatus = 'completed';
+
+            // Update Status
+            await updateMilestoneInDatabase(milestoneId, 'status', dbStatus, changedBy, oldStatus);
+
+            // Update Owner
+            await updateMilestoneInDatabase(milestoneId, 'owner', newOwner, changedBy);
+
+            // Update Due Date
+            await updateMilestoneInDatabase(milestoneId, 'due_date', newDueDate, changedBy);
+
+            // Note: Priority is not in the DB schema yet, so we skip it to avoid errors.
+
+        } catch (dbError) {
+            console.error('Database sync failed:', dbError);
+            // We don't block the success message because local save worked
+        }
+
         alert('✅ Milestone updated successfully!\n\nChanges have been saved and will appear on all project dashboards.');
         closeEditMilestoneModal();
     } else {
         alert('❌ Error: Could not update milestone');
     }
 };
+
+// Helper to update database
+async function updateMilestoneInDatabase(id, field, value, user, oldValue = '') {
+    try {
+        const response = await fetch('/api/milestones/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                milestone_id: id,
+                field: field,
+                new_value: value,
+                old_value: oldValue,
+                changed_by: user
+            })
+        });
+        if (!response.ok) {
+            const err = await response.json();
+            console.warn(`Failed to update ${field} for ${id}:`, err);
+        }
+    } catch (e) {
+        console.warn(`Network error updating ${field}:`, e);
+    }
+}
 
 // Save edit log
 function saveEditLog(milestoneId, project, changes) {

@@ -19,9 +19,9 @@ module.exports = async (req, res) => {
     try {
         // Initialize Supabase
         if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
-            return res.status(500).json({ 
+            return res.status(500).json({
                 error: 'Database not configured',
-                fallback: true 
+                fallback: true
             });
         }
 
@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
         const { project } = req.query;
 
         let query = supabase.from('milestones').select('*');
-        
+
         // Filter by project if specified
         if (project) {
             query = query.ilike('phase_id', `${project}%`);
@@ -55,9 +55,9 @@ module.exports = async (req, res) => {
 
     } catch (error) {
         console.error('API error:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: error.message,
-            fallback: true 
+            fallback: true
         });
     }
 };

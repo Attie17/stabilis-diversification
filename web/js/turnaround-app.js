@@ -15,16 +15,17 @@ const REPORT_TITLES = {
     'budget-q1-2026': 'Budget Q1 2026 (Dec 2025 - Mar 2026)',
     'budget-fy-2026-27': 'Budget FY 2026-27 (Apr 2026 - Mar 2027)'
 };
+const FINANCE_MANAGERS = ['Nastasha Jackson', 'Nastasha Jacobs'];
 const PROJECT_REPORT_ACCESS = {
-    'revenue-projection': ['Attie Nel', 'Nastasha Jacobs'],
-    'cost-analysis': ['Nastasha Jacobs', 'Attie Nel'],
+    'revenue-projection': ['Attie Nel', ...FINANCE_MANAGERS],
+    'cost-analysis': [...FINANCE_MANAGERS, 'Attie Nel'],
     'phase-progress': ['Attie Nel', 'Berno Paul', 'Lydia Gittens'],
     'risk-assessment': ['Attie Nel', 'Berno Paul', 'Lydia Gittens'],
     'resource-utilization': ['Attie Nel', 'Lydia Gittens'],
-    'kpi-dashboard-report': ['Attie Nel', 'Nastasha Jacobs', 'Berno Paul', 'Lydia Gittens'],
+    'kpi-dashboard-report': ['Attie Nel', ...FINANCE_MANAGERS, 'Berno Paul', 'Lydia Gittens'],
     'timeline-analysis': ['Attie Nel'],
-    'budget-actual': ['Nastasha Jacobs', 'Attie Nel'],
-    'cashflow-projection': ['Nastasha Jacobs', 'Attie Nel']
+    'budget-actual': [...FINANCE_MANAGERS, 'Attie Nel'],
+    'cashflow-projection': [...FINANCE_MANAGERS, 'Attie Nel']
 };
 
 // Reuse utility functions
@@ -879,13 +880,13 @@ async function toggleMilestone(milestoneId) {
 
     let found = false;
     let oldStatus = null;
-    
+
     turnaroundData.phases.forEach(phase => {
         const milestone = phase.milestones.find(m => m.id === milestoneId);
         if (milestone) {
             oldStatus = milestone.status;
             milestone.status = milestone.status === 'complete' ? 'planned' : 'complete';
-            
+
             // Track who completed it and when
             if (milestone.status === 'complete') {
                 milestone.completedDate = new Date().toISOString();
@@ -894,7 +895,7 @@ async function toggleMilestone(milestoneId) {
                 milestone.completedDate = null;
                 milestone.completedBy = null;
             }
-            
+
             found = true;
             updateDashboard();
             renderPhases();
@@ -904,19 +905,24 @@ async function toggleMilestone(milestoneId) {
 
     if (!found) return;
 
+    // Find the milestone again to get its current status for backend sync
+    let currentMilestone = null;
+    turnaroundData.phases.forEach(phase => {
+        const m = phase.milestones.find(ms => ms.id === milestoneId);
+        if (m) currentMilestone = m;
+    });
+
     // Sync to backend (optimistic update already done)
     try {
         const response = await fetch('/api/milestones/update', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-User-Name': currentUser?.name || 'Unknown'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                milestoneId: milestoneId,
-                status: milestone.status,
-                changedBy: currentUser?.name || 'Unknown',
-                notes: `Turnaround: Status changed from ${oldStatus} to ${milestone.status}`
+                milestone_id: milestoneId,
+                field: 'status',
+                old_value: oldStatus,
+                new_value: currentMilestone.status === 'complete' ? 'completed' : currentMilestone.status,
+                changed_by: currentUser?.name || 'Unknown'
             })
         });
 

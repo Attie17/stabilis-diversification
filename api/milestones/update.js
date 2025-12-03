@@ -29,9 +29,9 @@ module.exports = async (req, res) => {
 
         // Initialize Supabase
         if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
-            return res.status(500).json({ 
+            return res.status(500).json({
                 error: 'Database not configured',
-                fallback: true 
+                fallback: true
             });
         }
 
@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
         // Update milestone
         const { data: updatedMilestone, error: updateError } = await supabase
             .from('milestones')
-            .update({ 
+            .update({
                 status,
                 updated_at: new Date().toISOString()
             })
@@ -72,7 +72,7 @@ module.exports = async (req, res) => {
 
         // Log audit trail
         const isFinancial = currentMilestone.revenue > 0 || status === 'completed';
-        
+
         const { error: auditError } = await supabase
             .from('milestone_updates')
             .insert({
@@ -99,9 +99,9 @@ module.exports = async (req, res) => {
 
     } catch (error) {
         console.error('API error:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: error.message,
-            fallback: true 
+            fallback: true
         });
     }
 };
