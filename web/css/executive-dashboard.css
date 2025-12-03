@@ -811,7 +811,11 @@ body.reports-menu-open {
     .sidebar.exec-sidebar {
         width: 100%;
         max-width: 100%;
-        left: -100% !important; /* ensure the menu fully slides off-screen when closed */
+        left: -100%; /* ensure the menu fully slides off-screen when closed */
+    }
+    
+    .sidebar.exec-sidebar.open {
+        left: 0; /* Higher specificity (0,3,0) overrides closed state */
     }
     
     /* All buttons touch-friendly */
