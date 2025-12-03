@@ -44,11 +44,11 @@ class AIChatComponent {
 
     render() {
         this.container.innerHTML = `
-            <div class="ai-chat-widget">
+            <div class="ai-chat-widget collapsed">
                 <div class="ai-chat-header">
                     <div class="ai-chat-title">
                         <span class="ai-icon">🤖</span>
-                        <span>AI Executive Assistant</span>
+                        <span>AI</span>
                     </div>
                     <div class="ai-chat-actions">
                         <button class="ai-chat-minimize" onclick="this.closest('.ai-chat-widget').classList.toggle('minimized')" title="Minimize">−</button>
@@ -81,6 +81,15 @@ class AIChatComponent {
         this.sendBtn = document.getElementById(`ai-send-${this.container.id}`);
         this.statusEl = document.getElementById(`ai-status-${this.container.id}`);
         this.setStatus('');
+
+        // Toggle collapsed state on header click
+        const widget = this.container.querySelector('.ai-chat-widget');
+        const header = widget.querySelector('.ai-chat-header');
+        header.addEventListener('click', (e) => {
+            // Don't toggle if clicking minimize button
+            if (e.target.closest('.ai-chat-minimize')) return;
+            widget.classList.toggle('collapsed');
+        });
 
         // Send on button click
         this.sendBtn.addEventListener('click', () => this.sendMessage());

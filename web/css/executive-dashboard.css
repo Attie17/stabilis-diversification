@@ -812,10 +812,13 @@ body.reports-menu-open {
         width: 100%;
         max-width: 100%;
         left: -100%; /* ensure the menu fully slides off-screen when closed */
+        transform: translateX(0); /* Hardware acceleration for smoother mobile rendering */
     }
     
     .sidebar.exec-sidebar.open {
         left: 0; /* Higher specificity (0,3,0) overrides closed state */
+        transform: translateX(0); /* Force GPU rendering on mobile devices */
+        z-index: 1001; /* Ensure above overlay (z-index: 998) and other elements */
     }
     
     /* All buttons touch-friendly */
