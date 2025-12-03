@@ -2408,6 +2408,14 @@ body.dark-theme {
     .sidebar {
         width: 100%;
         max-width: 100%;
+        left: -100%; /* Fully off-screen when closed */
+        transform: translateX(0); /* Hardware acceleration */
+    }
+    
+    .sidebar.open {
+        left: 0; /* Slide in to cover full screen */
+        transform: translateX(0); /* GPU rendering */
+        z-index: 1001; /* Above overlay */
     }
     
     /* Overlay should cover entire screen */

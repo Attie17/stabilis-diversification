@@ -51,7 +51,7 @@ class AIChatComponent {
                         <span>AI</span>
                     </div>
                     <div class="ai-chat-actions">
-                        <button class="ai-chat-minimize" onclick="this.closest('.ai-chat-widget').classList.toggle('minimized')" title="Minimize">−</button>
+                        <button class="ai-chat-minimize" title="Minimize">−</button>
                     </div>
                 </div>
                 
@@ -89,6 +89,14 @@ class AIChatComponent {
             // Don't toggle if clicking minimize button
             if (e.target.closest('.ai-chat-minimize')) return;
             widget.classList.toggle('collapsed');
+        });
+
+        // Minimize button collapses back to WhatsApp style
+        const minimizeBtn = widget.querySelector('.ai-chat-minimize');
+        minimizeBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent header click from firing
+            widget.classList.add('collapsed');
+            widget.classList.remove('minimized');
         });
 
         // Send on button click
