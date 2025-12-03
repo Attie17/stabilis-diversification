@@ -13,19 +13,7 @@
 
 ### Setuphttp://localhost:3000
 1. Open Chrome (regular window) → 
-2. Open Chrome (incognito window) → http://localhost:3000
-3. Browser 1: Login as **Attie Nel** (CEO)
-4. Browser 2: Login as different user (e.g., **Suzanne Gelderblom**)
-
-### Test Steps - Diversification Dashboard
-1. **Browser 1** (Attie Nel):
-   - Navigate to Diversification dashboard
-   - Find milestone "P1-M1" (Kick-off Meeting)
-   - Note current status (completed/incomplete)
-   - Click the checkbox to toggle status
-   - ✅ Verify: Success message appears
-   - ✅ Verify: UI updates immediately
-
+2. Open Chrome (incognito window) → http://local 
 2. **Browser 2** (Different user):
    - Navigate to Diversification dashboard
    - Refresh page (F5 or Ctrl+R)
