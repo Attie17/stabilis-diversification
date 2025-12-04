@@ -2,17 +2,17 @@
 // Consolidates data from all three projects
 
 const REPORT_DEFINITIONS = [
-    { key: 'revenue-projection', title: 'Revenue Projection', description: '18-month diversification + wellness revenue outlook.', icon: '💹', path: '/reports/revenue-projection.html' },
-    { key: 'cost-analysis', title: 'Cost Analysis', description: 'Operating cost layers compared to recovery levers.', icon: '💸', path: '/reports/cost-analysis.html' },
-    { key: 'phase-progress', title: 'Phase Progress', description: 'Milestone completion heatmap by roadmap.', icon: '🧭', path: '/reports/phase-progress.html' },
-    { key: 'risk-assessment', title: 'Risk Assessment', description: 'Consolidated risk log with mitigations.', icon: '⚠️', path: '/reports/risk-assessment.html' },
-    { key: 'resource-utilization', title: 'Resource Utilization', description: 'Capacity allocation across squads.', icon: '🧑‍🤝‍🧑', path: '/reports/resource-utilization.html' },
-    { key: 'kpi-dashboard-report', title: 'KPI Dashboard', description: 'Executive KPIs with trajectory deltas.', icon: '📊', path: '/reports/kpi-dashboard.html' },
-    { key: 'timeline-analysis', title: 'Timeline Analysis', description: 'Cross-project schedule performance.', icon: '⏱️', path: '/reports/timeline-analysis.html' },
-    { key: 'budget-actual', title: 'Budget vs Actual', description: 'Variance tracker and burn-rate outlook.', icon: '🧾', path: '/reports/budget-actual.html' },
-    { key: 'cashflow-projection', title: 'Cashflow Projection', description: 'Liquidity and runway forecast.', icon: '💵', path: '/reports/cashflow-projection.html' },
-    { key: 'budget-q1-2026', title: 'Budget Q1 2026', description: 'Dec 2025 - Mar 2026 crisis turnaround & launch budget.', icon: '📊', path: '/reports/budget-q1-2026.html' },
-    { key: 'budget-fy-2026-27', title: 'Budget FY 2026-27', description: 'Apr 2026 - Mar 2027 full-year growth budget.', icon: '📊', path: '/reports/budget-fy-2026-27.html' }
+    { key: 'revenue-projection', title: 'Revenue Projection', description: '18-month diversification + wellness revenue outlook.', icon: '💹', path: 'reports/revenue-projection.html' },
+    { key: 'cost-analysis', title: 'Cost Analysis', description: 'Operating cost layers compared to recovery levers.', icon: '💸', path: 'reports/cost-analysis.html' },
+    { key: 'phase-progress', title: 'Phase Progress', description: 'Milestone completion heatmap by roadmap.', icon: '🧭', path: 'reports/phase-progress.html' },
+    { key: 'risk-assessment', title: 'Risk Assessment', description: 'Consolidated risk log with mitigations.', icon: '⚠️', path: 'reports/risk-assessment.html' },
+    { key: 'resource-utilization', title: 'Resource Utilization', description: 'Capacity allocation across squads.', icon: '🧑‍🤝‍🧑', path: 'reports/resource-utilization.html' },
+    { key: 'kpi-dashboard-report', title: 'KPI Dashboard', description: 'Executive KPIs with trajectory deltas.', icon: '📊', path: 'reports/kpi-dashboard.html' },
+    { key: 'timeline-analysis', title: 'Timeline Analysis', description: 'Cross-project schedule performance.', icon: '⏱️', path: 'reports/timeline-analysis.html' },
+    { key: 'budget-actual', title: 'Budget vs Actual', description: 'Variance tracker and burn-rate outlook.', icon: '🧾', path: 'reports/budget-actual.html' },
+    { key: 'cashflow-projection', title: 'Cashflow Projection', description: 'Liquidity and runway forecast.', icon: '💵', path: 'reports/cashflow-projection.html' },
+    { key: 'budget-q1-2026', title: 'Budget Q1 2026', description: 'Dec 2025 - Mar 2026 crisis turnaround & launch budget.', icon: '📊', path: 'reports/budget-q1-2026.html' },
+    { key: 'budget-fy-2026-27', title: 'Budget FY 2026-27', description: 'Apr 2026 - Mar 2027 full-year growth budget.', icon: '📊', path: 'reports/budget-fy-2026-27.html' }
 ];
 
 let reportsOverlayListenersBound = false;
