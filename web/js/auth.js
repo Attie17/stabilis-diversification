@@ -578,6 +578,9 @@ window.loginUser = function () {
     const foundUser = developerUser || adminUser || boardUser || teamUser;
 
     if (foundUser) {
+        // Load password from database first, fallback to localStorage
+        await loadPasswordFromDatabase(selectedName);
+        
         // Check if this is first login (no password set)
         const userPasswords = JSON.parse(localStorage.getItem('stabilis-passwords') || '{}');
 
@@ -695,10 +698,14 @@ window.completePasswordSetup = function () {
         return;
     }
 
-    // Store password
+    // Store password in localStorage AND database
     const userPasswords = JSON.parse(localStorage.getItem('stabilis-passwords') || '{}');
-    userPasswords[userName] = btoa(newPassword);
+    const passwordHash = btoa(newPassword);
+    userPasswords[userName] = passwordHash;
     localStorage.setItem('stabilis-passwords', JSON.stringify(userPasswords));
+
+    // Save to database for cross-deployment persistence
+    await savePasswordToDatabase(userName, passwordHash);
 
     // Log user in
     const loggedInUser = { ...userObj };
@@ -934,6 +941,41 @@ window.startNewUserFlow = function (preselectedName = '') {
 
 // Load custom passwords on init - no longer needed since passwords are only in localStorage
 // Removed loadCustomPasswords function as all passwords are now stored in localStorage only
+
+// Database sync functions for password persistence across deployments
+async function savePasswordToDatabase(userName, passwordHash) {
+    try {
+        const apiUrl = `${window.location.origin}/api/user-passwords`;
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_name: userName, password_hash: passwordHash })
+        });
+        
+        if (!response.ok) {
+            console.warn('Failed to save password to database:', await response.text());
+        }
+    } catch (error) {
+        console.warn('Error saving password to database (will use localStorage):', error);
+    }
+}
+
+async function loadPasswordFromDatabase(userName) {
+    try {
+        const apiUrl = `${window.location.origin}/api/user-passwords?user_name=${encodeURIComponent(userName)}`;
+        const response = await fetch(apiUrl);
+        
+        if (response.ok) {
+            const { password_hash } = await response.json();
+            // Update localStorage with database value
+            const userPasswords = JSON.parse(localStorage.getItem('stabilis-passwords') || '{}');
+            userPasswords[userName] = password_hash;
+            localStorage.setItem('stabilis-passwords', JSON.stringify(userPasswords));
+        }
+    } catch (error) {
+        console.warn('Error loading password from database (will use localStorage):', error);
+    }
+}
 
 // Call initialization (removed loadCustomPasswords call)
 
