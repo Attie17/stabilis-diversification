@@ -228,6 +228,9 @@
             <h1>💰 Budget: December 2025 - March 2026</h1>
             <p>4-Month Period: Crisis Turnaround & Launch Phase</p>
             <p><strong>Planning Date:</strong> 20 November 2025 | <strong>Status:</strong> Setup & Stabilization</p>
+            <p id="data-source-indicator" style="margin-top: 0.5rem; font-size: 0.875rem; color: #64748b;">
+                ⏳ Loading budget data...
+            </p>
         </div>
 
         <!-- Excel Download Section -->
@@ -716,8 +719,8 @@
     </div>
 
     <script>
-        // Initialize report access control
-        document.addEventListener('DOMContentLoaded', function () {
+        // Initialize report access control and load budget data from Supabase
+        document.addEventListener('DOMContentLoaded', async function () {
             if (typeof window.initializeReportAccess === 'function') {
                 window.initializeReportAccess({
                     reportKey: 'budget-q1-2026',
@@ -725,7 +728,110 @@
                     allowedRoles: ['Attie Nel', 'Nastasha Jacobs', 'Board Member']
                 });
             }
+            
+            // Load budget data from Supabase
+            try {
+                const response = await fetch('/api/budget?period=Q1-2026');
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log('✅ Budget data loaded from Supabase:', result.meta);
+                    updateReportWithData(result.data);
+                    
+                    // Update data source indicator
+                    const indicator = document.getElementById('data-source-indicator');
+                    if (indicator) {
+                        indicator.textContent = '🔄 Live from Database (last updated: ' + new Date(result.meta.lastUpdated).toLocaleDateString() + ')';
+                        indicator.style.color = '#10b981';
+                    }
+                } else {
+                    throw new Error(result.error || 'Failed to load budget data');
+                }
+            } catch (error) {
+                console.warn('⚠️ Could not load budget from Supabase:', error.message);
+                console.log('📄 Using static values as fallback');
+                
+                // Update data source indicator
+                const indicator = document.getElementById('data-source-indicator');
+                if (indicator) {
+                    indicator.textContent = '📄 Static Values (run npm run sync-budget to update)';
+                    indicator.style.color = '#f59e0b';
+                }
+            }
         });
+        
+        // Helper function to format currency
+        function formatCurrency(value) {
+            if (value === 0 || value === null || value === undefined) return 'R0';
+            
+            const absValue = Math.abs(value);
+            const sign = value < 0 ? '-' : '';
+            
+            if (absValue >= 1000000) {
+                return `${sign}R${(absValue / 1000000).toFixed(2)}M`;
+            } else if (absValue >= 1000) {
+                return `${sign}R${(absValue / 1000).toFixed(0)}k`;
+            } else {
+                return `${sign}R${absValue.toLocaleString('en-ZA')}`;
+            }
+        }
+        
+        // Helper function to format percentage
+        function formatPercentage(value) {
+            if (!value) return '0%';
+            return `${(value * 100).toFixed(1)}%`;
+        }
+        
+        // Update report HTML with data from Supabase
+        function updateReportWithData(data) {
+            // Update executive summary
+            const summaryItems = document.querySelectorAll('.summary-item .value');
+            if (summaryItems[0]) summaryItems[0].textContent = formatCurrency(data.summary.total_budget);
+            if (summaryItems[1]) summaryItems[1].textContent = formatCurrency(data.summary.expected_revenue);
+            if (summaryItems[2]) summaryItems[2].textContent = formatCurrency(data.summary.net_deficit);
+            if (summaryItems[3]) summaryItems[3].textContent = formatCurrency(data.summary.funding_required);
+            
+            // Update monthly cash flow table
+            const cashFlowRows = document.querySelectorAll('.budget-table tbody tr');
+            data.monthly.forEach((monthData, index) => {
+                if (cashFlowRows[index]) {
+                    const cells = cashFlowRows[index].querySelectorAll('td');
+                    if (cells[1]) cells[1].textContent = formatCurrency(monthData.revenue);
+                    if (cells[2]) cells[2].textContent = formatCurrency(monthData.expenditure);
+                    if (cells[3]) cells[3].textContent = formatCurrency(monthData.net_cash_flow);
+                    if (cells[4]) cells[4].textContent = formatCurrency(monthData.cumulative);
+                }
+            });
+            
+            // Update totals row
+            if (cashFlowRows[4]) {
+                const totalCells = cashFlowRows[4].querySelectorAll('td strong');
+                const totalRevenue = data.monthly.reduce((sum, m) => sum + parseFloat(m.revenue || 0), 0);
+                const totalExpenditure = data.monthly.reduce((sum, m) => sum + parseFloat(m.expenditure || 0), 0);
+                const totalNet = data.monthly.reduce((sum, m) => sum + parseFloat(m.net_cash_flow || 0), 0);
+                const finalCumulative = parseFloat(data.monthly[data.monthly.length - 1].cumulative || 0);
+                
+                if (totalCells[0]) totalCells[0].textContent = formatCurrency(totalRevenue);
+                if (totalCells[1]) totalCells[1].textContent = formatCurrency(totalExpenditure);
+                if (totalCells[2]) totalCells[2].textContent = formatCurrency(totalNet);
+                if (totalCells[3]) totalCells[3].textContent = formatCurrency(finalCumulative);
+            }
+            
+            // Update expenditure breakdown table (2nd table)
+            const allTables = document.querySelectorAll('.budget-table');
+            if (allTables[1]) {
+                const expRows = allTables[1].querySelectorAll('tbody tr');
+                data.expenditure.forEach((exp, index) => {
+                    if (expRows[index]) {
+                        const cells = expRows[index].querySelectorAll('td');
+                        if (cells[1]) cells[1].textContent = formatCurrency(exp.amount);
+                        if (cells[2]) cells[2].textContent = formatPercentage(exp.percentage);
+                    }
+                });
+            }
+            
+            console.log('✅ Report updated with Supabase data');
+        }
     </script>
 </body>
 

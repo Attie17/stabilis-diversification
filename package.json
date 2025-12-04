@@ -9,6 +9,7 @@
     "dev": "node server.js",
     "test": "jest --verbose",
     "kill": "kill-port 3000",
+    "sync-budget": "node scripts/sync-budget-to-supabase.js",
     "sync-db": "node scripts/sync-milestones-to-db.js",
     "sync-db-dry": "node scripts/sync-milestones-to-db.js --dry-run",
     "excel-sync": "node scripts/excel-sync.js",
