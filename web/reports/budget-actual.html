@@ -220,11 +220,28 @@
             <p id="budget-breakdown-note" style="color:#475569; font-size:0.9rem;"></p>
         </div>
     </div>
-    <script src="../js/auth.js"></script>
-    <script>initAuth();</script>
+    
+    <!-- AI Chat Widget Container -->
+    <div id="ai-chat-container"></div>
+    
     <script src="../js/auth.js"></script>
     <script src="../js/report-access.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize auth first
+            if (typeof initAuth === 'function') {
+                initAuth();
+            }
+            
+            // Then initialize report page
+            if (typeof initReportPage === 'function') {
+                initReportPage({
+                    reportKey: 'budget-actual',
+                    reportTitle: 'Budget vs Actual Report'
+                });
+            }
+        });
+        
         const budgetBreakdowns = {
             'Turnaround': {
                 budget: {

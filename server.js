@@ -468,13 +468,13 @@ app.get('/api/open-excel', (req, res) => {
 
 // ===== FRONTEND ROUTES =====
 
-// Landing page as root (BEFORE static middleware)
+// Serve static files from web directory (BEFORE specific routes)
+app.use(express.static('web'));
+
+// Landing page as root
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'web', 'landing.html'));
 });
-
-// Serve static files from web directory
-app.use(express.static('web'));
 
 // Executive dashboard route
 app.get('/executive', (req, res) => {

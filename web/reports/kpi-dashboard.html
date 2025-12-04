@@ -176,10 +176,20 @@
             document.getElementById('riskCount').textContent = riskCount;
         }
     </script>
+    
+    <!-- AI Chat Widget Container -->
+    <div id="ai-chat-container"></div>
+    
     <script src="../js/auth.js"></script>
     <script src="../js/report-access.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Initialize auth first
+            if (typeof initAuth === 'function') {
+                initAuth();
+            }
+            
+            // Then initialize report page
             if (typeof initReportPage === 'function') {
                 initReportPage({
                     reportKey: 'kpi-dashboard-report',

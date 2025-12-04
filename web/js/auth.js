@@ -562,7 +562,7 @@ window.completeNewUserRegistration = function () {
 };
 
 // Login user
-window.loginUser = function () {
+window.loginUser = async function () {
     const selectedName = document.getElementById('user-select').value;
     const enteredPassword = document.getElementById('user-password').value;
     const errorDiv = document.getElementById('login-error');
