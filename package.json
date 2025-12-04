@@ -7,6 +7,7 @@
     "vercel-build": "echo 'Vercel build complete'",
     "start": "node server.js",
     "dev": "node server.js",
+    "test": "jest --verbose",
     "kill": "kill-port 3000",
     "sync-db": "node scripts/sync-milestones-to-db.js",
     "sync-db-dry": "node scripts/sync-milestones-to-db.js --dry-run",
@@ -50,6 +51,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "jest": "^30.2.0",
     "kill-port": "^2.0.1"
   },
   "engines": {
