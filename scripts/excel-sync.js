@@ -9,6 +9,9 @@ const chokidar = require('chokidar');
 const EXCEL_FILE = path.join(__dirname, '../data/stabilis-data.xlsx');
 const DATA_DIR = path.join(__dirname, '../web/js');
 
+const args = process.argv.slice(2);
+const RUN_ONCE = args.includes('--once');
+
 console.log('📊 Excel Sync Service Starting...\n');
 
 // Parse Excel and update data files
@@ -163,6 +166,11 @@ function watchExcelFile() {
     console.log('   Press Ctrl+C to stop\n');
 }
 
-// Run sync immediately and then watch for changes
+// Run sync immediately and then optionally watch for changes
 syncExcelToJS();
-watchExcelFile();
+
+if (!RUN_ONCE) {
+    watchExcelFile();
+} else {
+    console.log('⏹  Run completed with --once flag; watcher not started.');
+}

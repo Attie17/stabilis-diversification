@@ -1697,6 +1697,37 @@ if (savedTheme === 'dark') {
 document.addEventListener('DOMContentLoaded', () => {
     init();
 
+    // Milestone checkbox handler - restore persistence functionality
+    document.addEventListener('change', async (e) => {
+        if (e.target.classList.contains('milestone-checkbox')) {
+            const milestoneId = e.target.dataset.id;
+            const isChecked = e.target.checked;
+            
+            // Find and update milestone
+            let found = null;
+            projectData.phases.forEach(phase => {
+                const milestone = phase.milestones.find(m => m.id === milestoneId);
+                if (milestone) {
+                    found = milestone;
+                    const oldStatus = milestone.status;
+                    milestone.status = isChecked ? 'complete' : 'in-progress';
+                    
+                    // Save to localStorage immediately
+                    saveToLocalStorage();
+                    
+                    // Save to database for cross-browser sync
+                    const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
+                    saveMilestoneUpdate(milestoneId, 'status', oldStatus, milestone.status, currentUser.name || 'Unknown');
+                }
+            });
+            
+            // Re-render to update UI
+            if (found) {
+                renderView(currentView);
+            }
+        }
+    });
+
     // Sidebar event listeners
     document.getElementById('menu-btn')?.addEventListener('click', toggleSidebar);
     document.getElementById('sidebar-close')?.addEventListener('click', closeSidebar);

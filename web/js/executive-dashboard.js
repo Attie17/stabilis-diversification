@@ -165,12 +165,17 @@ function getReportMeta(reportKey) {
 function openReportWindow(reportKey, action) {
     const meta = getReportMeta(reportKey);
     if (!meta) return;
-    let url = meta.path;
+    const [basePath, existingQuery = ''] = meta.path.split('?');
+    const params = new URLSearchParams(existingQuery);
+    params.set('from', 'executive-dashboard');
+    params.set('returnTo', 'executive-dashboard');
     if (action) {
-        const separator = url.includes('?') ? '&' : '?';
-        url = `${url}${separator}action=${action}`;
+        params.set('action', action);
+    } else {
+        params.delete('action');
     }
-    const win = window.open(url, '_blank');
+    const finalUrl = `${basePath}?${params.toString()}`;
+    const win = window.open(finalUrl, '_blank');
     if (win) {
         win.opener = null;
     }
@@ -241,6 +246,19 @@ function showReportsGuide() {
 }
 
 window.showReportsGuide = showReportsGuide;
+
+function showWorkbookSyncInstructions() {
+    alert(
+        'After you edit and save the workbook in OneDrive, do this to update the live app:\n\n' +
+        '1) Download/export the updated workbook from OneDrive and save it over the existing file in the repo:\n' +
+        '   data/stabilis-data.xlsx (same filename and location).\n\n' +
+        '2) On the server, run:\n' +
+        '   npm run sync-budget\n\n' +
+        'Only then will Supabase and the Executive Dashboard reports reflect the new numbers.'
+    );
+}
+
+window.showWorkbookSyncInstructions = showWorkbookSyncInstructions;
 
 function setupReportsMenuOverlay() {
     if (reportsOverlayListenersBound) return;

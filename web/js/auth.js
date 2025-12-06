@@ -668,7 +668,7 @@ function showFirstLoginPasswordSetup(userName, attemptedPassword, userObj) {
 }
 
 // Complete password setup
-window.completePasswordSetup = function () {
+window.completePasswordSetup = async function () {
     if (!window._pendingPasswordSetup) return;
 
     const { userName, userObj } = window._pendingPasswordSetup;

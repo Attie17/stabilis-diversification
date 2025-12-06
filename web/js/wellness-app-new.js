@@ -724,6 +724,17 @@ function loadSavedState() {
     });
 }
 
+// Modal functions
+function showModal(title, content) {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').innerHTML = content;
+    document.getElementById('modal').classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+}
+
 // Sidebar toggle functions
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
@@ -771,6 +782,12 @@ function bindEvents() {
     // Close sidebar
     document.getElementById('sidebar-close')?.addEventListener('click', closeSidebar);
     document.getElementById('sidebar-overlay')?.addEventListener('click', closeSidebar);
+
+    // Modal close
+    document.getElementById('modal-close')?.addEventListener('click', closeModal);
+    document.getElementById('modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'modal') closeModal();
+    });
 
     // Sidebar section toggles
     document.querySelectorAll('.sidebar-section-title').forEach(btn => {

@@ -468,10 +468,7 @@ app.get('/api/open-excel', (req, res) => {
 
 // ===== FRONTEND ROUTES =====
 
-// Serve static files from web directory (BEFORE specific routes)
-app.use(express.static('web'));
-
-// Landing page as root
+// Landing page as root (must come BEFORE static middleware)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'web', 'landing.html'));
 });
@@ -490,6 +487,10 @@ app.get('/diversification', (req, res) => {
 app.get('/turnaround', (req, res) => {
     res.sendFile(path.join(__dirname, 'web', 'turnaround.html'));
 });
+
+// Serve static files from web directory (AFTER specific routes)
+// Disable index.html auto-serving to prevent conflicts with root route
+app.use(express.static('web', { index: false }));
 
 // ===== INITIALIZATION =====
 

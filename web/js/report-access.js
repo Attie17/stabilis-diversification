@@ -15,6 +15,26 @@
     let authStarted = false;
     let editMode = false;
     let handledAutoAction = false;
+    const REPORT_RETURN_TARGETS = Object.assign({
+        'executive-dashboard': {
+            key: 'executive-dashboard',
+            label: 'Executive Command',
+            icon: '🏛',
+            href: '../executive-dashboard.html'
+        },
+        'reports-section': {
+            key: 'reports-section',
+            label: 'Reports & Analytics',
+            icon: '📑',
+            href: '../executive-dashboard.html#section-reports'
+        },
+        'project-hub': {
+            key: 'project-hub',
+            label: 'Project Hub',
+            icon: '🏗',
+            href: '../landing.html?stay=1'
+        }
+    }, typeof window !== 'undefined' && window.REPORT_RETURN_TARGETS ? window.REPORT_RETURN_TARGETS : {});
 
     function injectStyles() {
         if (stylesInjected) return;
@@ -137,6 +157,48 @@
         return steering.includes(user.name) || isDeveloper(user);
     }
 
+    function getReturnTargetKey() {
+        const params = new URLSearchParams(window.location.search);
+        const preferredKey = params.get('returnTo') || params.get('from');
+        if (preferredKey && REPORT_RETURN_TARGETS[preferredKey]) {
+            return preferredKey;
+        }
+        return 'executive-dashboard';
+    }
+
+    function getReturnTargetMeta() {
+        return REPORT_RETURN_TARGETS[getReturnTargetKey()] || REPORT_RETURN_TARGETS['executive-dashboard'];
+    }
+
+    function navigateBackWithFallback(fallbackUrl) {
+        if (window.history.length > 1) {
+            window.history.back();
+            return;
+        }
+        window.location.href = fallbackUrl;
+    }
+
+    function bindReportBackButtons(fallbackUrl) {
+        const buttons = document.querySelectorAll('.back-btn');
+        buttons.forEach(btn => {
+            if (!btn || btn.dataset.boundBack === 'true') return;
+            btn.dataset.boundBack = 'true';
+            btn.removeAttribute('onclick');
+            if (btn.tagName === 'A') {
+                const currentHref = btn.getAttribute('href') || '';
+                if (!currentHref || currentHref.trim().startsWith('javascript')) {
+                    btn.setAttribute('href', fallbackUrl);
+                }
+            }
+            btn.addEventListener('click', event => {
+                if (event) {
+                    event.preventDefault();
+                }
+                navigateBackWithFallback(fallbackUrl);
+            });
+        });
+    }
+
     function createOverlay(reportTitle) {
         let overlay = document.getElementById('report-access-overlay');
         if (overlay) return overlay;
@@ -200,6 +262,10 @@
             reportTitle: options.reportTitle || document.title || 'Report',
             editableSelectors: options.editableSelectors || DEFAULT_EDITABLE_SELECTORS
         };
+        const returnTarget = getReturnTargetMeta();
+        const fallbackUrl = (returnTarget && returnTarget.href) || '../executive-dashboard.html';
+        const returnLabel = (returnTarget && returnTarget.label) || 'Executive Command';
+        const returnIcon = (returnTarget && returnTarget.icon) || '🏛';
 
         const params = new URLSearchParams(window.location.search);
         const pendingAction = params.get('action');
@@ -211,7 +277,7 @@
         actionBar.className = 'report-action-bar';
         actionBar.innerHTML = `
             <span class="report-title">${config.reportTitle}</span>
-            <a href="../executive-dashboard.html" class="primary" data-skip-disable="true">🏛 Executive Command</a>
+            <a href="${fallbackUrl}" class="primary" data-skip-disable="true">${returnIcon} ${returnLabel}</a>
             <button type="button" id="report-export-btn">⬇️ Export (.xlsx)</button>
             <button type="button" id="report-print-btn">🖨 Print</button>
             <button type="button" id="report-edit-btn">✏️ Edit Report</button>
@@ -219,6 +285,10 @@
         `;
         container.parentNode.insertBefore(actionBar, container);
         setButtonsDisabled(true);
+        bindReportBackButtons(fallbackUrl);
+        window.navigateReportBack = function () {
+            navigateBackWithFallback(fallbackUrl);
+        };
 
         const exportBtn = document.getElementById('report-export-btn');
         const printBtn = document.getElementById('report-print-btn');

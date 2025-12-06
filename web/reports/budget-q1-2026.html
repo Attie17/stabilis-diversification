@@ -219,6 +219,27 @@
                 page-break-inside: avoid;
             }
         }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: white;
+            color: #1e40af;
+            border: 2px solid white;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 
@@ -228,6 +249,7 @@
             <h1>💰 Budget: December 2025 - March 2026</h1>
             <p>4-Month Period: Crisis Turnaround & Launch Phase</p>
             <p><strong>Planning Date:</strong> 20 November 2025 | <strong>Status:</strong> Setup & Stabilization</p>
+            <button class="back-btn" onclick="window.history.back()" style="margin-top: 1rem;">← Back</button>
             <p id="data-source-indicator" style="margin-top: 0.5rem; font-size: 0.875rem; color: #64748b;">
                 ⏳ Loading budget data...
             </p>

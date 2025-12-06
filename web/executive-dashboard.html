@@ -46,6 +46,7 @@
                         <button class="sidebar-item" data-action="action-edit-milestone">✏️ Edit Milestone</button>
                         <button class="sidebar-item" data-role="workbook-action" data-action="action-edit-workbook">📊
                             Edit Workbook</button>
+                        <button class="sidebar-item" data-action="action-sync-workbook">🔄 Download &amp; Sync Workbook</button>
                         <button class="sidebar-item" data-action="action-open-chat">🤖 Ask the AI Assistant</button>
                     </div>
                 </div>
@@ -86,6 +87,9 @@
                         <button onclick="openExcelFile()" class="excel-edit-btn" data-role="workbook-action"
                             title="Edit project data in Excel" data-hamburger-action="action-edit-workbook">📊 Edit
                             Workbook</button>
+                        <button onclick="showWorkbookSyncInstructions()" class="excel-edit-btn"
+                            title="How to download &amp; sync the latest Excel model" data-hamburger-action="action-sync-workbook">🔄
+                            Download &amp; Sync Workbook</button>
                         <button onclick="showEditMilestoneModal()" class="edit-milestone-btn"
                             title="Edit any project milestone" data-hamburger-action="action-edit-milestone">✏️ Edit
                             Milestone</button>
