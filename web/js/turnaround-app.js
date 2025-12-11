@@ -184,6 +184,8 @@ function init() {
     // Initialize authentication first
     initAuth();
 
+    loadMilestoneStatusFromServer();
+
     updateCountdown();
     updateDashboard();
     renderPhases();
@@ -193,6 +195,71 @@ function init() {
     bindEvents();
 
     setInterval(updateCountdown, 60000);
+}
+
+async function loadMilestoneStatusFromServer() {
+    try {
+        const response = await fetch('/api/milestones/statuses?project=TURN');
+        if (!response.ok) {
+            console.warn('Turnaround milestone status API unavailable, keeping localStorage state');
+            loadFromLocalStorage();
+            updateDashboard();
+            renderPhases();
+            renderCriticalMilestones();
+            return;
+        }
+
+        const result = await response.json();
+        if (!result.success || !result.statuses) {
+            console.warn('Turnaround milestone status response missing data, falling back to localStorage');
+            loadFromLocalStorage();
+            updateDashboard();
+            renderPhases();
+            renderCriticalMilestones();
+            return;
+        }
+
+        const statuses = result.statuses;
+
+        // Load localStorage as fallback for milestones not in DB
+        const localData = JSON.parse(localStorage.getItem('stabilis-turnaround-data') || '{}');
+        const localPhases = localData.phases || [];
+
+        turnaroundData.phases.forEach(phase => {
+            phase.milestones.forEach(m => {
+                const serverStatus = statuses['TURN-' + m.id];
+                if (serverStatus && serverStatus.status) {
+                    // DB wins if present
+                    m.status = serverStatus.status;
+                } else {
+                    // Try individual key first (most reliable)
+                    const individualStatus = localStorage.getItem(`turn-status-${m.id}`);
+                    if (individualStatus) {
+                        m.status = individualStatus;
+                    } else {
+                        // Fallback to blob for backward compatibility
+                        const localPhase = localPhases.find(p => p.id === phase.id);
+                        const localMilestone = localPhase?.milestones?.find(lm => lm.id === m.id);
+                        if (localMilestone && localMilestone.status) {
+                            m.status = localMilestone.status;
+                        }
+                    }
+                    // else: keep the turnaround-data.js default
+                }
+            });
+        });
+
+        saveToLocalStorage();
+        updateDashboard();
+        renderPhases();
+        renderCriticalMilestones();
+    } catch (error) {
+        console.warn('Turnaround milestone status fetch failed, using localStorage instead:', error);
+        loadFromLocalStorage();
+        updateDashboard();
+        renderPhases();
+        renderCriticalMilestones();
+    }
 }
 
 function updateCountdown() {
@@ -900,6 +967,9 @@ async function toggleMilestone(milestoneId) {
             updateDashboard();
             renderPhases();
             saveToLocalStorage();
+            
+            // ALSO save individual status key (like Wellness pattern) for robust Executive Dashboard handling
+            localStorage.setItem(`turn-status-${milestoneId}`, milestone.status);
         }
     });
 

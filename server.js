@@ -110,6 +110,45 @@ app.get('/api/milestones', async (req, res) => {
     }
 });
 
+// GET /api/milestones/statuses - Fetch latest status per milestone
+app.get('/api/milestones/statuses', async (req, res) => {
+    try {
+        if (!supabase) {
+            return res.status(500).json({ error: 'Database not configured', fallback: true });
+        }
+
+        const { project } = req.query;
+
+        let query = supabase
+            .from('milestones')
+            .select('id, status, updated_at');
+
+        if (project) {
+            query = query.ilike('phase_id', `${project}%`);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+            console.error('Supabase status fetch error:', error);
+            return res.status(500).json({ error: error.message });
+        }
+
+        const statuses = {};
+        (data || []).forEach(row => {
+            statuses[row.id] = {
+                status: row.status,
+                updated_at: row.updated_at
+            };
+        });
+
+        res.json({ success: true, statuses });
+    } catch (error) {
+        console.error('❌ Milestone status fetch error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // POST /api/milestones/update - Update milestone status
 app.post('/api/milestones/update', async (req, res) => {
     try {
@@ -128,12 +167,17 @@ app.post('/api/milestones/update', async (req, res) => {
             .from('milestones')
             .update({ [field]: new_value, updated_at: new Date().toISOString() })
             .eq('id', milestone_id)
-            .select()
-            .single();
+            .select();
 
         if (milestoneError) {
             console.error('Milestone update error:', milestoneError);
             return res.status(500).json({ error: milestoneError.message });
+        }
+
+        // If no rows matched, the milestone doesn't exist yet - treat as success but log
+        if (!milestone || milestone.length === 0) {
+            console.warn(`⚠️  Milestone ${milestone_id} not found in DB - status saved to localStorage only`);
+            return res.json({ success: true, fallback: 'localStorage' });
         }
 
         // Log to audit trail
@@ -464,6 +508,38 @@ app.get('/api/open-excel', (req, res) => {
             path: excelPath
         });
     });
+});
+
+// Budget API endpoint
+app.get('/api/budget', async (req, res) => {
+    try {
+        const budgetHandler = require('./api/budget');
+        await budgetHandler(req, res);
+    } catch (error) {
+        console.error('Budget API error:', error);
+        res.status(500).json({ error: 'Budget API failed' });
+    }
+});
+
+// User Passwords API endpoint
+app.get('/api/user-passwords', async (req, res) => {
+    try {
+        const userPasswordsHandler = require('./api/user-passwords');
+        await userPasswordsHandler(req, res);
+    } catch (error) {
+        console.error('User passwords API error:', error);
+        res.status(500).json({ error: 'User passwords API failed' });
+    }
+});
+
+app.post('/api/user-passwords', async (req, res) => {
+    try {
+        const userPasswordsHandler = require('./api/user-passwords');
+        await userPasswordsHandler(req, res);
+    } catch (error) {
+        console.error('User passwords API error:', error);
+        res.status(500).json({ error: 'User passwords API failed' });
+    }
 });
 
 // ===== FRONTEND ROUTES =====

@@ -27,7 +27,6 @@ function getCellValue(sheet, cellAddress) {
 function parseBudgetQ1Sheet(sheet) {
     console.log('📖 Parsing Budget Q1 2026 worksheet...');
     
-    // Executive Summary (rows 6-9)
     const summary = {
         budget_period: 'Q1-2026',
         total_budget: getCellValue(sheet, 'B6'),
@@ -36,7 +35,6 @@ function parseBudgetQ1Sheet(sheet) {
         funding_required: getCellValue(sheet, 'B9')
     };
     
-    // Monthly Cash Flow (rows 13-16)
     const monthly = [
         {
             budget_period: 'Q1-2026',
@@ -76,7 +74,6 @@ function parseBudgetQ1Sheet(sheet) {
         }
     ];
     
-    // Expenditure Breakdown (rows 21-25)
     const expenditure = [
         {
             budget_period: 'Q1-2026',
@@ -110,7 +107,6 @@ function parseBudgetQ1Sheet(sheet) {
         }
     ];
     
-    // Revenue by Project (rows 30-32)
     const revenue = [
         {
             budget_period: 'Q1-2026',
@@ -132,7 +128,7 @@ function parseBudgetQ1Sheet(sheet) {
         }
     ];
     
-    console.log('✅ Parsed data:', {
+    console.log('✅ Parsed Q1 data:', {
         summary: summary.total_budget,
         monthly: monthly.length + ' months',
         expenditure: expenditure.length + ' categories',
@@ -142,63 +138,188 @@ function parseBudgetQ1Sheet(sheet) {
     return { summary, monthly, expenditure, revenue };
 }
 
-// Sync data to Supabase
+// Parse Budget FY 2026-27 worksheet
+function parseBudgetFYSheet(sheet) {
+    console.log('📖 Parsing Budget FY 2026-27 worksheet...');
+    
+    const summary = {
+        budget_period: 'FY-2026-27',
+        total_budget: getCellValue(sheet, 'B6'),
+        expected_revenue: getCellValue(sheet, 'B7'),
+        net_deficit: getCellValue(sheet, 'B8'),
+        funding_required: 0 // Not applicable for FY (has surplus)
+    };
+    
+    // FY has 12 months (Apr 2026 - Mar 2027) - Revenue data in rows 21-32
+    const months = [
+        'Apr 2026', 'May 2026', 'Jun 2026', 'Jul 2026', 'Aug 2026', 'Sep 2026',
+        'Oct 2026', 'Nov 2026', 'Dec 2026', 'Jan 2027', 'Feb 2027', 'Mar 2027'
+    ];
+    
+    const monthly = months.map((month, index) => {
+        const row = 21 + index;
+        const divRevenue = getCellValue(sheet, 'B' + row);
+        const wellRevenue = getCellValue(sheet, 'C' + row);
+        const totalRevenue = divRevenue + wellRevenue;
+        
+        return {
+            budget_period: 'FY-2026-27',
+            month: month,
+            month_order: index + 1,
+            revenue: totalRevenue,
+            expenditure: 0, // Not provided per month in FY budget
+            net_cash_flow: totalRevenue, // Simplified
+            cumulative: 0 // Will be calculated
+        };
+    });
+    
+    const expenditure = [
+        {
+            budget_period: 'FY-2026-27',
+            category: 'Existing Operations',
+            amount: getCellValue(sheet, 'B37'),
+            percentage: getCellValue(sheet, 'C37')
+        },
+        {
+            budget_period: 'FY-2026-27',
+            category: 'Wellness Centre',
+            amount: getCellValue(sheet, 'B38'),
+            percentage: getCellValue(sheet, 'C38')
+        },
+        {
+            budget_period: 'FY-2026-27',
+            category: 'Diversification',
+            amount: getCellValue(sheet, 'B39'),
+            percentage: getCellValue(sheet, 'C39')
+        },
+        {
+            budget_period: 'FY-2026-27',
+            category: 'Corporate & Overhead',
+            amount: getCellValue(sheet, 'B40'),
+            percentage: getCellValue(sheet, 'C40')
+        },
+        {
+            budget_period: 'FY-2026-27',
+            category: 'Turnaround Maintenance',
+            amount: getCellValue(sheet, 'B41'),
+            percentage: getCellValue(sheet, 'C41')
+        }
+    ];
+    
+    // Revenue by Project - calculated from monthly data in rows 13-24
+    // Using totals from row 33: B33 = Diversification, C33 = Wellness
+    const revenue = [
+        {
+            budget_period: 'FY-2026-27',
+            project: 'Diversification',
+            total_revenue: getCellValue(sheet, 'B33'),
+            monthly_avg: Math.round(getCellValue(sheet, 'B33') / 12)
+        },
+        {
+            budget_period: 'FY-2026-27',
+            project: 'Wellness Centre',
+            total_revenue: getCellValue(sheet, 'C33'),
+            monthly_avg: Math.round(getCellValue(sheet, 'C33') / 12)
+        },
+        {
+            budget_period: 'FY-2026-27',
+            project: 'Turnaround (Cost Avoidance)',
+            total_revenue: 0, // Not applicable for FY
+            monthly_avg: 0
+        }
+    ];
+    
+    console.log('✅ Parsed FY data:', {
+        summary: summary.total_budget,
+        monthly: monthly.length + ' months',
+        expenditure: expenditure.length + ' categories',
+        revenue: revenue.length + ' projects'
+    });
+    
+    return { summary, monthly, expenditure, revenue };
+}
+
+// Sync one budget period
+async function syncBudgetPeriod(data, periodName) {
+    console.log(`\n💾 Syncing ${periodName}...\n`);
+    
+    // 1. Sync budget summary
+    console.log('1️⃣  Syncing budget summary...');
+    const { error: summaryError } = await supabase
+        .from('budget_summary')
+        .upsert(data.summary, { onConflict: 'budget_period' });
+    
+    if (summaryError) throw summaryError;
+    console.log('   ✅ Summary synced');
+    
+    // 2. Sync monthly cash flow
+    console.log('2️⃣  Syncing monthly cash flow...');
+    for (const row of data.monthly) {
+        const { error } = await supabase
+            .from('budget_monthly')
+            .upsert(row, { onConflict: 'budget_period,month' });
+        if (error) throw error;
+    }
+    console.log(`   ✅ Monthly data synced (${data.monthly.length} months)`);
+    
+    // 3. Sync expenditure breakdown
+    console.log('3️⃣  Syncing expenditure breakdown...');
+    for (const row of data.expenditure) {
+        const { error } = await supabase
+            .from('budget_expenditure')
+            .upsert(row, { onConflict: 'budget_period,category' });
+        if (error) throw error;
+    }
+    console.log(`   ✅ Expenditure synced (${data.expenditure.length} categories)`);
+    
+    // 4. Sync revenue by project
+    console.log('4️⃣  Syncing revenue by project...');
+    for (const row of data.revenue) {
+        const { error } = await supabase
+            .from('budget_revenue')
+            .upsert(row, { onConflict: 'budget_period,project' });
+        if (error) throw error;
+    }
+    console.log(`   ✅ Revenue synced (${data.revenue.length} projects)`);
+}
+
+// Main sync function
 async function syncToSupabase() {
     try {
         // Read Excel file
         console.log('📂 Reading Excel file...');
         const workbook = XLSX.readFile(EXCEL_FILE);
         
-        if (!workbook.SheetNames.includes('Budget Q1 2026')) {
-            throw new Error('Budget Q1 2026 worksheet not found in Excel file');
+        // Sync Q1 2026
+        if (workbook.SheetNames.includes('Budget Q1 2026')) {
+            const sheetQ1 = workbook.Sheets['Budget Q1 2026'];
+            const dataQ1 = parseBudgetQ1Sheet(sheetQ1);
+            await syncBudgetPeriod(dataQ1, 'Q1 2026');
+            
+            console.log('\n✅ Q1 2026 sync complete!');
+            console.log(`\n📊 Q1 Summary:`);
+            console.log(`   • Total Budget: R${(dataQ1.summary.total_budget / 1000000).toFixed(2)}M`);
+            console.log(`   • Expected Revenue: R${(dataQ1.summary.expected_revenue / 1000)}k`);
+            console.log(`   • Net Deficit: R${(dataQ1.summary.net_deficit / 1000000).toFixed(2)}M`);
+        } else {
+            console.log('⚠️  Budget Q1 2026 sheet not found, skipping...');
         }
         
-        const sheet = workbook.Sheets['Budget Q1 2026'];
-        const data = parseBudgetQ1Sheet(sheet);
+        // Sync FY 2026-27
+        if (workbook.SheetNames.includes('Budget FY 2026-27')) {
+            const sheetFY = workbook.Sheets['Budget FY 2026-27'];
+            const dataFY = parseBudgetFYSheet(sheetFY);
+            await syncBudgetPeriod(dataFY, 'FY 2026-27');
+            
+            console.log('\n✅ FY 2026-27 sync complete!');
+            console.log(`\n📊 FY Summary:`);
+            console.log(`   • Total Budget: R${(dataFY.summary.total_budget / 1000000).toFixed(2)}M`);
+            console.log(`   • Expected Revenue: R${(dataFY.summary.expected_revenue / 1000000).toFixed(2)}M`);
+            console.log(`   • Net Surplus: R${(dataFY.summary.net_deficit / 1000000).toFixed(2)}M`);
+        } else {
+            console.log('⚠️  Budget FY 2026-27 sheet not found, skipping...');
+        }
         
-        console.log('\n💾 Syncing to Supabase...\n');
-        
-        // 1. Upsert Summary
-        console.log('1️⃣  Syncing budget summary...');
-        const { data: summaryData, error: summaryError } = await supabase
-            .from('budget_summary')
-            .upsert(data.summary, { onConflict: 'budget_period' });
-        
-        if (summaryError) throw summaryError;
-        console.log('   ✅ Summary synced');
-        
-        // 2. Upsert Monthly Data
-        console.log('2️⃣  Syncing monthly cash flow...');
-        const { data: monthlyData, error: monthlyError } = await supabase
-            .from('budget_monthly')
-            .upsert(data.monthly, { onConflict: 'budget_period,month' });
-        
-        if (monthlyError) throw monthlyError;
-        console.log('   ✅ Monthly data synced (' + data.monthly.length + ' months)');
-        
-        // 3. Upsert Expenditure
-        console.log('3️⃣  Syncing expenditure breakdown...');
-        const { data: expData, error: expError } = await supabase
-            .from('budget_expenditure')
-            .upsert(data.expenditure, { onConflict: 'budget_period,category' });
-        
-        if (expError) throw expError;
-        console.log('   ✅ Expenditure synced (' + data.expenditure.length + ' categories)');
-        
-        // 4. Upsert Revenue
-        console.log('4️⃣  Syncing revenue by project...');
-        const { data: revData, error: revError } = await supabase
-            .from('budget_revenue')
-            .upsert(data.revenue, { onConflict: 'budget_period,project' });
-        
-        if (revError) throw revError;
-        console.log('   ✅ Revenue synced (' + data.revenue.length + ' projects)');
-        
-        console.log('\n✅ Budget sync complete!\n');
-        console.log('📊 Summary:');
-        console.log('   • Total Budget: R' + (data.summary.total_budget / 1000000).toFixed(2) + 'M');
-        console.log('   • Expected Revenue: R' + (data.summary.expected_revenue / 1000).toFixed(0) + 'k');
-        console.log('   • Net Deficit: R' + (data.summary.net_deficit / 1000000).toFixed(2) + 'M');
         console.log('\n💡 Reports will now show updated values from Supabase');
         
     } catch (error) {

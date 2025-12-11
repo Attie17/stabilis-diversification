@@ -333,50 +333,172 @@
     </div>
 
     <script src="../js/auth.js"></script>
-    <script src="../js/data.js"></script>
     <script>
-        initAuth();
+        const PROJECT_LABELS = {
+            TURN: 'Turnaround',
+            DIV: 'Diversification',
+            WELL: 'Wellness Centre'
+        };
 
-        // Calculate overall progress
-        function calculateProgress() {
-            let totalMilestones = 0;
-            let completeMilestones = 0;
+        let projectSnapshots = {
+            TURN: null,
+            DIV: null,
+            WELL: null
+        };
 
-            projectData.phases.forEach(phase => {
-                totalMilestones += phase.milestones.length;
-                completeMilestones += phase.milestones.filter(m => m.status === 'complete').length;
+        let currentProjectKey = 'DIV';
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            if (Number.isNaN(date.getTime())) return dateString || '';
+            return date.toISOString().split('T')[0];
+        }
+
+        function buildPhaseStructure(milestones) {
+            const phases = {};
+            milestones.forEach(m => {
+                const phaseId = m.phase_id || 'Unassigned';
+                if (!phases[phaseId]) {
+                    phases[phaseId] = {
+                        id: phaseId,
+                        name: m.phase_name || phaseId,
+                        startDate: m.phase_start || m.due || m.dueDate,
+                        endDate: m.phase_end || m.due || m.dueDate,
+                        milestones: []
+                    };
+                }
+                phases[phaseId].milestones.push({
+                    id: m.id,
+                    title: m.title || m.name || m.id,
+                    owner: m.owner || m.owner_name || 'Unassigned',
+                    status: m.status || 'planned',
+                    due: m.due || m.dueDate,
+                    priority: m.priority || null
+                });
+            });
+
+            return Object.values(phases).map(phase => {
+                const dates = phase.milestones
+                    .map(m => new Date(m.due))
+                    .filter(d => !Number.isNaN(d.getTime()));
+                if (dates.length) {
+                    const min = new Date(Math.min(...dates));
+                    const max = new Date(Math.max(...dates));
+                    phase.startDate = phase.startDate || formatDate(min.toISOString());
+                    phase.endDate = phase.endDate || formatDate(max.toISOString());
+                }
+                return phase;
+            });
+        }
+
+        function calculateProgressForProject(phases) {
+            let total = 0;
+            let complete = 0;
+            const today = new Date();
+            let overdue = 0;
+
+            phases.forEach(phase => {
+                phase.milestones.forEach(m => {
+                    total++;
+                        if (m.status === 'complete') complete++;
+                    const dueDate = new Date(m.due);
+                        if (dueDate < today && m.status !== 'complete') {
+                        overdue++;
+                    }
+                });
             });
 
             return {
-                total: totalMilestones,
-                complete: completeMilestones,
-                percentage: Math.round((completeMilestones / totalMilestones) * 100)
+                total,
+                complete,
+                percentage: total > 0 ? Math.round((complete / total) * 100) : 0,
+                overdue
             };
         }
 
-        // Get current phase
-        function getCurrentPhase() {
+        function getCurrentPhaseForProject(phases) {
             const today = new Date();
-            return projectData.phases.find(phase => {
+            const active = phases.find(phase => {
                 const start = new Date(phase.startDate);
                 const end = new Date(phase.endDate);
                 return today >= start && today <= end;
-            }) || projectData.phases[0];
+            });
+            return active || phases[0] || null;
         }
 
-        // Render phase details
-        function renderPhases() {
+        function renderProjectTabs() {
+            const header = document.querySelector('.report-header');
+            if (!header || header.querySelector('.project-tabs')) return;
+
+            const tabs = document.createElement('div');
+            tabs.className = 'project-tabs';
+            tabs.style.marginTop = '1rem';
+            tabs.innerHTML = ['TURN', 'DIV', 'WELL'].map(key => `
+                <button type="button" class="project-tab-btn" data-project-tab="${key}">
+                    ${PROJECT_LABELS[key]}
+                </button>
+            `).join(' ');
+            header.appendChild(tabs);
+
+            tabs.addEventListener('click', event => {
+                const btn = event.target.closest('[data-project-tab]');
+                if (!btn) return;
+                currentProjectKey = btn.getAttribute('data-project-tab');
+                renderCurrentProject();
+            });
+        }
+
+        function renderCurrentProject() {
+            const snapshot = projectSnapshots[currentProjectKey];
+            const label = PROJECT_LABELS[currentProjectKey] || currentProjectKey;
+            const progressEl = document.getElementById('overall-progress');
+            const milestonesEl = document.getElementById('milestones-complete');
+            const currentPhaseEl = document.getElementById('current-phase');
+            const onScheduleEl = document.getElementById('on-schedule');
+            const phaseDetailsEl = document.getElementById('phase-details');
+            const timelineEl = document.getElementById('timeline-chart');
+            const criticalEl = document.getElementById('critical-items');
+
+            if (!snapshot || !snapshot.phases.length) {
+                progressEl.textContent = '0%';
+                milestonesEl.textContent = '0/0';
+                currentPhaseEl.textContent = `${label} • No milestones defined`;
+                onScheduleEl.textContent = 'N/A';
+                phaseDetailsEl.innerHTML = '<p style="color:#6b7280;">No milestones found for this project.</p>';
+                timelineEl.innerHTML = '';
+                criticalEl.innerHTML = '<p style="color:#059669; font-weight:500;">✓ No critical items - all on track!</p>';
+                return;
+            }
+
+            const stats = calculateProgressForProject(snapshot.phases);
+            const currentPhase = getCurrentPhaseForProject(snapshot.phases);
+
+            progressEl.textContent = `${stats.percentage}%`;
+            milestonesEl.textContent = `${stats.complete}/${stats.total}`;
+            currentPhaseEl.textContent = currentPhase ? `${label} • ${currentPhase.name}` : label;
+            onScheduleEl.textContent = stats.overdue > 0 ? 'At Risk' : 'Yes';
+            onScheduleEl.className = 'stat-value ' + (stats.overdue > 0 ? 'warning' : 'success');
+
+            renderPhasesForProject(snapshot.phases);
+            renderTimelineForProject(snapshot.phases);
+            renderCriticalItemsForProject(snapshot.phases);
+        }
+
+        function renderPhasesForProject(phases) {
             const container = document.getElementById('phase-details');
+            container.innerHTML = '';
             const today = new Date();
 
-            projectData.phases.forEach(phase => {
+            phases.forEach(phase => {
                 const start = new Date(phase.startDate);
                 const end = new Date(phase.endDate);
                 const isActive = today >= start && today <= end;
-                const isComplete = phase.milestones.every(m => m.status === 'complete');
+                    const isComplete = phase.milestones.every(m => m.status === 'complete');
 
-                const completeMilestones = phase.milestones.filter(m => m.status === 'complete').length;
-                const progress = Math.round((completeMilestones / phase.milestones.length) * 100);
+                    const completeMilestones = phase.milestones.filter(m => m.status === 'complete').length;
+                const progress = phase.milestones.length > 0
+                    ? Math.round((completeMilestones / phase.milestones.length) * 100)
+                    : 0;
 
                 const statusClass = isComplete ? 'complete' : isActive ? 'active' : 'planned';
                 const statusText = isComplete ? 'Complete' : isActive ? 'In Progress' : 'Planned';
@@ -387,7 +509,7 @@
                             <h3>${phase.name}</h3>
                             <span class="phase-status ${statusClass}">${statusText}</span>
                         </div>
-                        <p style="color: #6b7280; margin: 0 0 1rem 0;">${phase.startDate} to ${phase.endDate}</p>
+                        <p style="color: #6b7280; margin: 0 0 1rem 0;">${formatDate(phase.startDate)} to ${formatDate(phase.endDate)}</p>
                         <div class="progress-bar">
                             <div class="progress-fill ${isComplete ? 'complete' : ''}" style="width: ${progress}%">
                                 ${progress}%
@@ -404,7 +526,7 @@
                                     </div>
                                     <span class="milestone-title">${m.title}</span>
                                     <span class="milestone-owner">${m.owner}</span>
-                                    <span class="milestone-due">${m.due}</span>
+                                    <span class="milestone-due">${formatDate(m.due)}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -413,28 +535,39 @@
             });
         }
 
-        // Render timeline
-        function renderTimeline() {
+        function renderTimelineForProject(phases) {
             const container = document.getElementById('timeline-chart');
-            const projectStart = new Date(projectData.startDate);
-            const projectEnd = new Date(projectData.endDate);
-            const totalDays = (projectEnd - projectStart) / (1000 * 60 * 60 * 24);
+            container.innerHTML = '';
+            if (!phases.length) return;
 
-            projectData.phases.forEach(phase => {
+            const startDates = phases
+                .map(p => new Date(p.startDate))
+                .filter(d => !Number.isNaN(d.getTime()));
+            const endDates = phases
+                .map(p => new Date(p.endDate))
+                .filter(d => !Number.isNaN(d.getTime()));
+
+            if (!startDates.length || !endDates.length) return;
+
+            const projectStart = new Date(Math.min(...startDates));
+            const projectEnd = new Date(Math.max(...endDates));
+            const totalDays = (projectEnd - projectStart) / (1000 * 60 * 60 * 24) || 1;
+
+            phases.forEach(phase => {
                 const start = new Date(phase.startDate);
                 const end = new Date(phase.endDate);
                 const daysFromStart = (start - projectStart) / (1000 * 60 * 60 * 24);
-                const duration = (end - start) / (1000 * 60 * 60 * 24);
+                const duration = (end - start) / (1000 * 60 * 60 * 24) || 1;
 
                 const leftPercent = (daysFromStart / totalDays) * 100;
                 const widthPercent = (duration / totalDays) * 100;
 
                 container.innerHTML += `
                     <div class="timeline-row">
-                        <div class="timeline-label">${phase.name.split('–')[0].trim()}</div>
+                        <div class="timeline-label">${phase.id}</div>
                         <div class="timeline-bar">
                             <div class="timeline-segment" style="left: ${leftPercent}%; width: ${widthPercent}%">
-                                ${phase.startDate.split('-')[1]}/${phase.startDate.split('-')[2]} - ${end.getMonth() + 1}/${end.getDate()}
+                                ${formatDate(phase.startDate)} - ${formatDate(phase.endDate)}
                             </div>
                         </div>
                     </div>
@@ -442,16 +575,16 @@
             });
         }
 
-        // Find critical items
-        function renderCriticalItems() {
+        function renderCriticalItemsForProject(phases) {
             const container = document.getElementById('critical-items');
             const today = new Date();
             const criticalItems = [];
 
-            projectData.phases.forEach(phase => {
+            phases.forEach(phase => {
                 phase.milestones.forEach(milestone => {
-                    if (milestone.status !== 'complete') {
+                        if (milestone.status !== 'complete') {
                         const dueDate = new Date(milestone.due);
+                        if (Number.isNaN(dueDate.getTime())) return;
                         const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
 
                         if (daysUntil < 7 && daysUntil >= 0) {
@@ -472,47 +605,53 @@
                             ${item.overdue ? '🔴 OVERDUE' : '⚠️ DUE SOON'}: ${item.title}
                         </div>
                         <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">
-                            ${item.phase} • Owner: ${item.owner} • Due: ${item.due} (${item.overdue ? Math.abs(item.daysUntil) + ' days overdue' : item.daysUntil + ' days remaining'})
+                            ${item.phase} • Owner: ${item.owner} • Due: ${formatDate(item.due)} (${item.overdue ? Math.abs(item.daysUntil) + ' days overdue' : item.daysUntil + ' days remaining'})
                         </div>
                     </div>
                 `).join('');
             }
         }
 
-        // Initialize
-        const progress = calculateProgress();
-        const currentPhase = getCurrentPhase();
+        async function loadProjectMilestones(projectKey, prefix) {
+            try {
+                const response = await fetch(`/api/milestones?project=${encodeURIComponent(prefix)}`);
+                if (!response.ok) {
+                    console.warn('Failed to load milestones for', projectKey);
+                    return;
+                }
+                const result = await response.json();
+                if (!result.success || !Array.isArray(result.milestones)) return;
 
-        document.getElementById('overall-progress').textContent = progress.percentage + '%';
-        document.getElementById('milestones-complete').textContent = `${progress.complete}/${progress.total}`;
-        document.getElementById('current-phase').textContent = currentPhase.name.split('–')[0].trim();
+                const phases = buildPhaseStructure(result.milestones);
+                projectSnapshots[projectKey] = { phases };
+            } catch (error) {
+                console.warn('Error loading milestones for', projectKey, error);
+            }
+        }
 
-        renderPhases();
-        renderTimeline();
-        renderCriticalItems();
+        async function initializePhaseProgressReport() {
+            if (typeof initAuth === 'function') {
+                initAuth();
+            }
+
+            renderProjectTabs();
+
+            await Promise.all([
+                loadProjectMilestones('TURN', 'TURN'),
+                loadProjectMilestones('DIV', 'DIV'),
+                loadProjectMilestones('WELL', 'WELL')
+            ]);
+
+            renderCurrentProject();
+        }
+
+        document.addEventListener('DOMContentLoaded', initializePhaseProgressReport);
     </script>
     
     <!-- AI Chat Widget Container -->
     <div id="ai-chat-container"></div>
     
     <script src="../js/auth.js"></script>
-    <script src="../js/report-access.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Initialize auth first
-            if (typeof initAuth === 'function') {
-                initAuth();
-            }
-            
-            // Then initialize report page
-            if (typeof initReportPage === 'function') {
-                initReportPage({
-                    reportKey: 'phase-progress',
-                    reportTitle: 'Phase Progress Report'
-                });
-            }
-        });
-    </script>
     <script src="../js/ai-chat-component.js"></script>
     <script>
         // Initialize AI Chat Widget

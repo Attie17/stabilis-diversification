@@ -46,6 +46,8 @@
                         <button class="sidebar-item" data-action="action-edit-milestone">✏️ Edit Milestone</button>
                         <button class="sidebar-item" data-role="workbook-action" data-action="action-edit-workbook">📊
                             Edit Workbook</button>
+                        <button class="sidebar-item" id="sync-budget-sidebar" style="display: none;" 
+                            data-action="action-sync-budget">💾 Sync Budget Data</button>
                         <button class="sidebar-item" data-action="action-sync-workbook">🔄 Download &amp; Sync Workbook</button>
                         <button class="sidebar-item" data-action="action-open-chat">🤖 Ask the AI Assistant</button>
                     </div>
@@ -87,6 +89,12 @@
                         <button onclick="openExcelFile()" class="excel-edit-btn" data-role="workbook-action"
                             title="Edit project data in Excel" data-hamburger-action="action-edit-workbook">📊 Edit
                             Workbook</button>
+                        <button onclick="syncBudgetData()" class="excel-edit-btn" id="sync-budget-btn" 
+                            style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%);"
+                            title="Sync Excel workbook changes to database (CEO/FM only)" 
+                            data-hamburger-action="action-sync-budget">
+                            💾 Sync Budget Data
+                        </button>
                         <button onclick="showWorkbookSyncInstructions()" class="excel-edit-btn"
                             title="How to download &amp; sync the latest Excel model" data-hamburger-action="action-sync-workbook">🔄
                             Download &amp; Sync Workbook</button>
@@ -574,8 +582,71 @@
             document.body.appendChild(modal);
         }
 
+        // Sync Budget Data function
+        async function syncBudgetData() {
+            const btn = document.getElementById('sync-budget-btn');
+            const originalText = btn.innerHTML;
+            
+            if (!confirm('Sync Excel workbook data to database?\n\nThis will update all budget reports with the latest data from your Excel file.')) {
+                return;
+            }
+            
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Syncing...';
+                btn.style.opacity = '0.6';
+                
+                const response = await fetch('/api/sync-budget', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    btn.innerHTML = '✅ Synced!';
+                    btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                    
+                    // Show success message
+                    alert('✅ Budget data synced successfully!\n\nAll reports will now show the updated data from your Excel workbook.');
+                    
+                    // Refresh dashboard to show updated data
+                    setTimeout(() => {
+                        refreshDashboard();
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                    }, 2000);
+                } else {
+                    throw new Error(result.error || 'Sync failed');
+                }
+            } catch (error) {
+                console.error('Sync error:', error);
+                alert('❌ Budget sync failed:\n\n' + error.message + '\n\nPlease try running "npm run sync-budget" in the terminal instead.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        }
+
+        // Show sync button for CEO and FM only
+        function initializeSyncButton() {
+            const currentUser = sessionStorage.getItem('userRole');
+            const syncBtn = document.getElementById('sync-budget-btn');
+            
+            if (syncBtn && (currentUser === 'CEO' || currentUser === 'FM')) {
+                syncBtn.style.display = 'inline-flex';
+                console.log('✅ Sync Budget button enabled for', currentUser);
+            }
+        }
+
         // Initialize AI Chat Widget
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize sync button visibility
+            initializeSyncButton();
+            
             new AIChatComponent('ai-chat-container', {
                 project: 'Executive Dashboard'
             });

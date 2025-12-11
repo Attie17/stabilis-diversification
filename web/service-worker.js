@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stabilis-shell-v1.1.3';
+const CACHE_NAME = 'stabilis-shell-v1.1.4';
 const SHELL_ASSETS = [
     '/',
     '/landing.html',
@@ -75,9 +75,22 @@ self.addEventListener('fetch', event => {
                     }
                     return response;
                 })
-                .catch(() => {
-                    // Fallback to cache if network fails
-                    return caches.match(request);
+                .catch(error => {
+                    console.log('[SW] Network failed for API:', url.pathname);
+                    // Try to return cached version
+                    return caches.match(request).then(cached => {
+                        if (cached) {
+                            return cached;
+                        }
+                        // Return a proper error response instead of undefined
+                        return new Response(
+                            JSON.stringify({ error: 'Network unavailable' }),
+                            {
+                                status: 503,
+                                headers: { 'Content-Type': 'application/json' }
+                            }
+                        );
+                    });
                 })
         );
         return;

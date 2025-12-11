@@ -188,12 +188,67 @@ function init() {
     // Initialize authentication first
     initAuth();
 
+    loadMilestoneStatusFromServer();
+
     updateDashboardStats();
     renderPhases();
     renderCopilotButtons();
     bindEvents();
 
     console.log('✅ Wellness app initialized');
+}
+
+async function loadMilestoneStatusFromServer() {
+    try {
+        const response = await fetch('/api/milestones/statuses?project=WELL');
+        if (!response.ok) {
+            console.warn('Wellness milestone status API unavailable, keeping local state');
+            updateDashboardStats();
+            renderPhases();
+            return;
+        }
+
+        const result = await response.json();
+        if (!result.success || !result.statuses) {
+            console.warn('Wellness milestone status response missing data, keeping local state');
+            updateDashboardStats();
+            renderPhases();
+            return;
+        }
+
+        const statuses = result.statuses;
+
+        // Load localStorage as fallback for milestones not in DB
+        const localStatusKeys = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('wellness-status-')) {
+                const milestoneId = key.replace('wellness-status-', '');
+                localStatusKeys[milestoneId] = localStorage.getItem(key);
+            }
+        }
+
+        wellnessProject.phases.forEach(phase => {
+            phase.milestones.forEach(m => {
+                const serverStatus = statuses['WELL-' + m.id];
+                if (serverStatus && serverStatus.status) {
+                    // DB wins if present
+                    m.status = serverStatus.status;
+                } else if (localStatusKeys[m.id]) {
+                    // Fallback to localStorage for this specific milestone
+                    m.status = localStatusKeys[m.id];
+                }
+                // else: keep the wellness-data.js default
+            });
+        });
+
+        updateDashboardStats();
+        renderPhases();
+    } catch (error) {
+        console.warn('Wellness milestone status fetch failed, keeping local state:', error);
+        updateDashboardStats();
+        renderPhases();
+    }
 }
 
 // Update dashboard stats
@@ -446,7 +501,8 @@ function renderMilestone(milestone, phaseId) {
                        class="milestone-checkbox" 
                        data-id="${milestone.id}" 
                        data-phase="${phaseId}"
-                       ${milestone.status === 'complete' ? 'checked' : ''}>
+                       ${milestone.status === 'complete' ? 'checked' : ''}
+                       onclick="event.stopPropagation(); toggleMilestoneStatus('${milestone.id}')">
                 <div class="milestone-info">
                     <div class="milestone-title">
                         <strong>${milestone.id}</strong> - ${milestone.title}
@@ -598,6 +654,7 @@ async function toggleMilestoneStatus(milestoneId) {
 
             found = true;
             saveMilestoneStatus(milestoneId, milestone.status);
+            updateDashboardStats();
             renderPhases();
             renderCopilotButtons();
         }
@@ -618,10 +675,10 @@ async function toggleMilestoneStatus(milestoneId) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                milestone_id: milestoneId,
+                milestone_id: 'WELL-' + milestoneId,
                 field: 'status',
                 old_value: oldStatus,
-                new_value: updatedMilestone.status === 'complete' ? 'completed' : updatedMilestone.status,
+                new_value: updatedMilestone.status,
                 changed_by: currentUser?.name || 'Unknown'
             })
         });

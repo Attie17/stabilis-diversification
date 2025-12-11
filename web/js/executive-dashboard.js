@@ -329,23 +329,68 @@ function mergeSavedMilestones(base, saved) {
 }
 
 // Merge database milestones into project data structure
-function mergeDatabaseMilestones(baseData, dbMilestones) {
-    if (!baseData || !dbMilestones || !Array.isArray(dbMilestones)) return baseData;
+// CRITICAL: This function reads from individual localStorage keys (turn-status-*, div-status-*, wellness-status-*)
+// to preserve user's checked milestone statuses when database doesn't have the milestone yet.
+// The Executive Dashboard is READ-ONLY for these keys - never writes to them.
+function mergeDatabaseMilestones(baseData, dbMilestones, localStorageKey) {
+    if (!baseData) return baseData;
 
     const clone = cloneProjectData(baseData);
     if (!clone || !clone.phases) return baseData;
 
+    // Load localStorage as fallback for milestones not in DB
+    let localData = null;
+    let isWellnessIndividualKeys = false;
+    
+    try {
+        if (localStorageKey && localStorageKey.endsWith('-')) {
+            // Wellness uses individual keys like 'wellness-status-P1-M1'
+            isWellnessIndividualKeys = true;
+        } else if (localStorageKey) {
+            // Turnaround/Diversification use single storage keys
+            const localRaw = localStorage.getItem(localStorageKey);
+            if (localRaw) {
+                localData = JSON.parse(localRaw);
+            }
+        }
+    } catch (error) {
+        console.warn('Failed to load localStorage for fallback:', error);
+    }
+
+    // If no database milestones, use empty array (will fallback to localStorage for all)
+    const dbArray = Array.isArray(dbMilestones) ? dbMilestones : [];
+
     clone.phases.forEach(phase => {
         if (!phase.milestones) return;
         phase.milestones.forEach(milestone => {
-            const dbMilestone = dbMilestones.find(m => m.id === milestone.id);
+            const dbMilestone = dbArray.find(m => m.id === milestone.id);
             if (dbMilestone) {
-                // Update with database values
+                // Database wins if milestone exists in DB
                 milestone.status = dbMilestone.status;
                 if (dbMilestone.revenue !== undefined) {
                     milestone.revenue = dbMilestone.revenue;
                 }
+            } else {
+                // Fallback to localStorage for milestones not in DB
+                if (isWellnessIndividualKeys) {
+                    // Check individual wellness-status-{id} key
+                    const localStatus = localStorage.getItem(localStorageKey + milestone.id);
+                    if (localStatus) {
+                        milestone.status = localStatus;
+                    }
+                } else if (localData && localData.phases) {
+                    // Check in stored project data object
+                    const localPhase = localData.phases.find(p => p.id === phase.id);
+                    const localMilestone = localPhase?.milestones?.find(m => m.id === milestone.id);
+                    if (localMilestone && localMilestone.status) {
+                        milestone.status = localMilestone.status;
+                        if (localMilestone.revenue !== undefined) {
+                            milestone.revenue = localMilestone.revenue;
+                        }
+                    }
+                }
             }
+            // else: keep baseData default
         });
     });
 
@@ -446,8 +491,9 @@ async function loadAllData() {
 
     // Apply database milestones (if available)
     if (turnaroundDbData) {
-        turnaroundData = mergeDatabaseMilestones(turnaroundData, turnaroundDbData);
-        persistProjectData(['stabilis-turnaround-data', 'stabilis-turnaround-data-db'], turnaroundData);
+        turnaroundData = mergeDatabaseMilestones(turnaroundData, turnaroundDbData, 'turn-status-');
+        // CRITICAL: Write to separate snapshot key to preserve individual turn-status-* keys
+        persistProjectData(['exec-turnaround-snapshot'], turnaroundData);
         lastSyncedProjects.turnaround = cloneProjectData(turnaroundData);
     } else {
         turnaroundData = reuseLastSyncedProject(
@@ -459,8 +505,9 @@ async function loadAllData() {
     }
 
     if (diversificationDbData) {
-        diversificationData = mergeDatabaseMilestones(diversificationData, diversificationDbData);
-        persistProjectData(['stabilis-project-data', 'stabilis-project-data-db'], diversificationData);
+        diversificationData = mergeDatabaseMilestones(diversificationData, diversificationDbData, 'div-status-');
+        // CRITICAL: Write to separate snapshot key to preserve individual div-status-* keys
+        persistProjectData(['exec-diversification-snapshot'], diversificationData);
         lastSyncedProjects.diversification = cloneProjectData(diversificationData);
     } else {
         diversificationData = reuseLastSyncedProject(
@@ -472,7 +519,8 @@ async function loadAllData() {
     }
 
     if (wellnessDbData) {
-        wellnessData = mergeDatabaseMilestones(wellnessData, wellnessDbData);
+        wellnessData = mergeDatabaseMilestones(wellnessData, wellnessDbData, 'wellness-status-');
+        // Wellness uses individual keys only, this blob key is for aggregation purposes
         persistProjectData(['stabilis-wellness-data', 'stabilis-wellness-data-db'], wellnessData);
         lastSyncedProjects.wellness = cloneProjectData(wellnessData);
     } else {
@@ -488,6 +536,8 @@ async function loadAllData() {
     const turnaroundProgress = calculateProjectProgress(turnaroundData);
     const diversificationProgress = calculateProjectProgress(diversificationData);
     const wellnessProgress = calculateProjectProgress(wellnessData);
+    
+    // Executive Dashboard loaded successfully - individual status keys preserved
 
     // Update top stats
     updateTopStats(turnaroundProgress, diversificationProgress, wellnessProgress);
@@ -866,48 +916,95 @@ window.showSection = showSection;
 
 // Update financial section
 function updateFinancialSection(turnaround, diversification, wellness) {
+    // Calculate actual financial values from project data
+    const divRevenue = diversification?.targetRevenue || 0;
+    const wellRevenue = 5552600; // Wellness 12-month FY2026-27
+    const turnSavings = 735000; // Turnaround cost avoidance
+    
+    // 18-month calculation: Q1 2026 (4mo) + FY 2026-27 (12mo) + Q1 2027 (2mo estimated)
+    const q1Revenue = 469800; // Dec 2025 - Mar 2026
+    const fyRevenue = 8430000; // Apr 2026 - Mar 2027
+    const q1NextRevenue = 1400000; // Apr-May 2027 estimated
+    const totalRevenue18mo = q1Revenue + fyRevenue + q1NextRevenue;
+    
+    // Investment calculation: Q1 + FY budgets
+    const q1Budget = 2340000; // Dec 2025 - Mar 2026
+    const fyBudget = 7350000; // Apr 2026 - Mar 2027
+    const totalInvestment = q1Budget + fyBudget;
+    
+    // Net impact
+    const netImpact = totalRevenue18mo - totalInvestment + turnSavings;
+    
+    // Diversification: Q1 (183.6k) + FY (2.877M) + Q1 next (479k est)
+    const divTotal18mo = 183600 + 2877475 + 479000;
+    
+    // Wellness: Q1 (262.4k) + FY (5.553M) + Q1 next (925k est)
+    const wellTotal18mo = 262400 + 5552600 + 925000;
+    
     document.getElementById('financial-overview').innerHTML = `
         <div class="summary-row">
             <span class="summary-label">Total Projected Revenue (18mo)</span>
-            <span class="summary-value positive">R11.0M+</span>
+            <span class="summary-value positive">R${(totalRevenue18mo / 1000000).toFixed(1)}M</span>
         </div>
         <div class="summary-row">
             <span class="summary-label">Total Investment Required</span>
-            <span class="summary-value">R5.3M</span>
+            <span class="summary-value">R${(totalInvestment / 1000000).toFixed(1)}M</span>
         </div>
         <div class="summary-row">
             <span class="summary-label">Expected Net Impact</span>
-            <span class="summary-value positive">R5.7M+</span>
+            <span class="summary-value ${netImpact > 0 ? 'positive' : 'negative'}">R${(netImpact / 1000000).toFixed(2)}M</span>
         </div>
     `;
 
     document.getElementById('revenue-breakdown').innerHTML = `
         <div class="summary-row">
             <span class="summary-label">🚨 Turnaround (Cost Savings)</span>
-            <span class="summary-value positive">R500K+</span>
+            <span class="summary-value positive">R${(turnSavings / 1000).toFixed(0)}K</span>
         </div>
         <div class="summary-row">
             <span class="summary-label">📈 Diversification</span>
-            <span class="summary-value positive">R6.8M</span>
+            <span class="summary-value positive">R${(divTotal18mo / 1000000).toFixed(1)}M</span>
         </div>
         <div class="summary-row">
             <span class="summary-label">💚 Wellness Centre</span>
-            <span class="summary-value positive">R4.2M</span>
+            <span class="summary-value positive">R${(wellTotal18mo / 1000000).toFixed(1)}M</span>
         </div>
     `;
 
+    // Calculate YTD actual from completed milestones with revenue
+    let ytdActual = 0;
+    const allProjects = [turnaround, diversification, wellness];
+    allProjects.forEach(project => {
+        if (project?.phases) {
+            project.phases.forEach(phase => {
+                if (phase.milestones) {
+                    phase.milestones.forEach(m => {
+                        if ((m.status === 'completed' || m.status === 'complete') && m.revenue) {
+                            ytdActual += m.revenue;
+                        }
+                    });
+                }
+            });
+        }
+    });
+    
+    const variance = ytdActual - totalInvestment;
+    const varianceText = Math.abs(variance) < 100000 ? 'On Track' : 
+                         variance > 0 ? `+R${(variance/1000).toFixed(0)}K` : 
+                         `R${(variance/1000).toFixed(0)}K`;
+    
     document.getElementById('budget-actual').innerHTML = `
         <div class="summary-row">
-            <span class="summary-label">Budgeted</span>
-            <span class="summary-value">R5.3M</span>
+            <span class="summary-label">Budgeted (18mo)</span>
+            <span class="summary-value">R${(totalInvestment / 1000000).toFixed(1)}M</span>
         </div>
         <div class="summary-row">
             <span class="summary-label">Actual (YTD)</span>
-            <span class="summary-value">R0 (Planning Phase)</span>
+            <span class="summary-value">R${ytdActual > 0 ? (ytdActual/1000).toFixed(0) + 'K' : '0 (Planning Phase)'}</span>
         </div>
         <div class="summary-row">
             <span class="summary-label">Variance</span>
-            <span class="summary-value positive">On Track</span>
+            <span class="summary-value ${variance >= 0 ? 'positive' : 'negative'}">${varianceText}</span>
         </div>
     `;
 }
@@ -1029,17 +1126,23 @@ function updateTimelineSection(turnaround, diversification, wellness) {
         return;
     }
 
-    container.innerHTML = allMilestones.map(m => `
-        <div class="milestone-item" style="border-left: 3px solid ${m.color};">
+    container.innerHTML = allMilestones.map(m => {
+        const isComplete = m.status === 'completed' || m.status === 'complete';
+        const bgColor = isComplete ? 'rgba(16, 185, 129, 0.15)' : 'transparent';
+        const borderColor = isComplete ? '#10b981' : m.color;
+        
+        return `
+        <div class="milestone-item" style="border-left: 3px solid ${borderColor}; background-color: ${bgColor};">
             <div class="milestone-title">${m.icon} ${m.title}</div>
             <div class="milestone-meta">
                 ${m.project} | ${formatDate(m.due)} | 
-                <span style="color: ${m.status === 'complete' ? '#10b981' : '#94a3b8'};">
-                    ${m.status === 'complete' ? '✓ Complete' : 'In Progress'}
+                <span style="color: ${isComplete ? '#10b981' : '#94a3b8'};">
+                    ${isComplete ? '✓ Complete' : 'In Progress'}
                 </span>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // Update team section
@@ -1404,6 +1507,29 @@ function updateWorkbookButtonVisibility() {
     });
 }
 
+// Check if user can sync budget (CEO and FM only)
+function canSyncBudget() {
+    const currentUser = sessionStorage.getItem('userRole');
+    return currentUser === 'CEO' || currentUser === 'FM';
+}
+
+function updateSyncButtonVisibility() {
+    const canSync = canSyncBudget();
+    const syncBtn = document.getElementById('sync-budget-btn');
+    const syncSidebar = document.getElementById('sync-budget-sidebar');
+    
+    if (syncBtn) {
+        syncBtn.style.display = canSync ? 'inline-flex' : 'none';
+    }
+    if (syncSidebar) {
+        syncSidebar.style.display = canSync ? 'block' : 'none';
+    }
+    
+    if (canSync) {
+        console.log('✅ Budget sync buttons enabled for', sessionStorage.getItem('userRole'));
+    }
+}
+
 function revealDashboardAction(actionKey) {
     if (!actionKey) return;
     const actionBtn = document.querySelector(`[data-hamburger-action="${actionKey}"]`);
@@ -1474,6 +1600,16 @@ function handleExecutiveSidebarAction(action) {
             break;
         case 'action-edit-workbook':
             openExcelFile();
+            break;
+        case 'action-sync-budget':
+            if (typeof window.syncBudgetData === 'function') {
+                window.syncBudgetData();
+            }
+            break;
+        case 'action-sync-workbook':
+            if (typeof window.showWorkbookSyncInstructions === 'function') {
+                window.showWorkbookSyncInstructions();
+            }
             break;
         case 'action-open-chat':
             document.getElementById('ai-chat-container')?.scrollIntoView({ behavior: 'smooth' });
@@ -1549,6 +1685,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update workbook button visibility
     updateWorkbookButtonVisibility();
+    
+    // Update sync button visibility (CEO/FM only)
+    updateSyncButtonVisibility();
 
     // Bind sidebar
     bindExecutiveSidebar();
@@ -1558,6 +1697,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Listen for user changes
     window.addEventListener('stabilis-user-changed', updateWorkbookButtonVisibility);
+    window.addEventListener('stabilis-user-changed', updateSyncButtonVisibility);
 
     console.log('Executive Dashboard initialized');
 });

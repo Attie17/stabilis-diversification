@@ -87,66 +87,29 @@
 <body>
     <div class="report-container">
         <div class="report-header">
-            <h1> Cost Analysis Report</h1>
+            <h1>💰 Cost Analysis Report</h1>
             <p>Investment breakdown and ROI projections</p>
             <button class="back-btn" onclick="window.history.back()">← Back</button>
         </div>
 
-        <div class="cost-grid">
-            <div class="cost-card">
-                <h3> Turnaround Project</h3>
-                <div class="cost-amount">R150K</div>
-                <ul class="cost-breakdown">
-                    <li><span>Process Optimization</span><span>R60K</span></li>
-                    <li><span>Staff Training</span><span>R40K</span></li>
-                    <li><span>Systems Upgrade</span><span>R30K</span></li>
-                    <li><span>Consulting</span><span>R20K</span></li>
-                </ul>
-                <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;"><strong>ROI:</strong> R735K annual
-                    savings (490% ROI)</p>
-            </div>
-
-            <div class="cost-card">
-                <h3> Diversification</h3>
-                <div class="cost-amount">R500K</div>
-                <ul class="cost-breakdown">
-                    <li><span>Marketing</span><span>R150K</span></li>
-                    <li><span>Training Programs</span><span>R120K</span></li>
-                    <li><span>Equipment</span><span>R100K</span></li>
-                    <li><span>Compliance</span><span>R80K</span></li>
-                    <li><span>Operations</span><span>R50K</span></li>
-                </ul>
-                <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;"><strong>ROI:</strong> R3.7M revenue
-                    (740% ROI)</p>
-            </div>
-
-            <div class="cost-card">
-                <h3> Wellness Centre</h3>
-                <div class="cost-amount">R2.8M</div>
-                <ul class="cost-breakdown">
-                    <li><span>Facility Setup</span><span>R1,200K</span></li>
-                    <li><span>Equipment</span><span>R600K</span></li>
-                    <li><span>Staffing</span><span>R500K</span></li>
-                    <li><span>Marketing</span><span>R250K</span></li>
-                    <li><span>Technology</span><span>R150K</span></li>
-                    <li><span>Legal/Compliance</span><span>R100K</span></li>
-                </ul>
-                <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;"><strong>ROI:</strong> R7.3M revenue
-                    (261% ROI)</p>
+        <div class="cost-grid" id="cost-cards-container">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;">
+                <p>Loading cost analysis from database...</p>
             </div>
         </div>
 
         <div class="report-section">
             <h2>Overall Investment Summary</h2>
-            <p><strong>Total Investment:</strong> R3.45M</p>
-            <p><strong>Projected Revenue:</strong> R11.0M (18 months)</p>
-            <p><strong>Overall ROI:</strong> 319% (excluding cost savings)</p>
-            <p style="margin-top: 1rem; color: #6b7280;">All projects show strong return on investment with diversified
+            <p><strong>Total Investment:</strong> <span id="total-investment">Loading...</span></p>
+            <p><strong>Projected Revenue:</strong> <span id="projected-revenue">Loading...</span></p>
+            <p><strong>Net Position:</strong> <span id="net-position">Loading...</span></p>
+            <p><strong>Overall ROI:</strong> <span id="overall-roi">Loading...</span></p>
+            <p style="margin-top: 1rem; color: #6b7280;">All projects show return on investment with diversified
                 revenue streams reducing organizational risk.</p>
         </div>
 
         <div style="text-align: center; margin-top: 3rem;">
-            <button class="back-btn" onclick="window.history.back()"> Return to Dashboard</button>
+            <button class="back-btn" onclick="window.history.back()">← Return to Dashboard</button>
         </div>
     </div>
     
@@ -156,11 +119,80 @@
     <script src="../js/auth.js"></script>
     <script src="../js/report-access.js"></script>
     <script>
+        async function loadCostAnalysis() {
+            try {
+                const response = await fetch('/api/budget?period=combined');
+                if (!response.ok) throw new Error('Failed to fetch budget data');
+                
+                const result = await response.json();
+                const { data } = result;
+                
+                // Build cost cards from expenditure categories
+                const container = document.getElementById('cost-cards-container');
+                let cardsHTML = '';
+                
+                data.expenditureByCategory.forEach(category => {
+                    const icon = category.category === 'Turnaround' ? '🚨' :
+                                category.category === 'Diversification' ? '📈' :
+                                category.category === 'Wellness Centre' ? '💚' :
+                                category.category === 'Existing Operations' ? '🏢' : '💼';
+                    
+                    const amount = category.totalAmount;
+                    const amountDisplay = amount >= 1000000 ? 
+                        `R${(amount / 1000000).toFixed(1)}M` : 
+                        `R${(amount / 1000).toFixed(0)}K`;
+                    
+                    let breakdownHTML = '';
+                    category.breakdown.forEach(item => {
+                        const itemAmt = item.amount >= 1000000 ? 
+                            `R${(item.amount / 1000000).toFixed(2)}M` : 
+                            `R${(item.amount / 1000).toFixed(0)}K`;
+                        const period = item.period === 'Q1-2026' ? 'Q1 2026' : 'FY 2026-27';
+                        breakdownHTML += `<li><span>${item.originalCategory} (${period})</span><span>${itemAmt}</span></li>`;
+                    });
+                    
+                    cardsHTML += `
+                        <div class="cost-card">
+                            <h3>${icon} ${category.category}</h3>
+                            <div class="cost-amount">${amountDisplay}</div>
+                            <ul class="cost-breakdown">${breakdownHTML}</ul>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = cardsHTML;
+                
+                // Update summary
+                const totalInvestment = data.summary.totalInvestment;
+                const totalRevenue = data.summary.totalRevenue;
+                const netPosition = data.summary.netRevenue || totalRevenue - totalInvestment;
+                const roiPercent = ((totalRevenue / totalInvestment - 1) * 100).toFixed(0);
+                
+                document.getElementById('total-investment').textContent = `R${(totalInvestment / 1000000).toFixed(2)}M`;
+                document.getElementById('projected-revenue').textContent = `R${(totalRevenue / 1000000).toFixed(2)}M (16 months)`;
+                document.getElementById('net-position').textContent = `R${(netPosition / 1000000).toFixed(2)}M`;
+                document.getElementById('overall-roi').textContent = `${roiPercent}% over 16 months`;
+                
+                console.log('✅ Cost analysis loaded from database');
+            } catch (error) {
+                console.error('❌ Failed to load cost analysis:', error);
+                document.getElementById('cost-cards-container').innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #dc2626;">
+                        <p><strong>⚠️ Error loading cost data</strong></p>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', function () {
             // Initialize auth first
             if (typeof initAuth === 'function') {
                 initAuth();
             }
+            
+            // Load cost analysis data
+            loadCostAnalysis();
             
             // Then initialize report page
             if (typeof initReportPage === 'function') {

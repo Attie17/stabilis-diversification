@@ -20,17 +20,102 @@ module.exports = async (req, res) => {
     try {
         const { period } = req.query;
         
-        if (!period) {
-            return res.status(400).json({ error: 'Budget period required (e.g., ?period=Q1-2026)' });
-        }
-        
         // Initialize Supabase
         const supabase = createClient(
             process.env.SUPABASE_URL,
             process.env.SUPABASE_SERVICE_KEY
         );
         
-        // Fetch all budget data for the period
+        // Handle combined period mode (both Q1-2026 and FY-2026-27)
+        if (period === 'combined') {
+            const [monthlyResult, expenditureResult, revenueResult] = await Promise.all([
+                supabase.from('budget_monthly').select('*').order('month_order'),
+                supabase.from('budget_expenditure').select('*'),
+                supabase.from('budget_revenue').select('*')
+            ]);
+            
+            if (monthlyResult.error) throw monthlyResult.error;
+            if (expenditureResult.error) throw expenditureResult.error;
+            if (revenueResult.error) throw revenueResult.error;
+            
+            // Combine expenditure by category across both periods
+            const expenditureByCategory = {};
+            expenditureResult.data.forEach(item => {
+                // Map category names to consistent keys
+                let category = item.category;
+                if (category === 'Existing Operations') {
+                    category = 'Existing Operations';
+                } else if (category.includes('Wellness')) {
+                    category = 'Wellness Centre';
+                } else if (category === 'Diversification') {
+                    category = 'Diversification';
+                } else if (category.includes('Turnaround')) {
+                    category = 'Turnaround';
+                } else if (category.includes('Corporate') || category === 'Contingency') {
+                    category = 'Corporate & Overhead';
+                }
+                
+                if (!expenditureByCategory[category]) {
+                    expenditureByCategory[category] = {
+                        category,
+                        totalAmount: 0,
+                        breakdown: []
+                    };
+                }
+                
+                expenditureByCategory[category].totalAmount += item.amount;
+                expenditureByCategory[category].breakdown.push({
+                    period: item.budget_period,
+                    amount: item.amount,
+                    percentage: item.percentage,
+                    originalCategory: item.category
+                });
+            });
+            
+            // Calculate totals
+            const totalInvestment = Object.values(expenditureByCategory).reduce(
+                (sum, cat) => sum + cat.totalAmount, 0
+            );
+            const totalRevenue = monthlyResult.data.reduce(
+                (sum, month) => sum + month.revenue, 0
+            );
+            const netPosition = totalRevenue - totalInvestment;
+            
+            return res.status(200).json({
+                success: true,
+                period: 'combined',
+                data: {
+                    summary: {
+                        totalInvestment,
+                        totalRevenue,
+                        netPosition,
+                        roi: ((totalRevenue / totalInvestment - 1) * 100).toFixed(1) + '%'
+                    },
+                    monthly: monthlyResult.data,
+                    expenditureByCategory: Object.values(expenditureByCategory).sort(
+                        (a, b) => b.totalAmount - a.totalAmount
+                    ),
+                    expenditureRaw: expenditureResult.data,
+                    revenue: revenueResult.data
+                },
+                meta: {
+                    monthCount: monthlyResult.data.length,
+                    expenditureCategories: Object.keys(expenditureByCategory).length,
+                    revenueProjects: revenueResult.data.length,
+                    periods: ['Q1-2026', 'FY-2026-27']
+                }
+            });
+        }
+        
+        // Handle single period mode
+        if (!period) {
+            return res.status(400).json({ 
+                error: 'Budget period required', 
+                hint: 'Use ?period=Q1-2026, ?period=FY-2026-27, or ?period=combined'
+            });
+        }
+        
+        // Fetch all budget data for the specific period
         const [summaryResult, monthlyResult, expenditureResult, revenueResult] = await Promise.all([
             supabase.from('budget_summary').select('*').eq('budget_period', period).single(),
             supabase.from('budget_monthly').select('*').eq('budget_period', period).order('month_order'),

@@ -273,6 +273,9 @@ function init() {
     // Initialize authentication first
     initAuth();
 
+    // Load persisted milestone status from backend (with local fallback)
+    loadMilestoneStatusFromServer();
+
     updateCountdown();
     updateDashboard();
     renderPhases();
@@ -282,6 +285,66 @@ function init() {
 
     // Update countdown every minute
     setInterval(updateCountdown, 60000);
+}
+
+async function loadMilestoneStatusFromServer() {
+    try {
+        const response = await fetch('/api/milestones/statuses?project=DIV');
+        if (!response.ok) {
+            console.warn('Milestone status API unavailable, keeping localStorage state');
+            loadFromLocalStorage();
+            schedulePhaseRender();
+            updateDashboard();
+            return;
+        }
+
+        const result = await response.json();
+        if (!result.success || !result.statuses) {
+            console.warn('Milestone status response missing data, falling back to localStorage');
+            loadFromLocalStorage();
+            schedulePhaseRender();
+            updateDashboard();
+            return;
+        }
+
+        const statuses = result.statuses;
+
+        // Load localStorage as fallback for milestones not in DB
+        const localData = JSON.parse(localStorage.getItem('stabilis-project-data') || '{}');
+
+        projectData.phases.forEach(phase => {
+            phase.milestones.forEach(m => {
+                const serverStatus = statuses['DIV-' + m.id];
+                if (serverStatus && serverStatus.status) {
+                    // DB wins if present
+                    m.status = serverStatus.status;
+                } else {
+                    // Try individual key first (most reliable)
+                    const individualStatus = localStorage.getItem(`div-status-${m.id}`);
+                    if (individualStatus) {
+                        m.status = individualStatus;
+                    } else {
+                        // Fallback to blob for backward compatibility
+                        const localPhase = localData.phases?.find(p => p.id === phase.id);
+                        const localMilestone = localPhase?.milestones?.find(lm => lm.id === m.id);
+                        if (localMilestone && localMilestone.status) {
+                            m.status = localMilestone.status;
+                        }
+                    }
+                    // else: keep the data.js default
+                }
+            });
+        });
+
+        saveToLocalStorage();
+        schedulePhaseRender();
+        updateDashboard();
+    } catch (error) {
+        console.warn('Milestone status fetch failed, using localStorage instead:', error);
+        loadFromLocalStorage();
+        schedulePhaseRender();
+        updateDashboard();
+    }
 }
 
 function updateCountdown() {
@@ -868,6 +931,9 @@ async function toggleMilestoneStatus(milestoneId, refreshUI = false) {
 
     // Save to localStorage immediately (optimistic update)
     saveToLocalStorage();
+    
+    // ALSO save individual status key (like Wellness pattern) for robust Executive Dashboard handling
+    localStorage.setItem(`div-status-${milestoneId}`, updatedMilestone.status);
 
     if (refreshUI) {
         updateDashboard();
@@ -880,10 +946,10 @@ async function toggleMilestoneStatus(milestoneId, refreshUI = false) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                milestone_id: milestoneId,
+                milestone_id: 'DIV-' + milestoneId,
                 field: 'status',
                 old_value: oldStatus,
-                new_value: updatedMilestone.status === 'complete' ? 'completed' : updatedMilestone.status,
+                new_value: updatedMilestone.status,
                 changed_by: currentUser?.name || 'Unknown'
             })
         });
@@ -1672,7 +1738,8 @@ function canEditMilestones() {
 loadFromLocalStorage();
 
 window.addEventListener('storage', (event) => {
-    if (event.key === 'stabilis-project-data') {
+    // Only sync if the active dashboard key changed (not Executive snapshot keys)
+    if (event.key === 'stabilis-project-data' && !event.newValue?.includes('exec-')) {
         loadFromLocalStorage();
         updateDashboard();
         schedulePhaseRender();
@@ -1696,37 +1763,6 @@ if (savedTheme === 'dark') {
 
 document.addEventListener('DOMContentLoaded', () => {
     init();
-
-    // Milestone checkbox handler - restore persistence functionality
-    document.addEventListener('change', async (e) => {
-        if (e.target.classList.contains('milestone-checkbox')) {
-            const milestoneId = e.target.dataset.id;
-            const isChecked = e.target.checked;
-            
-            // Find and update milestone
-            let found = null;
-            projectData.phases.forEach(phase => {
-                const milestone = phase.milestones.find(m => m.id === milestoneId);
-                if (milestone) {
-                    found = milestone;
-                    const oldStatus = milestone.status;
-                    milestone.status = isChecked ? 'complete' : 'in-progress';
-                    
-                    // Save to localStorage immediately
-                    saveToLocalStorage();
-                    
-                    // Save to database for cross-browser sync
-                    const currentUser = JSON.parse(localStorage.getItem('stabilis-user') || '{}');
-                    saveMilestoneUpdate(milestoneId, 'status', oldStatus, milestone.status, currentUser.name || 'Unknown');
-                }
-            });
-            
-            // Re-render to update UI
-            if (found) {
-                renderView(currentView);
-            }
-        }
-    });
 
     // Sidebar event listeners
     document.getElementById('menu-btn')?.addEventListener('click', toggleSidebar);

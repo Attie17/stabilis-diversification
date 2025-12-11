@@ -835,100 +835,10 @@
         <!-- Investment Breakdown Section -->
         <div class="report-section">
             <h2>💵 Investment Breakdown & Allocation</h2>
-            <div class="investment-details">
-                <div class="investment-card">
-                    <h3>🚨 Project 1: Turnaround (Minimal Investment)</h3>
-                    <div class="investment-amount">~R100,000 - R200,000</div>
-                    <div class="investment-items">
-                        <div class="item">
-                            <span class="item-name">🔍 Financial Audit & Compliance</span>
-                            <span class="item-cost">R50,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">📊 Accounting System Upgrade</span>
-                            <span class="item-cost">R30,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">📚 Training (Cash Flow Management)</span>
-                            <span class="item-cost">R20,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">💼 Consultant Fees (Part-time CFO)</span>
-                            <span class="item-cost">R50,000</span>
-                        </div>
-                    </div>
-                    <p class="investment-note">⚡ <strong>Quick Win:</strong> Mostly cost restructuring - no major
-                        capital required. Focus on process optimization and compliance catch-up.</p>
-                </div>
-
-                <div class="investment-card">
-                    <h3>📈 Project 2: Diversification (~R500,000)</h3>
-                    <div class="investment-amount">R500,000</div>
-                    <div class="investment-items">
-                        <div class="item">
-                            <span class="item-name">👨‍⚕️ Staff Training & Certification</span>
-                            <span class="item-cost">R150,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">🛏️ Facility Upgrades (Adolescent Wing)</span>
-                            <span class="item-cost">R120,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">📱 Marketing & Brand Positioning</span>
-                            <span class="item-cost">R80,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">🖥️ Technology (EMR, CRM systems)</span>
-                            <span class="item-cost">R70,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">📋 Program Development Materials</span>
-                            <span class="item-cost">R50,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">🔬 Clinical Equipment & Supplies</span>
-                            <span class="item-cost">R30,000</span>
-                        </div>
-                    </div>
-                    <p class="investment-note">💡 <strong>Leverages existing:</strong> Uses current facility and staff
-                        as foundation. Investment focuses on upskilling and targeted enhancements.</p>
-                </div>
-
-                <div class="investment-card highlight">
-                    <h3>💚 Project 3: Wellness Centre (R2,800,000)</h3>
-                    <div class="investment-amount">R2,800,000</div>
-                    <div class="investment-items">
-                        <div class="item">
-                            <span class="item-name">🏢 Facility Lease & Renovations (12 months)</span>
-                            <span class="item-cost">R720,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">👥 Practitioner Salaries (6 staff × 6 months)</span>
-                            <span class="item-cost">R900,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">🛋️ Furniture, Equipment & Setup</span>
-                            <span class="item-cost">R400,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">💻 Technology (Booking, EMR, Website)</span>
-                            <span class="item-cost">R250,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">📢 Marketing & Launch Campaign</span>
-                            <span class="item-cost">R300,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">📜 Licenses, Insurance & Legal</span>
-                            <span class="item-cost">R100,000</span>
-                        </div>
-                        <div class="item">
-                            <span class="item-name">💼 Working Capital Reserve (3 months)</span>
-                            <span class="item-cost">R130,000</span>
-                        </div>
-                    </div>
-                    <p class="investment-note">🎯 <strong>New Revenue Stream:</strong> Largest investment but creates
-                        entirely new business line with R589K/month sustained revenue by 2027.</p>
+            <div class="investment-details" id="investment-details-container">
+                <div style="text-align: center; padding: 2rem; color: #666;">
+                    <div class="spinner" style="margin: 0 auto 1rem;"></div>
+                    <p>Loading investment data from database...</p>
                 </div>
             </div>
 
@@ -937,19 +847,19 @@
                 <div class="summary-grid">
                     <div class="summary-item">
                         <div class="summary-label">Total Investment Required</div>
-                        <div class="summary-value">R3,300,000</div>
+                        <div class="summary-value" id="total-investment">Loading...</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-label">Revenue Generated (18 months)</div>
-                        <div class="summary-value">R10,974,325</div>
+                        <div class="summary-value" id="total-revenue-generated">Loading...</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-label">Net Gain</div>
-                        <div class="summary-value">R7,674,325</div>
+                        <div class="summary-value" id="net-gain">Loading...</div>
                     </div>
                     <div class="summary-item success">
                         <div class="summary-label">Return on Investment</div>
-                        <div class="summary-value">233%</div>
+                        <div class="summary-value" id="roi-percentage">Loading...</div>
                     </div>
                 </div>
 
@@ -1020,6 +930,125 @@
         };
 
         // Calculate investment totals dynamically
+        async function loadAndPopulateInvestmentData() {
+            try {
+                // Fetch combined budget data from API
+                const response = await fetch('/api/budget?period=combined');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                const budgetData = result.data;
+                
+                // Build investment cards HTML from expenditure categories
+                const categoryIcons = {
+                    'Existing Operations': '🏢',
+                    'Wellness Centre': '💚',
+                    'Diversification': '📈',
+                    'Corporate & Overhead': '💼',
+                    'Turnaround': '🚨'
+                };
+                
+                const categoryNotes = {
+                    'Turnaround': '⚡ <strong>Quick Win:</strong> Focused on financial compliance, cost optimization, and operational recovery.',
+                    'Diversification': '💡 <strong>Leverages existing:</strong> Uses current facility and staff as foundation. Investment focuses on upskilling and targeted enhancements.',
+                    'Wellness Centre': '🎯 <strong>New Revenue Stream:</strong> Largest investment but creates entirely new business line with sustained revenue growth.',
+                    'Existing Operations': '🏢 <strong>Core Business:</strong> Maintains and improves current operations during transformation.',
+                    'Corporate & Overhead': '💼 <strong>Infrastructure:</strong> Contingency reserves and corporate overhead to support all initiatives.'
+                };
+                
+                let investmentCardsHTML = '';
+                let grandTotal = 0;
+                
+                budgetData.expenditureByCategory.forEach((category, index) => {
+                    const icon = categoryIcons[category.category] || '📊';
+                    const amount = category.totalAmount;
+                    grandTotal += amount;
+                    
+                    const amountDisplay = amount >= 1000000 
+                        ? `R${(amount / 1000000).toFixed(2)}M` 
+                        : `R${(amount / 1000).toFixed(0)}K`;
+                    
+                    const highlightClass = category.category === 'Wellness Centre' ? 'highlight' : '';
+                    
+                    // Build breakdown items
+                    let breakdownHTML = '';
+                    category.breakdown.forEach(item => {
+                        const itemAmount = item.amount >= 1000000 
+                            ? `R${(item.amount / 1000000).toFixed(2)}M` 
+                            : `R${(item.amount / 1000).toFixed(0)}K`;
+                        const periodLabel = item.period === 'Q1-2026' ? 'Q1 2026' : 'FY 2026-27';
+                        breakdownHTML += `
+                            <div class="item">
+                                <span class="item-name">${item.originalCategory} (${periodLabel})</span>
+                                <span class="item-cost">${itemAmount}</span>
+                            </div>
+                        `;
+                    });
+                    
+                    investmentCardsHTML += `
+                        <div class="investment-card ${highlightClass}">
+                            <h3>${icon} ${category.category}</h3>
+                            <div class="investment-amount">${amountDisplay}</div>
+                            <div class="investment-items">
+                                ${breakdownHTML}
+                            </div>
+                            <p class="investment-note">${categoryNotes[category.category] || ''}</p>
+                        </div>
+                    `;
+                });
+                
+                // Populate investment cards
+                const container = document.getElementById('investment-details-container');
+                if (container) {
+                    container.innerHTML = investmentCardsHTML;
+                }
+                
+                // Calculate revenue from budget data
+                const totalRevenue = budgetData.summary.totalRevenue;
+                const netPosition = totalRevenue - grandTotal;
+                const roiPercent = ((totalRevenue / grandTotal - 1) * 100).toFixed(0);
+                
+                // Update summary values
+                document.getElementById('total-investment').textContent = `R${(grandTotal / 1000000).toFixed(2)}M`;
+                document.getElementById('total-revenue-generated').textContent = `R${(totalRevenue / 1000000).toFixed(2)}M`;
+                document.getElementById('net-gain').textContent = `R${(netPosition / 1000000).toFixed(2)}M`;
+                document.getElementById('roi-percentage').textContent = `${roiPercent}%`;
+                
+                // Store for later use in other calculations
+                window.budgetData = budgetData;
+                window.totalInvestment = grandTotal;
+                
+                // Now populate revenue data (depends on budget data being loaded)
+                populateRevenueData();
+                
+                console.log('✅ Investment data loaded from Supabase:', {
+                    totalInvestment: grandTotal,
+                    totalRevenue,
+                    netPosition,
+                    roiPercent: `${roiPercent}%`,
+                    categories: budgetData.expenditureByCategory.length
+                });
+                
+            } catch (error) {
+                console.error('❌ Failed to load investment data:', error);
+                const container = document.getElementById('investment-details-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #dc2626;">
+                            <p><strong>⚠️ Error Loading Investment Data</strong></p>
+                            <p>${error.message}</p>
+                            <p style="font-size: 0.875rem; color: #666; margin-top: 1rem;">
+                                Please ensure the database sync is complete: <code>npm run sync-budget</code>
+                            </p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Calculate investment totals dynamically (DEPRECATED - now uses API data)
         function calculateInvestmentTotals() {
             const projects = [
                 { selector: '.investment-card:nth-child(1)', name: 'Turnaround' },
@@ -1093,8 +1122,9 @@
                 summaryValue.textContent = `R${grandTotal.toLocaleString()}`;
             }
 
-            // Calculate ROI with new total
-            const revenueGenerated = 10974325; // 18-month revenue
+            // Calculate ROI with actual revenue from budget data
+            const revenueData = calculateRevenueProjection();
+            const revenueGenerated = revenueData.total18mo; // Actual 18-month revenue from budget
             const netGain = revenueGenerated - grandTotal;
             const roiPercentage = ((netGain / grandTotal) * 100).toFixed(0);
 
@@ -1119,7 +1149,7 @@
             }
 
             // Calculate and update payback period
-            const monthlyRevenue = revenueGenerated / 18; // Average monthly revenue
+            const monthlyRevenue = revenueData.avgMonthly; // Use calculated average monthly revenue
             const paybackMonths = Math.ceil(grandTotal / monthlyRevenue);
             const paybackValue = document.querySelector('.roi-card:nth-child(3) .roi-value');
             if (paybackValue) {
@@ -1127,11 +1157,163 @@
             }
         }
 
-        // Run calculation on page load
-        setTimeout(calculateInvestmentTotals, 100);
+        // Run calculation on page load - now uses API data
+        loadAndPopulateInvestmentData();
     </script>
-    <script src="../js/report-access.js"></script>
-    <script src="../js/ai-chat-component.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/turnaround-data.js"></script>
+    <script src="../js/wellness-data.js"></script>
+    <script>
+        // Calculate actual revenue from budget data (now uses API)
+        function calculateRevenueProjection() {
+            // Check if budgetData is loaded from API
+            if (window.budgetData && window.budgetData.monthly) {
+                const monthlyData = window.budgetData.monthly;
+                
+                // Build months array from actual database data (16 months)
+                const months = monthlyData.map(m => ({
+                    name: m.month,
+                    div: 0, // Will calculate from revenue breakdown
+                    well: 0,
+                    total: m.revenue
+                }));
+                
+                // Get revenue breakdown by project from budget_revenue table
+                const revenueProjects = window.budgetData.revenue;
+                const divProject = revenueProjects.find(p => p.project === 'Diversification');
+                const wellProject = revenueProjects.find(p => p.project.includes('Wellness'));
+                
+                // Calculate per-month breakdown (simplified - using averages)
+                // In reality, would need monthly breakdown by project from Excel
+                months.forEach(m => {
+                    // For now, use proportional split based on project totals
+                    // Q1 2026: Div R183.6K, Well R262.4K (41.2% / 58.8%)
+                    // FY 2026-27: Div R2.56M, Well R5.43M (32% / 68%)
+                    
+                    if (m.name.includes('2025') || m.name.includes('Jan 2026') || m.name.includes('Feb 2026') || m.name.includes('Mar 2026')) {
+                        // Q1 2026 split
+                        m.div = Math.round(m.total * 0.412);
+                        m.well = Math.round(m.total * 0.588);
+                    } else {
+                        // FY 2026-27 split
+                        m.div = Math.round(m.total * 0.32);
+                        m.well = Math.round(m.total * 0.68);
+                    }
+                });
+                
+                // Add projected months (Apr-Jun 2027) if not in database
+                if (months.length < 18) {
+                    const lastMonth = months[months.length - 1];
+                    const projectedMonths = [
+                        { name: 'Apr 2027', div: lastMonth.div, well: lastMonth.well },
+                        { name: 'May 2027', div: lastMonth.div, well: lastMonth.well },
+                        { name: 'Jun 2027', div: lastMonth.div, well: lastMonth.well }
+                    ];
+                    projectedMonths.forEach(m => {
+                        m.total = m.div + m.well;
+                        months.push(m);
+                    });
+                }
+                
+                // Calculate totals
+                let totalDiv = 0, totalWell = 0;
+                months.forEach(m => {
+                    totalDiv += m.div;
+                    totalWell += m.well;
+                });
+                
+                const total18mo = totalDiv + totalWell;
+                const avgMonthly = Math.round(total18mo / 18);
+                const peakMonth = Math.max(...months.map(m => m.total));
+                const totalInvestment = window.totalInvestment || 10337000;
+                
+                return { total18mo, avgMonthly, peakMonth, totalDiv, totalWell, totalInvestment, months };
+            }
+            
+            // Fallback to hardcoded data if API not loaded yet
+            const months = [
+                { name: 'Jan 2026', div: 61200, well: 35200 },
+                { name: 'Feb 2026', div: 61200, well: 86000 },
+                { name: 'Mar 2026', div: 61200, well: 141200 },
+                { name: 'Apr 2026', div: 61200, well: 202200 },
+                { name: 'May 2026', div: 140775, well: 266600 },
+                { name: 'Jun 2026', div: 140775, well: 312800 },
+                { name: 'Jul 2026', div: 140775, well: 378000 },
+                { name: 'Aug 2026', div: 140775, well: 423200 },
+                { name: 'Sep 2026', div: 140775, well: 475400 },
+                { name: 'Oct 2026', div: 140775, well: 509600 },
+                { name: 'Nov 2026', div: 140775, well: 541400 },
+                { name: 'Dec 2026', div: 500200, well: 574000 },
+                { name: 'Jan 2027', div: 500200, well: 580200 },
+                { name: 'Feb 2027', div: 256300, well: 583200 },
+                { name: 'Mar 2027', div: 256300, well: 586200 },
+                { name: 'Apr 2027', div: 256300, well: 589200 },
+                { name: 'May 2027', div: 256300, well: 589200 },
+                { name: 'Jun 2027', div: 256300, well: 589200 }
+            ];
+            
+            let totalDiv = 0, totalWell = 0;
+            months.forEach(m => {
+                totalDiv += m.div;
+                totalWell += m.well;
+            });
+            
+            const total18mo = totalDiv + totalWell;
+            const avgMonthly = Math.round(total18mo / 18);
+            const peakMonth = 1074200; // Dec 2026
+            const q1Budget = 2340000;
+            const fyBudget = 7350000;
+            const totalInvestment = q1Budget + fyBudget;
+            
+            return { total18mo, avgMonthly, peakMonth, totalDiv, totalWell, totalInvestment, months };
+        }
+        
+        function formatCurrency(amount) {
+            if (amount >= 1000000) return `R${(amount / 1000000).toFixed(2)}M`;
+            if (amount >= 1000) return `R${Math.round(amount / 1000)}K`;
+            return `R${amount.toLocaleString()}`;
+        }
+        
+        function populateRevenueData() {
+            const data = calculateRevenueProjection();
+            
+            // Update summary cards
+            const statCards = document.querySelectorAll('.stat-card .stat-value');
+            if (statCards.length >= 4) {
+                statCards[0].textContent = formatCurrency(data.total18mo);
+                statCards[1].textContent = formatCurrency(data.avgMonthly);
+                statCards[2].textContent = formatCurrency(data.peakMonth);
+            }
+            
+            // Update table
+            const tbody = document.querySelector('.data-table tbody');
+            if (tbody) {
+                const rows = tbody.querySelectorAll('tr');
+                data.months.forEach((month, i) => {
+                    if (rows[i]) {
+                        const cells = rows[i].querySelectorAll('td');
+                        if (cells.length >= 4) {
+                            cells[0].textContent = month.name;
+                            cells[1].textContent = formatCurrency(month.div);
+                            cells[2].textContent = formatCurrency(month.well);
+                            cells[3].textContent = formatCurrency(month.div + month.well);
+                        }
+                    }
+                });
+                
+                // Update footer
+                const tfoot = document.querySelector('.data-table tfoot td');
+                if (tfoot) {
+                    const tfootCells = document.querySelectorAll('.data-table tfoot td');
+                    if (tfootCells.length >= 4) {
+                        tfootCells[1].innerHTML = `<strong>${formatCurrency(data.totalDiv)}</strong>`;
+                        tfootCells[2].innerHTML = `<strong>${formatCurrency(data.totalWell)}</strong>`;
+                        tfootCells[3].innerHTML = `<strong>${formatCurrency(data.total18mo)}</strong>`;
+                    }
+                }
+            }
+        }
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof initReportPage === 'function') {
@@ -1214,8 +1396,6 @@
     <!-- AI Chat Widget Container -->
     <div id="ai-chat-container"></div>
     
-    <script src="../js/auth.js"></script>
-    <script src="../js/report-access.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Initialize auth first
@@ -1230,15 +1410,13 @@
                     reportTitle: 'Revenue Projection Report'
                 });
             }
-        });
-    </script>
-    <script src="../js/ai-chat-component.js"></script>
-    <script>
-        // Initialize AI Chat Widget
-        document.addEventListener('DOMContentLoaded', () => {
-            new AIChatComponent('ai-chat-container', {
-                project: 'Revenue Projection Report'
-            });
+            
+            // Initialize AI Chat Widget
+            if (typeof AIChatComponent === 'function') {
+                new AIChatComponent('ai-chat-container', {
+                    project: 'Revenue Projection Report'
+                });
+            }
         });
     </script>
 </body>
