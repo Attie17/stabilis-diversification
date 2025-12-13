@@ -99,6 +99,30 @@
       "destination": "/api/milestones/sync"
     },
     {
+      "source": "/js/:path*",
+      "destination": "/web/js/:path*"
+    },
+    {
+      "source": "/css/:path*",
+      "destination": "/web/css/:path*"
+    },
+    {
+      "source": "/icons/:path*",
+      "destination": "/web/icons/:path*"
+    },
+    {
+      "source": "/reports/:path*",
+      "destination": "/web/reports/:path*"
+    },
+    {
+      "source": "/manifest.json",
+      "destination": "/web/manifest.json"
+    },
+    {
+      "source": "/service-worker.js",
+      "destination": "/web/service-worker.js"
+    },
+    {
       "source": "/",
       "destination": "/web/landing.html"
     },
