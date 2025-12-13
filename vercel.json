@@ -12,7 +12,7 @@
       ]
     },
     {
-      "source": "/js/(.*).js",
+      "source": "/web/js/(.*).js",
       "headers": [
         {
           "key": "Cache-Control",
@@ -21,7 +21,7 @@
       ]
     },
     {
-      "source": "/css/(.*).css",
+      "source": "/web/css/(.*).css",
       "headers": [
         {
           "key": "Cache-Control",
@@ -30,7 +30,7 @@
       ]
     },
     {
-      "source": "/manifest.json",
+      "source": "/web/manifest.json",
       "headers": [
         {
           "key": "Content-Type",
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "source": "/service-worker.js",
+      "source": "/web/service-worker.js",
       "headers": [
         {
           "key": "Content-Type",
@@ -60,7 +60,7 @@
       ]
     },
     {
-      "source": "/icons/(.*)",
+      "source": "/web/icons/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -100,23 +100,23 @@
     },
     {
       "source": "/",
-      "destination": "/landing.html"
+      "destination": "/web/landing.html"
     },
     {
       "source": "/executive",
-      "destination": "/executive-dashboard.html"
+      "destination": "/web/executive-dashboard.html"
     },
     {
       "source": "/diversification",
-      "destination": "/index.html"
+      "destination": "/web/index.html"
     },
     {
       "source": "/turnaround",
-      "destination": "/turnaround.html"
+      "destination": "/web/turnaround.html"
     },
     {
       "source": "/wellness",
-      "destination": "/wellness.html"
+      "destination": "/web/wellness.html"
     }
   ],
   "functions": {
