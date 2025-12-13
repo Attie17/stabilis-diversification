@@ -14,11 +14,10 @@ package-lock.json
 
 # PowerShell scripts (Windows-specific)
 *.ps1
-scripts/
+# scripts/ - REMOVED: needed for sync functionality
 
 # Project documentation (optional - remove lines below to include docs)
 phases/
-reports/
 tracking/
 docs/
 *.md

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stabilis-shell-v1.1.4';
+const CACHE_NAME = 'stabilis-shell-v2.0.0';
 const SHELL_ASSETS = [
     '/',
     '/landing.html',
