@@ -99,20 +99,20 @@
       "destination": "/api/milestones/sync"
     },
     {
-      "source": "/js/:path*",
-      "destination": "/web/js/:path*"
+      "source": "/js/(.*)",
+      "destination": "/web/js/$1"
     },
     {
-      "source": "/css/:path*",
-      "destination": "/web/css/:path*"
+      "source": "/css/(.*)",
+      "destination": "/web/css/$1"
     },
     {
-      "source": "/icons/:path*",
-      "destination": "/web/icons/:path*"
+      "source": "/icons/(.*)",
+      "destination": "/web/icons/$1"
     },
     {
-      "source": "/reports/:path*",
-      "destination": "/web/reports/:path*"
+      "source": "/reports/(.*)",
+      "destination": "/web/reports/$1"
     },
     {
       "source": "/manifest.json",
